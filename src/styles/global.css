@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    /* Prevent text selection during gameplay */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Suppress iOS tap highlight */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #root {
+    height: 100%;
+  }
+}

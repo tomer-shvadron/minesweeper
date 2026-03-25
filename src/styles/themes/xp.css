@@ -1,0 +1,21 @@
+[data-theme='xp'] {
+  --color-bg: #c0c0c0;
+  --color-surface: #c0c0c0;
+  --color-border-light: #ffffff;
+  --color-border-dark: #808080;
+  --color-border-darker: #404040;
+  --color-header-bg: #000080;
+  --color-header-text: #ffffff;
+  --color-digit: #ff0000;
+  --color-digit-bg: #000000;
+
+  /* Cell number colors (classic XP) */
+  --color-n1: #0000ff;
+  --color-n2: #008000;
+  --color-n3: #ff0000;
+  --color-n4: #000080;
+  --color-n5: #800000;
+  --color-n6: #008080;
+  --color-n7: #000000;
+  --color-n8: #808080;
+}

@@ -1,0 +1,21 @@
+[data-theme='dark'] {
+  --color-bg: #1e1e2e;
+  --color-surface: #313244;
+  --color-border-light: #585b70;
+  --color-border-dark: #11111b;
+  --color-border-darker: #090914;
+  --color-header-bg: #181825;
+  --color-header-text: #cdd6f4;
+  --color-digit: #f38ba8;
+  --color-digit-bg: #11111b;
+
+  /* Cell number colors (dark theme) */
+  --color-n1: #89b4fa;
+  --color-n2: #a6e3a1;
+  --color-n3: #f38ba8;
+  --color-n4: #74c7ec;
+  --color-n5: #fab387;
+  --color-n6: #94e2d5;
+  --color-n7: #cdd6f4;
+  --color-n8: #6c7086;
+}

@@ -180,3 +180,315 @@
     font-size: 0.875rem;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Header section helpers (leaderboard + settings icon buttons)
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .header-section {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .header-section--right {
+    justify-content: flex-end;
+  }
+
+  .header-icon-btn {
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 2px 4px;
+    font-size: 1.125rem;
+    cursor: pointer;
+    line-height: 1;
+    border-radius: 2px;
+  }
+
+  .header-icon-btn:active {
+    opacity: 0.7;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Modal — backdrop + XP-style window
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .modal-window {
+    background-color: var(--color-surface);
+    box-shadow:
+      inset 2px 2px 0 var(--color-border-light),
+      inset -2px -2px 0 var(--color-border-darker),
+      4px 4px 8px rgba(0, 0, 0, 0.4);
+    min-width: 280px;
+    max-width: min(480px, 92vw);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* XP-style blue title bar */
+  .modal-title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--color-titlebar-bg);
+    color: var(--color-titlebar-text);
+    padding: 3px 4px 3px 6px;
+    font-size: 0.8125rem;
+    font-weight: bold;
+    user-select: none;
+  }
+
+  .modal-close-btn {
+    background-color: var(--color-surface);
+    color: #000;
+    border: none;
+    outline: none;
+    width: 16px;
+    height: 14px;
+    font-size: 0.625rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      inset 1px 1px 0 var(--color-border-light),
+      inset -1px -1px 0 var(--color-border-dark);
+  }
+
+  .modal-close-btn:active {
+    box-shadow:
+      inset -1px -1px 0 var(--color-border-light),
+      inset 1px 1px 0 var(--color-border-dark);
+  }
+
+  .modal-content {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    padding: 8px 12px 10px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * NewGameModal — preset options + custom inputs
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .preset-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 2px;
+  }
+
+  .preset-radio {
+    accent-color: var(--color-n4);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+  }
+
+  .preset-label {
+    font-size: 0.875rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .preset-detail {
+    font-size: 0.75rem;
+    color: var(--color-border-darker);
+    margin-left: auto;
+  }
+
+  .custom-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 22px;
+    padding-top: 4px;
+  }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+  }
+
+  .input-row label {
+    width: 50px;
+  }
+
+  .xp-input {
+    background-color: #fff;
+    border: none;
+    box-shadow:
+      inset 2px 2px 0 var(--color-border-dark),
+      inset -1px -1px 0 var(--color-border-light);
+    padding: 2px 4px;
+    font-size: 0.875rem;
+    width: 60px;
+    outline: none;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  .highscore-name-input {
+    width: 100%;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * SettingsModal — settings groups, toggles, sliders
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .settings-group-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-border-darker);
+    border-bottom: 1px solid var(--color-border-dark);
+    padding-bottom: 2px;
+    margin-bottom: 4px;
+  }
+
+  .theme-options {
+    display: flex;
+    gap: 8px;
+  }
+
+  .theme-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .theme-option input[type='radio'] {
+    accent-color: var(--color-n4);
+    cursor: pointer;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+  }
+
+  .slider-row label {
+    min-width: 60px;
+  }
+
+  .slider-row input[type='range'] {
+    flex: 1;
+    accent-color: var(--color-n4);
+  }
+
+  .slider-row span {
+    min-width: 36px;
+    text-align: right;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * LeaderboardModal — tabs + scores table
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .leaderboard-tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 2px solid var(--color-border-dark);
+    flex-wrap: wrap;
+  }
+
+  .leaderboard-tab {
+    padding: 4px 10px;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-dark);
+    border-bottom: none;
+    box-shadow:
+      inset 1px 1px 0 var(--color-border-light),
+      inset -1px 0 0 var(--color-border-dark);
+  }
+
+  .leaderboard-tab--active {
+    background-color: var(--color-border-light);
+    font-weight: bold;
+  }
+
+  .leaderboard-table {
+    width: 100%;
+    min-height: 160px;
+  }
+
+  .scores-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+  }
+
+  .scores-table th {
+    text-align: left;
+    padding: 3px 6px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--color-border-dark);
+  }
+
+  .scores-table td {
+    padding: 3px 6px;
+  }
+
+  .scores-table tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * HighScorePrompt extras
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .highscore-time {
+    font-size: 0.9375rem;
+  }
+
+  .highscore-prompt {
+    font-size: 0.875rem;
+  }
+}

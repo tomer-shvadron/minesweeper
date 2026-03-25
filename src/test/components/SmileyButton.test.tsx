@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { SmileyButton } from '@/components/header/SmileyButton'
 import type { GameStatus } from '@/types/game.types'
 
-const mockStartNewGame = vi.fn()
+const mockOpenNewGameModal = vi.fn()
 
 // Mutable state shared across all store calls in this file
 let mockStatus: GameStatus = 'idle'
@@ -15,9 +15,13 @@ vi.mock('@/stores/game.store', () => ({
     selector({
       status: mockStatus,
       isPressingCell: mockIsPressingCell,
-      startNewGame: mockStartNewGame,
       config: { rows: 9, cols: 9, mines: 10 },
     }),
+}))
+
+vi.mock('@/stores/ui.store', () => ({
+  useUIStore: (selector: (s: object) => unknown) =>
+    selector({ openNewGameModal: mockOpenNewGameModal }),
 }))
 
 describe('SmileyButton', () => {
@@ -32,10 +36,10 @@ describe('SmileyButton', () => {
     expect(screen.getByRole('button').textContent).toContain('🙂')
   })
 
-  it('calls startNewGame on click', () => {
+  it('calls openNewGameModal on click', () => {
     render(<SmileyButton />)
     fireEvent.click(screen.getByRole('button'))
-    expect(mockStartNewGame).toHaveBeenCalledTimes(1)
+    expect(mockOpenNewGameModal).toHaveBeenCalledTimes(1)
   })
 
   it('shows 🙂 when playing and not pressing', () => {

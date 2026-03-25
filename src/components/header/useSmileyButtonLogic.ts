@@ -1,4 +1,5 @@
 import { useGameStore } from '@/stores/game.store'
+import { useUIStore } from '@/stores/ui.store'
 import type { GameStatus } from '@/types/game.types'
 
 const EMOJI: Record<GameStatus | 'nervous', string> = {
@@ -12,14 +13,13 @@ const EMOJI: Record<GameStatus | 'nervous', string> = {
 export const useSmileyButtonLogic = () => {
   const status = useGameStore((s) => s.status)
   const isPressingCell = useGameStore((s) => s.isPressingCell)
-  const startNewGame = useGameStore((s) => s.startNewGame)
-  const config = useGameStore((s) => s.config)
+  const openNewGameModal = useUIStore((s) => s.openNewGameModal)
 
   const emoji = isPressingCell && status === 'playing' ? EMOJI.nervous : EMOJI[status]
 
   return {
     emoji,
     label: 'New game',
-    onPress: () => startNewGame(config),
+    onPress: openNewGameModal,
   }
 }

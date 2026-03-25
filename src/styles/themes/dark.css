@@ -14,6 +14,10 @@
   --color-header-border-light: #585b70;
   --color-header-border-dark: #11111b;
 
+  /* Modal title bar */
+  --color-titlebar-bg: #1e1e2e;
+  --color-titlebar-text: #cdd6f4;
+
   /* LCD digit display */
   --color-digit: #f38ba8;
   --color-digit-bg: #11111b;

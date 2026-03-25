@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { NewGameModal } from '@/components/modals/NewGameModal'
 
-// ---- ui.store mock ----
 let mockIsOpen = true
 const mockClose = vi.fn()
 
@@ -15,7 +14,6 @@ vi.mock('@/stores/ui.store', () => ({
     }),
 }))
 
-// ---- game.store mock ----
 const mockStartNewGame = vi.fn()
 let mockConfig = { rows: 9, cols: 9, mines: 10 }
 
@@ -48,16 +46,16 @@ describe('NewGameModal', () => {
 
   it('shows all difficulty preset options', () => {
     render(<NewGameModal />)
-    expect(screen.getByLabelText('Beginner', { exact: false })).toBeTruthy()
-    expect(screen.getByLabelText('Intermediate', { exact: false })).toBeTruthy()
-    expect(screen.getByLabelText('Expert', { exact: false })).toBeTruthy()
-    expect(screen.getByLabelText('Custom', { exact: false })).toBeTruthy()
+    expect(screen.getByRole('radio', { name: /beginner/i })).toBeTruthy()
+    expect(screen.getByRole('radio', { name: /intermediate/i })).toBeTruthy()
+    expect(screen.getByRole('radio', { name: /expert/i })).toBeTruthy()
+    expect(screen.getByRole('radio', { name: /custom/i })).toBeTruthy()
   })
 
   it('pre-selects Beginner when current config matches beginner preset', () => {
     render(<NewGameModal />)
-    const beginnerRadio = screen.getByDisplayValue('beginner')
-    expect((beginnerRadio as HTMLInputElement).checked).toBe(true)
+    const beginnerRadio = screen.getByRole('radio', { name: /beginner/i })
+    expect(beginnerRadio.getAttribute('data-state')).toBe('checked')
   })
 
   it('calls startNewGame and closeModal when Start is clicked', () => {
@@ -76,7 +74,7 @@ describe('NewGameModal', () => {
 
   it('shows custom inputs when Custom preset is selected', () => {
     render(<NewGameModal />)
-    fireEvent.click(screen.getByDisplayValue('custom'))
+    fireEvent.click(screen.getByRole('radio', { name: /custom/i }))
     expect(screen.getByLabelText('Rows')).toBeTruthy()
     expect(screen.getByLabelText('Columns')).toBeTruthy()
     expect(screen.getByLabelText('Mines')).toBeTruthy()

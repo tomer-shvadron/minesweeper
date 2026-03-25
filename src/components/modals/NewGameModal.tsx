@@ -2,6 +2,7 @@ import { useNewGameModalLogic } from './useNewGameModalLogic'
 
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup'
 import { DIFFICULTY_PRESETS } from '@/constants/game.constants'
 import { useUIStore } from '@/stores/ui.store'
 
@@ -15,7 +16,6 @@ const PRESETS = [
 export const NewGameModal = () => {
   const isOpen = useUIStore((s) => s.newGameModalOpen)
   const closeModal = useUIStore((s) => s.closeNewGameModal)
-
   const {
     selectedPreset,
     setSelectedPreset,
@@ -32,20 +32,18 @@ export const NewGameModal = () => {
   return (
     <Modal isOpen={isOpen} title="New Game" onClose={closeModal}>
       <div className="modal-section">
-        {PRESETS.map(({ key, label, detail }) => (
-          <label key={key} className="preset-option">
-            <input
-              type="radio"
-              name="difficulty"
-              value={key}
-              checked={selectedPreset === key}
-              onChange={() => setSelectedPreset(key)}
-              className="preset-radio"
-            />
-            <span className="preset-label">{label}</span>
-            <span className="preset-detail">{detail}</span>
-          </label>
-        ))}
+        <RadioGroup
+          value={selectedPreset}
+          onValueChange={(v) => setSelectedPreset(v as typeof selectedPreset)}
+        >
+          {PRESETS.map(({ key, label, detail }) => (
+            <label key={key} className="preset-option">
+              <RadioGroupItem value={key} className="preset-radio" />
+              <span className="preset-label">{label}</span>
+              <span className="preset-detail">{detail}</span>
+            </label>
+          ))}
+        </RadioGroup>
       </div>
 
       {selectedPreset === 'custom' && (
@@ -91,7 +89,7 @@ export const NewGameModal = () => {
       )}
 
       {selectedPreset !== 'custom' && (
-        <div className="modal-section preset-summary">
+        <div className="modal-section">
           <p>
             {DIFFICULTY_PRESETS[selectedPreset].rows} rows ×{' '}
             {DIFFICULTY_PRESETS[selectedPreset].cols} cols,{' '}

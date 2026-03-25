@@ -22,7 +22,6 @@ export const useNewGameModalLogic = () => {
   const currentConfig = useGameStore((s) => s.config)
   const closeModal = useUIStore((s) => s.closeNewGameModal)
 
-  // Pre-select the preset that matches the current board config, defaulting to beginner
   const detectCurrentPreset = (): Preset => {
     for (const [key, preset] of Object.entries(DIFFICULTY_PRESETS)) {
       if (
@@ -46,7 +45,6 @@ export const useNewGameModalLogic = () => {
   const handleCustomRows = (v: number) => {
     const rows = clamp(v, MIN_ROWS, MAX_ROWS)
     setCustomRows(rows)
-    // Recalculate max mines for new dimensions
     const newMax = rows * customCols - 9
     if (customMines > newMax) {
       setCustomMines(Math.max(MIN_MINES, newMax))

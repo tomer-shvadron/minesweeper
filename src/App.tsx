@@ -37,7 +37,6 @@ export const App = () => {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Watch for win/loss → play sound + trigger high-score prompt on win
   useEffect(() => {
     if (status === 'won') {
       if (soundEnabled) {
@@ -56,13 +55,11 @@ export const App = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg)]">
-      {/* Inline-flex column so Header and GameBoard share the same width naturally */}
       <div className="game-window">
         <Header />
         <GameBoard />
       </div>
 
-      {/* Modals rendered via React Portal (outside game-window) */}
       <ResumePrompt />
       <NewGameModal />
       <SettingsModal />

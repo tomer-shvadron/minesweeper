@@ -1,10 +1,6 @@
 import { DIFFICULTY_PRESETS } from '@/constants/game.constants'
 import type { Board, BoardConfig, BoardKey, CellState, CellValue } from '@/types/game.types'
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 function createEmptyCell(): CellState {
   return {
     hasMine: false,
@@ -39,22 +35,12 @@ function deepCopyBoard(board: Board): Board {
   return board.map((row) => row.map((cell) => ({ ...cell })))
 }
 
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
-/**
- * Creates a board of all-empty, unrevealed, unflagged cells.
- */
 export function createEmptyBoard(config: BoardConfig): Board {
   return Array.from({ length: config.rows }, () =>
     Array.from({ length: config.cols }, () => createEmptyCell())
   )
 }
 
-/**
- * Returns 'beginner', 'intermediate', 'expert', or '${cols}x${rows}x${mines}' for custom.
- */
 export function createBoardKey(config: BoardConfig): BoardKey {
   for (const [key, preset] of Object.entries(DIFFICULTY_PRESETS)) {
     if (
@@ -68,10 +54,6 @@ export function createBoardKey(config: BoardConfig): BoardKey {
   return `${config.cols}x${config.rows}x${config.mines}`
 }
 
-/**
- * Places mines randomly, ensuring the clicked cell AND its 8 neighbors are always safe.
- * Returns a new board (immutable).
- */
 export function placeMines(
   board: Board,
   config: BoardConfig,
@@ -81,14 +63,12 @@ export function placeMines(
   const newBoard = deepCopyBoard(board)
   const { rows, cols, mines } = config
 
-  // Build set of safe cell indices (clicked cell + neighbors)
   const safeCells = new Set<number>()
   safeCells.add(safeRow * cols + safeCol)
   for (const [r, c] of getNeighborCoords(board, safeRow, safeCol)) {
     safeCells.add(r * cols + c)
   }
 
-  // Build list of eligible positions
   const eligible: number[] = []
   for (let i = 0; i < rows * cols; i++) {
     if (!safeCells.has(i)) {
@@ -127,10 +107,6 @@ export function placeMines(
   return newBoard
 }
 
-/**
- * After mine placement, calculates each non-mine cell's adjacent mine count (0–8).
- * Returns a new board (immutable).
- */
 export function calculateAdjacentValues(board: Board): Board {
   const newBoard = deepCopyBoard(board)
   const rows = newBoard.length
@@ -156,10 +132,6 @@ export function calculateAdjacentValues(board: Board): Board {
   return newBoard
 }
 
-/**
- * Reveals all mines on the board (called on loss). Flagged mines stay flagged.
- * Returns new board.
- */
 export function revealAllMines(board: Board): Board {
   const newBoard = deepCopyBoard(board)
   for (const row of newBoard) {
@@ -172,11 +144,7 @@ export function revealAllMines(board: Board): Board {
   return newBoard
 }
 
-/**
- * BFS flood-fill: reveal all connected cells that are not mines and not flagged.
- * Stops at numbered cells (reveals them but doesn't continue through them).
- * Returns a new board (immutable).
- */
+// BFS flood-fill: stops at numbered cells (reveals them but doesn't continue through them)
 export function floodFill(board: Board, row: number, col: number): Board {
   const newBoard = deepCopyBoard(board)
   const rows = newBoard.length
@@ -202,7 +170,6 @@ export function floodFill(board: Board, row: number, col: number): Board {
 
     cell.isRevealed = true
 
-    // Only continue BFS from empty cells (value === 0)
     if (cell.value === 0) {
       for (let dr = -1; dr <= 1; dr++) {
         for (let dc = -1; dc <= 1; dc++) {
@@ -238,18 +205,12 @@ export function floodFill(board: Board, row: number, col: number): Board {
   return newBoard
 }
 
-/**
- * Reveals a single cell. Handles mine explosion, flood-fill for empty cells,
- * and no-op for flagged/question-mark/already-revealed cells.
- * Returns a new board (immutable).
- */
 export function revealCell(board: Board, row: number, col: number): Board {
   const cell = board[row]?.[col]
   if (!cell) {
     return board
   }
 
-  // No-op cases
   if (cell.isRevealed) {
     return board
   }
@@ -258,7 +219,6 @@ export function revealCell(board: Board, row: number, col: number): Board {
   }
 
   if (cell.hasMine) {
-    // Reveal all mines, mark this one as exploded
     const newBoard = revealAllMines(board)
     const explodedCell = newBoard[row]?.[col]
     if (explodedCell) {
@@ -268,11 +228,9 @@ export function revealCell(board: Board, row: number, col: number): Board {
   }
 
   if (cell.value === 0) {
-    // Flood-fill
     return floodFill(board, row, col)
   }
 
-  // Numbered cell — reveal just this one
   const newBoard = deepCopyBoard(board)
   const target = newBoard[row]?.[col]
   if (target) {
@@ -281,11 +239,6 @@ export function revealCell(board: Board, row: number, col: number): Board {
   return newBoard
 }
 
-/**
- * Chord reveal: if the revealed cell's value equals adjacent flag count,
- * reveal all non-flagged non-revealed neighbors.
- * Returns a new board (immutable).
- */
 export function chordReveal(board: Board, row: number, col: number): Board {
   const cell = board[row]?.[col]
   if (!cell || !cell.isRevealed || cell.value === 0) {
@@ -299,7 +252,6 @@ export function chordReveal(board: Board, row: number, col: number): Board {
     return board
   }
 
-  // Reveal all non-flagged, non-question-mark, non-revealed neighbors
   let newBoard = board
   for (const [r, c] of neighbors) {
     const neighbor = newBoard[r]?.[c]
@@ -315,10 +267,6 @@ export function chordReveal(board: Board, row: number, col: number): Board {
   return newBoard
 }
 
-/**
- * Toggles the flag/question-mark state of a cell.
- * Returns a new board (immutable).
- */
 export function toggleFlag(
   board: Board,
   row: number,
@@ -340,26 +288,19 @@ export function toggleFlag(
   }
 
   if (!target.isFlagged && !target.isQuestionMark) {
-    // Unflagged → flag
     target.isFlagged = true
   } else if (target.isFlagged) {
     target.isFlagged = false
     if (allowQuestionMarks) {
-      // Flagged → question mark
       target.isQuestionMark = true
     }
-    // else: flagged → unflagged (already set isFlagged = false above)
   } else if (target.isQuestionMark) {
-    // Question mark → unflagged
     target.isQuestionMark = false
   }
 
   return newBoard
 }
 
-/**
- * Returns true if every non-mine cell is revealed.
- */
 export function checkWin(board: Board): boolean {
   for (const row of board) {
     for (const cell of row) {
@@ -371,9 +312,6 @@ export function checkWin(board: Board): boolean {
   return true
 }
 
-/**
- * Returns true if any mine cell is revealed.
- */
 export function checkLoss(board: Board): boolean {
   for (const row of board) {
     for (const cell of row) {
@@ -385,9 +323,6 @@ export function checkLoss(board: Board): boolean {
   return false
 }
 
-/**
- * Returns totalMines minus the number of flagged cells (can go negative).
- */
 export function countRemainingFlags(board: Board, totalMines: number): number {
   let flagged = 0
   for (const row of board) {

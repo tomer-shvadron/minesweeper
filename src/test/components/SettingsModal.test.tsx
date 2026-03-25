@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { SettingsModal } from '@/components/modals/SettingsModal'
 
-// ---- ui.store mock ----
 let mockIsOpen = true
 const mockCloseSettings = vi.fn()
 
@@ -15,7 +14,6 @@ vi.mock('@/stores/ui.store', () => ({
     }),
 }))
 
-// ---- settings.store mock ----
 const mockSetTheme = vi.fn()
 const mockSetFlagMode = vi.fn()
 const mockSetSoundEnabled = vi.fn()
@@ -76,33 +74,33 @@ describe('SettingsModal', () => {
 
   it('has Classic XP radio checked when theme is xp', () => {
     render(<SettingsModal />)
-    const xpRadio = screen.getByDisplayValue('xp')
-    expect((xpRadio as HTMLInputElement).checked).toBe(true)
+    const xpRadio = screen.getByRole('radio', { name: /classic xp/i })
+    expect(xpRadio.getAttribute('data-state')).toBe('checked')
   })
 
   it('calls setTheme when Dark radio is selected', () => {
     render(<SettingsModal />)
-    fireEvent.click(screen.getByDisplayValue('dark'))
+    fireEvent.click(screen.getByRole('radio', { name: /dark/i }))
     expect(mockSetTheme).toHaveBeenCalledWith('dark')
   })
 
   it('shows Sound toggle checked when soundEnabled is true', () => {
     render(<SettingsModal />)
-    const soundToggle = screen.getByRole('checkbox', { name: /sound effects/i })
-    expect((soundToggle as HTMLInputElement).checked).toBe(true)
+    const soundToggle = screen.getByRole('switch', { name: /sound effects/i })
+    expect(soundToggle.getAttribute('data-state')).toBe('checked')
   })
 
   it('volume slider is enabled when sound is on', () => {
     render(<SettingsModal />)
     const slider = screen.getByRole('slider')
-    expect((slider as HTMLInputElement).disabled).toBe(false)
+    expect(slider.getAttribute('data-disabled')).toBeNull()
   })
 
   it('volume slider is disabled when sound is off', () => {
     mockSettings = { ...mockSettings, soundEnabled: false }
     render(<SettingsModal />)
     const slider = screen.getByRole('slider')
-    expect((slider as HTMLInputElement).disabled).toBe(true)
+    expect(slider.getAttribute('data-disabled')).toBe('')
   })
 
   it('calls closeModal when OK is clicked', () => {

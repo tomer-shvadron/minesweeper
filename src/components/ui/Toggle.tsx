@@ -1,3 +1,5 @@
+import * as SwitchPrimitive from '@radix-ui/react-switch'
+
 interface ToggleProps {
   id: string
   label: string
@@ -6,19 +8,19 @@ interface ToggleProps {
   disabled?: boolean
 }
 
-/** XP-style checkbox toggle used in SettingsModal. */
-export const Toggle = ({ id, label, checked, onChange, disabled = false }: ToggleProps) => {
-  return (
-    <label className="toggle-row" htmlFor={id}>
-      <span className="toggle-label">{label}</span>
-      <input
-        id={id}
-        type="checkbox"
-        className="toggle-checkbox"
-        checked={checked}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.checked)}
-      />
+export const Toggle = ({ id, label, checked, onChange, disabled = false }: ToggleProps) => (
+  <div className="toggle-row">
+    <label className="toggle-label" htmlFor={id}>
+      {label}
     </label>
-  )
-}
+    <SwitchPrimitive.Root
+      id={id}
+      checked={checked}
+      onCheckedChange={onChange}
+      disabled={disabled}
+      className="switch-root"
+    >
+      <SwitchPrimitive.Thumb className="switch-thumb" />
+    </SwitchPrimitive.Root>
+  </div>
+)

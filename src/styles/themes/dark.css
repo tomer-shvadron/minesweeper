@@ -1,59 +1,44 @@
 [data-theme='dark'] {
-  /* ─── Core palette ──────────────────────────────────────── */
   --color-bg: #0a0a0f;
   --color-surface: #111118;
   --color-surface-2: #1c1c28;
 
-  /* Borders */
   --color-border: #26263d;
-  --color-border-light: #36365a; /* kept for XP components fallback */
+  --color-border-light: #36365a;
   --color-border-dark: #0d0d14;
   --color-border-darker: #06060a;
 
-  /* Text */
   --color-text: #e2e2f0;
   --color-text-muted: #6a6a94;
 
-  /* Accent — indigo/violet */
   --color-accent: #6366f1;
   --color-accent-hover: #818cf8;
 
-  /* Header (unused by dark overrides below, kept for variable completeness) */
   --color-header-bg: #111118;
   --color-header-text: #e2e2f0;
   --color-header-border-light: #26263d;
   --color-header-border-dark: #0a0a0f;
 
-  /* Modal title bar */
   --color-titlebar-bg: #1c1c28;
   --color-titlebar-text: #e2e2f0;
 
-  /* LCD — green terminal glow */
   --color-digit: #22c55e;
   --color-digit-bg: #06060a;
 
-  /* Cell mine-count number colors — vivid on dark */
-  --color-n1: #60a5fa; /* blue */
-  --color-n2: #34d399; /* emerald */
-  --color-n3: #f87171; /* rose */
-  --color-n4: #a78bfa; /* violet */
-  --color-n5: #fb923c; /* orange */
-  --color-n6: #22d3ee; /* cyan */
-  --color-n7: #e2e8f0; /* near-white */
-  --color-n8: #64748b; /* slate */
+  --color-n1: #60a5fa;
+  --color-n2: #34d399;
+  --color-n3: #f87171;
+  --color-n4: #a78bfa;
+  --color-n5: #fb923c;
+  --color-n6: #22d3ee;
+  --color-n7: #e2e8f0;
+  --color-n8: #64748b;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   Component overrides — modern flat aesthetic
-   (replace XP bevels with clean borders + subtle shadows)
-   ═══════════════════════════════════════════════════════════ */
-
-/* Body text color */
 [data-theme='dark'] body {
   color: var(--color-text);
 }
 
-/* ── Game window ─────────────────────────────────────────── */
 [data-theme='dark'] .game-window {
   border-radius: 16px;
   overflow: hidden;
@@ -62,7 +47,6 @@
     0 32px 80px rgba(0, 0, 0, 0.75);
 }
 
-/* ── Cells ───────────────────────────────────────────────── */
 [data-theme='dark'] .cell {
   background-color: var(--color-surface-2);
   transition: background-color 0.08s ease;
@@ -79,7 +63,7 @@
 
 [data-theme='dark'] .cell-revealed {
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border-dark);
+  border: 1px solid var(--color-border);
 }
 
 [data-theme='dark'] .cell-exploded {
@@ -87,7 +71,6 @@
   border: 1px solid rgba(239, 68, 68, 0.45);
 }
 
-/* ── Header ──────────────────────────────────────────────── */
 [data-theme='dark'] .game-header {
   background-color: var(--color-surface);
   box-shadow: none;
@@ -99,14 +82,12 @@
   box-shadow: none;
 }
 
-/* ── LCD display ─────────────────────────────────────────── */
 [data-theme='dark'] .lcd-display {
   box-shadow: none;
   border-radius: 5px;
   border: 1px solid var(--color-border);
 }
 
-/* ── Smiley button ───────────────────────────────────────── */
 [data-theme='dark'] .smiley-button {
   border-radius: 50%;
   background-color: var(--color-surface-2);
@@ -114,7 +95,6 @@
   border: 1px solid var(--color-border);
 }
 
-/* ── Buttons ─────────────────────────────────────────────── */
 [data-theme='dark'] .btn-raised {
   background-color: var(--color-surface-2);
   box-shadow: none;
@@ -142,7 +122,6 @@
   color: var(--color-text);
 }
 
-/* ── Modal ───────────────────────────────────────────────── */
 [data-theme='dark'] .modal-backdrop {
   background: rgba(0, 0, 0, 0.65);
 }
@@ -177,7 +156,6 @@
   box-shadow: none;
 }
 
-/* ── Text inputs ─────────────────────────────────────────── */
 [data-theme='dark'] .xp-input {
   background-color: var(--color-surface-2);
   color: var(--color-text);
@@ -191,7 +169,6 @@
   outline: 2px solid rgba(99, 102, 241, 0.25);
 }
 
-/* ── Settings panel ──────────────────────────────────────── */
 [data-theme='dark'] .settings-group-label {
   color: var(--color-accent);
   border-color: var(--color-border);
@@ -203,13 +180,47 @@
   color: var(--color-text-muted);
 }
 
-[data-theme='dark'] .preset-radio,
-[data-theme='dark'] .theme-option input[type='radio'],
-[data-theme='dark'] .slider-row input[type='range'] {
-  accent-color: var(--color-accent);
+[data-theme='dark'] .switch-root {
+  background-color: var(--color-border);
 }
 
-/* ── Leaderboard ─────────────────────────────────────────── */
+[data-theme='dark'] .switch-root[data-state='checked'] {
+  background-color: var(--color-accent);
+}
+
+[data-theme='dark'] .preset-radio {
+  background-color: var(--color-surface-2);
+  border-color: var(--color-border);
+}
+
+[data-theme='dark'] .preset-radio[data-state='checked'] {
+  border-color: var(--color-accent);
+}
+
+[data-theme='dark'] .preset-radio[data-state='checked']::after {
+  background-color: var(--color-accent);
+}
+
+[data-theme='dark'] .slider-track {
+  background-color: var(--color-border);
+}
+
+[data-theme='dark'] .slider-range {
+  background-color: var(--color-accent);
+}
+
+[data-theme='dark'] .slider-thumb {
+  border-color: var(--color-accent);
+}
+
+[data-theme='dark'] .header-icon-btn {
+  color: var(--color-text);
+}
+
+[data-theme='dark'] .header-icon-btn:hover {
+  background-color: var(--color-surface-2);
+}
+
 [data-theme='dark'] .leaderboard-tabs {
   border-color: var(--color-border);
   gap: 4px;

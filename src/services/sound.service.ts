@@ -1,10 +1,3 @@
-/**
- * sound.service.ts
- *
- * Procedural sound effects via Web Audio API — no external audio files needed.
- * All sounds are generated on the fly and played through a shared AudioContext.
- */
-
 let ctx: AudioContext | null = null
 
 function getCtx(): AudioContext {
@@ -24,8 +17,6 @@ function master(ac: AudioContext, volume: number): GainNode {
   g.connect(ac.destination)
   return g
 }
-
-// --- Individual sound generators ---
 
 function playReveal(volume: number): void {
   const ac = getCtx()
@@ -72,7 +63,6 @@ function playExplode(volume: number): void {
   const out = master(ac, volume * 0.7)
   const t = ac.currentTime
 
-  // White noise burst
   const bufLen = ac.sampleRate * 0.5
   const buf = ac.createBuffer(1, bufLen, ac.sampleRate)
   const data = buf.getChannelData(0)
@@ -87,7 +77,6 @@ function playExplode(volume: number): void {
   noiseEnv.gain.setValueAtTime(1, t)
   noiseEnv.gain.exponentialRampToValueAtTime(0.001, t + 0.5)
 
-  // Low thud
   const osc = ac.createOscillator()
   const oscEnv = ac.createGain()
   osc.type = 'sine'
@@ -135,8 +124,6 @@ function playWin(volume: number): void {
     osc.stop(start + 0.25)
   })
 }
-
-// --- Public API ---
 
 export type SoundName = 'reveal' | 'flag' | 'explode' | 'win'
 

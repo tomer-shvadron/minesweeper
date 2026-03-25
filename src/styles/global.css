@@ -30,23 +30,16 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Game window wrapper — inline-flex column so Header + Board share one width
- * ------------------------------------------------------------------------- */
 @layer components {
   .game-window {
     display: inline-flex;
     flex-direction: column;
-    /* XP outer window border */
     box-shadow:
       inset 2px 2px 0 var(--color-border-light),
       inset -2px -2px 0 var(--color-border-darker);
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Cell styles — XP-style 3D bevel using inset box-shadow + CSS variables
- * ------------------------------------------------------------------------- */
 @layer components {
   .cell {
     display: flex;
@@ -62,82 +55,66 @@
     line-height: 1;
   }
 
-  /* Unrevealed — raised 3D bevel */
   .cell-raised {
     box-shadow:
       inset 2px 2px 0 var(--color-border-light),
       inset -2px -2px 0 var(--color-border-dark);
   }
 
-  /* Revealed — flat with a single border */
   .cell-revealed {
     border: 1px solid var(--color-border-dark);
   }
 
-  /* Exploded mine — red background */
   .cell-exploded {
     background-color: #ff0000;
     border: 1px solid var(--color-border-dark);
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Header — XP-style panel containing LCD displays and smiley button
- * ------------------------------------------------------------------------- */
 @layer components {
   .game-header {
     background-color: var(--color-surface);
-    /* Sunken inset border for the header panel */
     box-shadow:
       inset -2px -2px 0 var(--color-border-light),
       inset 2px 2px 0 var(--color-border-dark);
-    padding: 6px 8px;
+    padding: 8px 10px;
   }
 
   .game-header__inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /* Sunken inner container */
     background-color: var(--color-surface);
     box-shadow:
       inset 2px 2px 0 var(--color-border-dark),
       inset -2px -2px 0 var(--color-border-light);
-    padding: 4px 6px;
+    padding: 6px 8px;
   }
 }
 
-/* ---------------------------------------------------------------------------
- * LCD display — black background, red glowing digits
- * ------------------------------------------------------------------------- */
 @layer components {
   .lcd-display {
     background-color: var(--color-digit-bg);
     color: var(--color-digit);
     font-family: 'Courier New', 'Lucida Console', monospace;
     font-weight: bold;
-    font-size: 1.375rem; /* ~22px */
+    font-size: 1.375rem;
     letter-spacing: 2px;
     padding: 1px 4px;
     min-width: 3.5ch;
     text-align: right;
-    /* Subtle glow for authenticity */
     text-shadow: 0 0 6px var(--color-digit);
-    /* Inset border for the LCD panel */
     box-shadow:
       inset 1px 1px 0 var(--color-border-dark),
       inset -1px -1px 0 var(--color-border-light);
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Smiley button
- * ------------------------------------------------------------------------- */
 @layer components {
   .smiley-button {
-    width: 32px;
-    height: 32px;
-    font-size: 1.125rem;
+    width: 38px;
+    height: 38px;
+    font-size: 1.375rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -145,9 +122,6 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Button styles (UI primitives — modal buttons, header controls)
- * ------------------------------------------------------------------------- */
 @layer components {
   .btn-raised {
     background-color: var(--color-surface);
@@ -182,9 +156,6 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Header section helpers (leaderboard + settings icon buttons)
- * ------------------------------------------------------------------------- */
 @layer components {
   .header-section {
     display: flex;
@@ -200,11 +171,15 @@
     background: transparent;
     border: none;
     outline: none;
-    padding: 2px 4px;
+    width: 36px;
+    height: 36px;
     font-size: 1.125rem;
     cursor: pointer;
     line-height: 1;
-    border-radius: 2px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .header-icon-btn:active {
@@ -212,9 +187,6 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Modal — backdrop + XP-style window
- * ------------------------------------------------------------------------- */
 @layer components {
   .modal-backdrop {
     position: fixed;
@@ -238,7 +210,6 @@
     flex-direction: column;
   }
 
-  /* XP-style blue title bar */
   .modal-title-bar {
     display: flex;
     align-items: center;
@@ -276,16 +247,16 @@
   }
 
   .modal-content {
-    padding: 12px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px;
   }
 
   .modal-section {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
   }
 
   .modal-actions {
@@ -296,9 +267,6 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
- * NewGameModal — preset options + custom inputs
- * ------------------------------------------------------------------------- */
 @layer components {
   .preset-option {
     display: flex;
@@ -308,10 +276,29 @@
   }
 
   .preset-radio {
-    accent-color: var(--color-n4);
     width: 14px;
     height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border-dark);
+    background-color: var(--color-surface);
     cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .preset-radio[data-state='checked'] {
+    border-color: var(--color-n4);
+  }
+
+  .preset-radio[data-state='checked']::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-n4);
   }
 
   .preset-label {
@@ -364,9 +351,6 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
- * SettingsModal — settings groups, toggles, sliders
- * ------------------------------------------------------------------------- */
 @layer components {
   .settings-group-label {
     font-size: 0.75rem;
@@ -392,43 +376,116 @@
     cursor: pointer;
   }
 
-  .theme-option input[type='radio'] {
-    accent-color: var(--color-n4);
-    cursor: pointer;
-  }
-
   .toggle-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    gap: 12px;
     font-size: 0.875rem;
+  }
+
+  .toggle-label {
+    flex: 1;
+  }
+
+  .switch-root {
+    width: 36px;
+    height: 20px;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    background-color: var(--color-border-dark);
+    flex-shrink: 0;
+    position: relative;
+    transition: background-color 0.15s ease;
+  }
+
+  .switch-root[data-state='checked'] {
+    background-color: var(--color-n4);
+  }
+
+  .switch-root:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .switch-thumb {
+    display: block;
+    width: 14px;
+    height: 14px;
+    border-radius: 9999px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s ease;
+    transform: translateX(3px);
+  }
+
+  .switch-thumb[data-state='checked'] {
+    transform: translateX(19px);
   }
 
   .slider-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-size: 0.875rem;
   }
 
-  .slider-row label {
-    min-width: 60px;
+  .slider-label {
+    min-width: 56px;
   }
 
-  .slider-row input[type='range'] {
-    flex: 1;
-    accent-color: var(--color-n4);
-  }
-
-  .slider-row span {
+  .slider-value {
     min-width: 36px;
     text-align: right;
   }
+
+  .slider-root {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  .slider-root[data-disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .slider-track {
+    position: relative;
+    flex: 1;
+    height: 4px;
+    background-color: var(--color-border-dark);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .slider-range {
+    position: absolute;
+    height: 100%;
+    background-color: var(--color-n4);
+    border-radius: 9999px;
+  }
+
+  .slider-thumb {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background-color: #fff;
+    border: 2px solid var(--color-n4);
+    cursor: pointer;
+    outline: none;
+  }
+
+  .slider-thumb:focus-visible {
+    box-shadow: 0 0 0 3px rgba(0, 0, 80, 0.3);
+  }
 }
 
-/* ---------------------------------------------------------------------------
- * LeaderboardModal — tabs + scores table
- * ------------------------------------------------------------------------- */
 @layer components {
   .leaderboard-tabs {
     display: flex;
@@ -481,9 +538,6 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
- * HighScorePrompt extras
- * ------------------------------------------------------------------------- */
 @layer components {
   .highscore-time {
     font-size: 0.9375rem;
@@ -494,9 +548,6 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
- * ResumePrompt extras
- * ------------------------------------------------------------------------- */
 @layer components {
   .resume-info {
     font-size: 0.875rem;

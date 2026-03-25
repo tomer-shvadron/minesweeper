@@ -1,3 +1,5 @@
+import { Settings, Trophy } from 'lucide-react'
+
 import { MineCounter } from './MineCounter'
 import { SmileyButton } from './SmileyButton'
 import { Timer } from './Timer'
@@ -9,7 +11,6 @@ export const Header = () => {
   return (
     <div className="game-header" style={{ width: boardWidth }}>
       <div className="game-header__inner">
-        {/* Left: leaderboard icon + mine counter */}
         <div className="header-section">
           <button
             type="button"
@@ -17,15 +18,13 @@ export const Header = () => {
             aria-label="Leaderboard"
             onClick={openLeaderboardModal}
           >
-            🏆
+            <Trophy size={20} strokeWidth={1.75} />
           </button>
           <MineCounter />
         </div>
 
-        {/* Center: smiley (opens new-game modal) */}
         <SmileyButton />
 
-        {/* Right: timer + settings icon */}
         <div className="header-section header-section--right">
           <Timer />
           <button
@@ -34,7 +33,7 @@ export const Header = () => {
             aria-label="Settings"
             onClick={openSettingsModal}
           >
-            ⚙️
+            <Settings size={20} strokeWidth={1.75} />
           </button>
         </div>
       </div>

@@ -4,7 +4,6 @@ import { useGameStore } from '@/stores/game.store'
 import { useSettingsStore } from '@/stores/settings.store'
 import type { CellState } from '@/types/game.types'
 
-// Maps mine number (1–8) to CSS variable classes
 const NUMBER_COLOR_CLASSES: Record<number, string> = {
   1: 'text-[var(--color-n1)]',
   2: 'text-[var(--color-n2)]',
@@ -68,7 +67,6 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
     onLongPress: handleLongPress,
   })
 
-  // --- Content ---
   const getContent = (): string => {
     if (!cell.isRevealed) {
       if (cell.isFlagged) {
@@ -91,7 +89,6 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
     return String(cell.value)
   }
 
-  // --- CSS classes ---
   const isRaised = !cell.isRevealed
   const isExploded = cell.isExploded
 

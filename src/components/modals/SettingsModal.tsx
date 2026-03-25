@@ -2,6 +2,7 @@ import { useSettingsModalLogic } from './useSettingsModalLogic'
 
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup'
 import { Slider } from '@/components/ui/Slider'
 import { Toggle } from '@/components/ui/Toggle'
 import { useUIStore } from '@/stores/ui.store'
@@ -24,26 +25,22 @@ export const SettingsModal = () => {
 
   return (
     <Modal isOpen={isOpen} title="Settings" onClose={closeModal}>
-      {/* Theme */}
       <div className="modal-section">
         <p className="settings-group-label">Theme</p>
-        <div className="theme-options">
+        <RadioGroup
+          value={theme}
+          onValueChange={(v) => setTheme(v as typeof theme)}
+          className="theme-options"
+        >
           {(['xp', 'dark'] as const).map((t) => (
             <label key={t} className="theme-option">
-              <input
-                type="radio"
-                name="theme"
-                value={t}
-                checked={theme === t}
-                onChange={() => setTheme(t)}
-              />
+              <RadioGroupItem value={t} className="preset-radio" />
               <span>{t === 'xp' ? 'Classic XP' : 'Dark'}</span>
             </label>
           ))}
-        </div>
+        </RadioGroup>
       </div>
 
-      {/* Sound */}
       <div className="modal-section">
         <p className="settings-group-label">Sound</p>
         <Toggle
@@ -61,7 +58,6 @@ export const SettingsModal = () => {
         />
       </div>
 
-      {/* Gameplay */}
       <div className="modal-section">
         <p className="settings-group-label">Gameplay</p>
         <Toggle

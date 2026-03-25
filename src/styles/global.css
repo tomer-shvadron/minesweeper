@@ -30,6 +30,20 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * Game window wrapper — inline-flex column so Header + Board share one width
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .game-window {
+    display: inline-flex;
+    flex-direction: column;
+    /* XP outer window border */
+    box-shadow:
+      inset 2px 2px 0 var(--color-border-light),
+      inset -2px -2px 0 var(--color-border-darker);
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * Cell styles — XP-style 3D bevel using inset box-shadow + CSS variables
  * ------------------------------------------------------------------------- */
 @layer components {
@@ -63,6 +77,70 @@
   .cell-exploded {
     background-color: #ff0000;
     border: 1px solid var(--color-border-dark);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Header — XP-style panel containing LCD displays and smiley button
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .game-header {
+    background-color: var(--color-surface);
+    /* Sunken inset border for the header panel */
+    box-shadow:
+      inset -2px -2px 0 var(--color-border-light),
+      inset 2px 2px 0 var(--color-border-dark);
+    padding: 6px 8px;
+  }
+
+  .game-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Sunken inner container */
+    background-color: var(--color-surface);
+    box-shadow:
+      inset 2px 2px 0 var(--color-border-dark),
+      inset -2px -2px 0 var(--color-border-light);
+    padding: 4px 6px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * LCD display — black background, red glowing digits
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .lcd-display {
+    background-color: var(--color-digit-bg);
+    color: var(--color-digit);
+    font-family: 'Courier New', 'Lucida Console', monospace;
+    font-weight: bold;
+    font-size: 1.375rem; /* ~22px */
+    letter-spacing: 2px;
+    padding: 1px 4px;
+    min-width: 3.5ch;
+    text-align: right;
+    /* Subtle glow for authenticity */
+    text-shadow: 0 0 6px var(--color-digit);
+    /* Inset border for the LCD panel */
+    box-shadow:
+      inset 1px 1px 0 var(--color-border-dark),
+      inset -1px -1px 0 var(--color-border-light);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Smiley button
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .smiley-button {
+    width: 32px;
+    height: 32px;
+    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
   }
 }
 

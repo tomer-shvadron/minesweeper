@@ -21,6 +21,7 @@ export const App = () => {
   const config = useGameStore((s) => s.config)
   const soundEnabled = useSettingsStore((s) => s.soundEnabled)
   const volume = useSettingsStore((s) => s.volume)
+  const animationsEnabled = useSettingsStore((s) => s.animationsEnabled)
   const isHighScore = useLeaderboardStore((s) => s.isHighScore)
   const showHighScorePrompt = useUIStore((s) => s.showHighScorePrompt)
   const openResumePrompt = useUIStore((s) => s.openResumePrompt)
@@ -29,6 +30,10 @@ export const App = () => {
   useEffect(() => {
     document.body.setAttribute('data-theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    document.body.setAttribute('data-animations', String(animationsEnabled))
+  }, [animationsEnabled])
 
   // On first mount: prompt to resume if there's a saved in-progress game
   useEffect(() => {

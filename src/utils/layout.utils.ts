@@ -1,4 +1,4 @@
-export const HEADER_HEIGHT = 48 // px — reserved for the game header
+export const HEADER_HEIGHT = 72 // px — game header: outer padding (16) + inner padding (12) + button height (38) + buffer
 export const BOARD_PADDING = 16 // px on each side
 
 /**

@@ -8,6 +8,12 @@
   --color-border-dark: #808080;
   --color-border-darker: #404040;
 
+  /* Text */
+  --color-text: #000000;
+  --color-text-muted: #606060;
+  --color-accent: #000080;
+  --color-surface-2: #c0c0c0;
+
   /* Header */
   --color-header-bg: #c0c0c0;
   --color-header-text: #000000;

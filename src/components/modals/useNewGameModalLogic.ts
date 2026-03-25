@@ -48,14 +48,18 @@ export const useNewGameModalLogic = () => {
     setCustomRows(rows)
     // Recalculate max mines for new dimensions
     const newMax = rows * customCols - 9
-    if (customMines > newMax) setCustomMines(Math.max(MIN_MINES, newMax))
+    if (customMines > newMax) {
+      setCustomMines(Math.max(MIN_MINES, newMax))
+    }
   }
 
   const handleCustomCols = (v: number) => {
     const cols = clamp(v, MIN_COLS, MAX_COLS)
     setCustomCols(cols)
     const newMax = customRows * cols - 9
-    if (customMines > newMax) setCustomMines(Math.max(MIN_MINES, newMax))
+    if (customMines > newMax) {
+      setCustomMines(Math.max(MIN_MINES, newMax))
+    }
   }
 
   const handleCustomMines = (v: number) => {

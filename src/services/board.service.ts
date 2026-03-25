@@ -22,7 +22,9 @@ function getNeighborCoords(board: Board, row: number, col: number): [number, num
   const cols = board[0]?.length ?? 0
   for (let dr = -1; dr <= 1; dr++) {
     for (let dc = -1; dc <= 1; dc++) {
-      if (dr === 0 && dc === 0) continue
+      if (dr === 0 && dc === 0) {
+        continue
+      }
       const r = row + dr
       const c = col + dc
       if (r >= 0 && r < rows && c >= 0 && c < cols) {
@@ -108,7 +110,9 @@ export function placeMines(
   const minesToPlace = Math.min(mines, eligible.length)
   for (let i = 0; i < minesToPlace; i++) {
     const idx = eligible[i]
-    if (idx === undefined) continue
+    if (idx === undefined) {
+      continue
+    }
     const r = Math.floor(idx / cols)
     const c = idx % cols
     const row = newBoard[r]
@@ -135,11 +139,15 @@ export function calculateAdjacentValues(board: Board): Board {
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const cell = newBoard[r]?.[c]
-      if (!cell || cell.hasMine) continue
+      if (!cell || cell.hasMine) {
+        continue
+      }
 
       let count = 0
       for (const [nr, nc] of getNeighborCoords(board, r, c)) {
-        if (board[nr]?.[nc]?.hasMine) count++
+        if (board[nr]?.[nc]?.hasMine) {
+          count++
+        }
       }
       cell.value = count as CellValue
     }
@@ -180,11 +188,17 @@ export function floodFill(board: Board, row: number, col: number): Board {
 
   while (queue.length > 0) {
     const entry = queue.shift()
-    if (!entry) break
+    if (!entry) {
+      break
+    }
     const [r, c] = entry
     const cell = newBoard[r]?.[c]
-    if (!cell) continue
-    if (cell.hasMine || cell.isFlagged || cell.isQuestionMark) continue
+    if (!cell) {
+      continue
+    }
+    if (cell.hasMine || cell.isFlagged || cell.isQuestionMark) {
+      continue
+    }
 
     cell.isRevealed = true
 
@@ -192,16 +206,28 @@ export function floodFill(board: Board, row: number, col: number): Board {
     if (cell.value === 0) {
       for (let dr = -1; dr <= 1; dr++) {
         for (let dc = -1; dc <= 1; dc++) {
-          if (dr === 0 && dc === 0) continue
+          if (dr === 0 && dc === 0) {
+            continue
+          }
           const nr = r + dr
           const nc = c + dc
-          if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue
+          if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) {
+            continue
+          }
           const key = nr * cols + nc
-          if (visited.has(key)) continue
+          if (visited.has(key)) {
+            continue
+          }
           const neighbor = newBoard[nr]?.[nc]
-          if (!neighbor) continue
-          if (neighbor.hasMine || neighbor.isFlagged || neighbor.isQuestionMark) continue
-          if (neighbor.isRevealed) continue
+          if (!neighbor) {
+            continue
+          }
+          if (neighbor.hasMine || neighbor.isFlagged || neighbor.isQuestionMark) {
+            continue
+          }
+          if (neighbor.isRevealed) {
+            continue
+          }
           visited.add(key)
           queue.push([nr, nc])
         }
@@ -219,11 +245,17 @@ export function floodFill(board: Board, row: number, col: number): Board {
  */
 export function revealCell(board: Board, row: number, col: number): Board {
   const cell = board[row]?.[col]
-  if (!cell) return board
+  if (!cell) {
+    return board
+  }
 
   // No-op cases
-  if (cell.isRevealed) return board
-  if (cell.isFlagged || cell.isQuestionMark) return board
+  if (cell.isRevealed) {
+    return board
+  }
+  if (cell.isFlagged || cell.isQuestionMark) {
+    return board
+  }
 
   if (cell.hasMine) {
     // Reveal all mines, mark this one as exploded
@@ -256,19 +288,27 @@ export function revealCell(board: Board, row: number, col: number): Board {
  */
 export function chordReveal(board: Board, row: number, col: number): Board {
   const cell = board[row]?.[col]
-  if (!cell || !cell.isRevealed || cell.value === 0) return board
+  if (!cell || !cell.isRevealed || cell.value === 0) {
+    return board
+  }
 
   const neighbors = getNeighborCoords(board, row, col)
   const flagCount = neighbors.filter(([r, c]) => board[r]?.[c]?.isFlagged).length
 
-  if (flagCount !== cell.value) return board
+  if (flagCount !== cell.value) {
+    return board
+  }
 
   // Reveal all non-flagged, non-question-mark, non-revealed neighbors
   let newBoard = board
   for (const [r, c] of neighbors) {
     const neighbor = newBoard[r]?.[c]
-    if (!neighbor) continue
-    if (neighbor.isRevealed || neighbor.isFlagged || neighbor.isQuestionMark) continue
+    if (!neighbor) {
+      continue
+    }
+    if (neighbor.isRevealed || neighbor.isFlagged || neighbor.isQuestionMark) {
+      continue
+    }
     newBoard = revealCell(newBoard, r, c)
   }
 
@@ -286,12 +326,18 @@ export function toggleFlag(
   allowQuestionMarks: boolean
 ): Board {
   const cell = board[row]?.[col]
-  if (!cell) return board
-  if (cell.isRevealed) return board
+  if (!cell) {
+    return board
+  }
+  if (cell.isRevealed) {
+    return board
+  }
 
   const newBoard = deepCopyBoard(board)
   const target = newBoard[row]?.[col]
-  if (!target) return board
+  if (!target) {
+    return board
+  }
 
   if (!target.isFlagged && !target.isQuestionMark) {
     // Unflagged → flag
@@ -317,7 +363,9 @@ export function toggleFlag(
 export function checkWin(board: Board): boolean {
   for (const row of board) {
     for (const cell of row) {
-      if (!cell.hasMine && !cell.isRevealed) return false
+      if (!cell.hasMine && !cell.isRevealed) {
+        return false
+      }
     }
   }
   return true
@@ -329,7 +377,9 @@ export function checkWin(board: Board): boolean {
 export function checkLoss(board: Board): boolean {
   for (const row of board) {
     for (const cell of row) {
-      if (cell.hasMine && cell.isRevealed) return true
+      if (cell.hasMine && cell.isRevealed) {
+        return true
+      }
     }
   }
   return false
@@ -342,7 +392,9 @@ export function countRemainingFlags(board: Board, totalMines: number): number {
   let flagged = 0
   for (const row of board) {
     for (const cell of row) {
-      if (cell.isFlagged) flagged++
+      if (cell.isFlagged) {
+        flagged++
+      }
     }
   }
   return totalMines - flagged

@@ -15,13 +15,17 @@ interface ModalProps {
 export const Modal = ({ isOpen, title, onClose, children }: ModalProps) => {
   // Lock body scroll while modal is open
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = 'hidden'
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    }
     return () => {
       document.body.style.overflow = ''
     }
   }, [isOpen])
 
-  if (!isOpen) return null
+  if (!isOpen) {
+    return null
+  }
 
   return createPortal(
     <div className="modal-backdrop" role="dialog" aria-modal aria-label={title}>

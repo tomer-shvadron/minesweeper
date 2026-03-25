@@ -32,19 +32,25 @@ export const App = () => {
 
   // On first mount: prompt to resume if there's a saved in-progress game
   useEffect(() => {
-    if (status === 'playing') openResumePrompt()
+    if (status === 'playing') {
+      openResumePrompt()
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Watch for win/loss → play sound + trigger high-score prompt on win
   useEffect(() => {
     if (status === 'won') {
-      if (soundEnabled) playSound('win', volume)
+      if (soundEnabled) {
+        playSound('win', volume)
+      }
       const boardKey = createBoardKey(config)
       if (isHighScore(boardKey, elapsedSeconds)) {
         showHighScorePrompt({ boardKey, timeSeconds: elapsedSeconds })
       }
     } else if (status === 'lost') {
-      if (soundEnabled) playSound('explode', volume)
+      if (soundEnabled) {
+        playSound('explode', volume)
+      }
     }
   }, [status]) // eslint-disable-line react-hooks/exhaustive-deps
 

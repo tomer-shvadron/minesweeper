@@ -37,11 +37,15 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
   const allowQuestionMarks = flagMode === 'flags-and-questions'
 
   const sound = (name: Parameters<typeof playSound>[0]) => {
-    if (soundEnabled) playSound(name, volume)
+    if (soundEnabled) {
+      playSound(name, volume)
+    }
   }
 
   const handleTap = () => {
-    if (isGameOver) return
+    if (isGameOver) {
+      return
+    }
     if (cell.isRevealed) {
       chordClick(row, col)
       sound('reveal')
@@ -52,7 +56,9 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
   }
 
   const handleLongPress = () => {
-    if (isGameOver || cell.isRevealed) return
+    if (isGameOver || cell.isRevealed) {
+      return
+    }
     flagCell(row, col, allowQuestionMarks)
     sound('flag')
   }
@@ -65,13 +71,23 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
   // --- Content ---
   const getContent = (): string => {
     if (!cell.isRevealed) {
-      if (cell.isFlagged) return '🚩'
-      if (cell.isQuestionMark) return '?'
+      if (cell.isFlagged) {
+        return '🚩'
+      }
+      if (cell.isQuestionMark) {
+        return '?'
+      }
       return ''
     }
-    if (cell.isExploded) return '💣'
-    if (cell.hasMine) return '💣'
-    if (cell.value === 0) return ''
+    if (cell.isExploded) {
+      return '💣'
+    }
+    if (cell.hasMine) {
+      return '💣'
+    }
+    if (cell.value === 0) {
+      return ''
+    }
     return String(cell.value)
   }
 

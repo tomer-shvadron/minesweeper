@@ -3,7 +3,9 @@ import { useCallback, useRef, useState } from 'react'
 function getTouchDistance(touches: React.TouchList): number {
   const t1 = touches[0]
   const t2 = touches[1]
-  if (!t1 || !t2) return 0
+  if (!t1 || !t2) {
+    return 0
+  }
   return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
 }
 
@@ -28,7 +30,9 @@ export function usePinchZoom(minScale = 1, maxScale = 5) {
 
   const onTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      if (e.touches.length !== 2 || lastDistanceRef.current === null) return
+      if (e.touches.length !== 2 || lastDistanceRef.current === null) {
+        return
+      }
       e.preventDefault() // prevent page zoom
       const newDist = getTouchDistance(e.touches)
       const ratio = newDist / lastDistanceRef.current

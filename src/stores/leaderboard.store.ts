@@ -30,7 +30,9 @@ export const useLeaderboardStore = create<LeaderboardStore>()(
 
       isHighScore: (boardKey, timeSeconds) => {
         const entries = get().entries[boardKey] ?? []
-        if (entries.length < MAX_ENTRIES) return true
+        if (entries.length < MAX_ENTRIES) {
+          return true
+        }
         const worst = entries[entries.length - 1]
         return worst !== undefined && timeSeconds < worst.timeSeconds
       },

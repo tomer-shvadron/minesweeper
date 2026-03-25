@@ -65,7 +65,9 @@ export const useGameStore = create<GameStore>()(
 
       revealCell: (row, col) => {
         const { board, config, isFirstClick, status } = get()
-        if (status === 'won' || status === 'lost') return
+        if (status === 'won' || status === 'lost') {
+          return
+        }
 
         let currentBoard = board
 
@@ -77,8 +79,11 @@ export const useGameStore = create<GameStore>()(
         const newBoard = revealCellFn(currentBoard, row, col)
 
         let newStatus: GameStatus = 'playing'
-        if (checkLoss(newBoard)) newStatus = 'lost'
-        else if (checkWin(newBoard)) newStatus = 'won'
+        if (checkLoss(newBoard)) {
+          newStatus = 'lost'
+        } else if (checkWin(newBoard)) {
+          newStatus = 'won'
+        }
 
         set({
           board: newBoard,
@@ -90,7 +95,9 @@ export const useGameStore = create<GameStore>()(
 
       flagCell: (row, col, allowQuestionMarks) => {
         const { board, config, status } = get()
-        if (status === 'won' || status === 'lost') return
+        if (status === 'won' || status === 'lost') {
+          return
+        }
         const newBoard = toggleFlag(board, row, col, allowQuestionMarks)
         set({
           board: newBoard,
@@ -100,12 +107,17 @@ export const useGameStore = create<GameStore>()(
 
       chordClick: (row, col) => {
         const { board, config, status } = get()
-        if (status !== 'playing') return
+        if (status !== 'playing') {
+          return
+        }
         const newBoard = chordReveal(board, row, col)
 
         let newStatus: GameStatus = 'playing'
-        if (checkLoss(newBoard)) newStatus = 'lost'
-        else if (checkWin(newBoard)) newStatus = 'won'
+        if (checkLoss(newBoard)) {
+          newStatus = 'lost'
+        } else if (checkWin(newBoard)) {
+          newStatus = 'won'
+        }
 
         set({
           board: newBoard,

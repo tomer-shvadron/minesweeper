@@ -12,7 +12,9 @@ export const useHighScorePromptLogic = () => {
   const [name, setName] = useState('')
 
   const handleSubmit = () => {
-    if (!highScoreEntry) return
+    if (!highScoreEntry) {
+      return
+    }
     const trimmed = name.trim() || 'Anonymous'
     addEntry(highScoreEntry.boardKey, {
       name: trimmed,

@@ -62,7 +62,9 @@ function setQuestionMark(board: Board, row: number, col: number): Board {
 
 function getCell(board: Board, row: number, col: number): CellState {
   const cell = board[row]?.[col]
-  if (!cell) throw new Error(`Cell [${row}][${col}] out of bounds`)
+  if (!cell) {
+    throw new Error(`Cell [${row}][${col}] out of bounds`)
+  }
   return cell
 }
 
@@ -266,7 +268,9 @@ describe('calculateAdjacentValues', () => {
     let board = makeBoard(3, 3)
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 3; c++) {
-        if (!(r === 1 && c === 1)) board = setMine(board, r, c)
+        if (!(r === 1 && c === 1)) {
+          board = setMine(board, r, c)
+        }
       }
     }
     const result = calculateAdjacentValues(board)

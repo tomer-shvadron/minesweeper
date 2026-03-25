@@ -9,7 +9,9 @@ export const useTimerLogic = () => {
 
   // Tick every second while the game is in progress
   useEffect(() => {
-    if (status !== 'playing') return
+    if (status !== 'playing') {
+      return
+    }
     const interval = setInterval(tick, 1000)
     return () => clearInterval(interval)
   }, [status, tick])

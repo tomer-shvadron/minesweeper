@@ -40,12 +40,18 @@ export function useLongPress({ onLongPress, onTap, delay = 500 }: UseLongPressOp
 
   const onTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      if (!startPosRef.current) return
+      if (!startPosRef.current) {
+        return
+      }
       const touch = e.touches[0]
-      if (!touch) return
+      if (!touch) {
+        return
+      }
       const dx = Math.abs(touch.clientX - startPosRef.current.x)
       const dy = Math.abs(touch.clientY - startPosRef.current.y)
-      if (dx > 10 || dy > 10) clearTimer()
+      if (dx > 10 || dy > 10) {
+        clearTimer()
+      }
     },
     [clearTimer]
   )
@@ -77,7 +83,9 @@ export function useLongPress({ onLongPress, onTap, delay = 500 }: UseLongPressOp
   const onContextMenu = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
-      if (!isTouchRef.current) onLongPress()
+      if (!isTouchRef.current) {
+        onLongPress()
+      }
     },
     [onLongPress]
   )

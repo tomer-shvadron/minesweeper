@@ -8,9 +8,13 @@
 let ctx: AudioContext | null = null
 
 function getCtx(): AudioContext {
-  if (!ctx) ctx = new AudioContext()
+  if (!ctx) {
+    ctx = new AudioContext()
+  }
   // Safari may suspend context until user gesture
-  if (ctx.state === 'suspended') ctx.resume()
+  if (ctx.state === 'suspended') {
+    ctx.resume()
+  }
   return ctx
 }
 
@@ -72,7 +76,9 @@ function playExplode(volume: number): void {
   const bufLen = ac.sampleRate * 0.5
   const buf = ac.createBuffer(1, bufLen, ac.sampleRate)
   const data = buf.getChannelData(0)
-  for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1
+  for (let i = 0; i < bufLen; i++) {
+    data[i] = Math.random() * 2 - 1
+  }
 
   const noise = ac.createBufferSource()
   noise.buffer = buf

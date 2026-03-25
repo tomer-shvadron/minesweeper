@@ -58,6 +58,7 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
     if (isGameOver || cell.isRevealed) {
       return
     }
+    navigator.vibrate?.(40)
     flagCell(row, col, allowQuestionMarks)
     sound('flag')
   }

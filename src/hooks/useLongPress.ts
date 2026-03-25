@@ -11,7 +11,7 @@ interface UseLongPressOptions {
  * - Touch: tap = onTap, long-press = onLongPress
  * - Mouse: click = onTap, right-click (contextmenu) = onLongPress
  */
-export function useLongPress({ onLongPress, onTap, delay = 500 }: UseLongPressOptions) {
+export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOptions) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggeredRef = useRef(false)
   const startPosRef = useRef<{ x: number; y: number } | null>(null)

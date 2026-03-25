@@ -17,7 +17,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/*.png', 'sounds/*.mp3', 'sounds/*.ogg'],
+      includeAssets: ['icons/*.png', 'icons/*.ico', 'icons/*.svg'],
       manifest: {
         name: 'Minesweeper',
         short_name: 'Minesweeper',
@@ -27,6 +27,11 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'any',
         icons: [
+          {
+            src: 'icons/pwa-64x64.png',
+            sizes: '64x64',
+            type: 'image/png',
+          },
           {
             src: 'icons/pwa-192x192.png',
             sizes: '192x192',
@@ -38,10 +43,10 @@ export default defineConfig({
             type: 'image/png',
           },
           {
-            src: 'icons/pwa-512x512.png',
+            src: 'icons/maskable-icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable',
+            purpose: 'maskable',
           },
         ],
       },

@@ -38,6 +38,9 @@ export default tseslint.config(
         { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
       ],
 
+      // Require curly braces for all control flow — no one-liners
+      curly: ['error', 'all'],
+
       // Unused vars — allow underscore-prefixed
       '@typescript-eslint/no-unused-vars': [
         'error',

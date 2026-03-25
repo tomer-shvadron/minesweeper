@@ -11,6 +11,7 @@ interface UIState {
   newGameModalOpen: boolean
   settingsModalOpen: boolean
   leaderboardModalOpen: boolean
+  resumePromptOpen: boolean
   /** Non-null when the player just set a high score and needs to enter their name */
   highScoreEntry: HighScoreEntry | null
 }
@@ -22,6 +23,8 @@ interface UIActions {
   closeNewGameModal: () => void
   closeSettingsModal: () => void
   closeLeaderboardModal: () => void
+  openResumePrompt: () => void
+  closeResumePrompt: () => void
   showHighScorePrompt: (entry: HighScoreEntry) => void
   dismissHighScorePrompt: () => void
 }
@@ -32,6 +35,7 @@ export const useUIStore = create<UIStore>()((set) => ({
   newGameModalOpen: false,
   settingsModalOpen: false,
   leaderboardModalOpen: false,
+  resumePromptOpen: false,
   highScoreEntry: null,
 
   openNewGameModal: () =>
@@ -44,6 +48,9 @@ export const useUIStore = create<UIStore>()((set) => ({
   closeNewGameModal: () => set({ newGameModalOpen: false }),
   closeSettingsModal: () => set({ settingsModalOpen: false }),
   closeLeaderboardModal: () => set({ leaderboardModalOpen: false }),
+
+  openResumePrompt: () => set({ resumePromptOpen: true }),
+  closeResumePrompt: () => set({ resumePromptOpen: false }),
 
   showHighScorePrompt: (entry) => set({ highScoreEntry: entry }),
   dismissHighScorePrompt: () => set({ highScoreEntry: null }),

@@ -1,4 +1,5 @@
 import { useLongPress } from '@/hooks/useLongPress'
+import { playSound } from '@/services/sound.service'
 import { useGameStore } from '@/stores/game.store'
 import { useSettingsStore } from '@/stores/settings.store'
 import type { CellState } from '@/types/game.types'
@@ -29,22 +30,31 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
   const setCellPressEnd = useGameStore((s) => s.setCellPressEnd)
   const status = useGameStore((s) => s.status)
   const flagMode = useSettingsStore((s) => s.flagMode)
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled)
+  const volume = useSettingsStore((s) => s.volume)
 
   const isGameOver = status === 'won' || status === 'lost'
   const allowQuestionMarks = flagMode === 'flags-and-questions'
+
+  const sound = (name: Parameters<typeof playSound>[0]) => {
+    if (soundEnabled) playSound(name, volume)
+  }
 
   const handleTap = () => {
     if (isGameOver) return
     if (cell.isRevealed) {
       chordClick(row, col)
+      sound('reveal')
     } else {
       revealCell(row, col)
+      sound('reveal')
     }
   }
 
   const handleLongPress = () => {
     if (isGameOver || cell.isRevealed) return
     flagCell(row, col, allowQuestionMarks)
+    sound('flag')
   }
 
   const longPressHandlers = useLongPress({

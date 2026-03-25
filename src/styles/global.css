@@ -492,3 +492,17 @@
     font-size: 0.875rem;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * ResumePrompt extras
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .resume-info {
+    font-size: 0.875rem;
+  }
+
+  .resume-details {
+    font-size: 0.9375rem;
+    font-weight: bold;
+  }
+}

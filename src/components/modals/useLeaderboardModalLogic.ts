@@ -30,16 +30,12 @@ export const useLeaderboardModalLogic = () => {
 
   const entries = allEntries[selectedTab] ?? []
 
-  const clearScores = useLeaderboardStore(() => {
-    // Inline clear action — removes entries for the selected board key
-    return () =>
-      useLeaderboardStore.setState((prev) => {
-        const next = { ...prev.entries }
-        const { [selectedTab]: _removed, ...rest } = next
-        void _removed
-        return { entries: rest }
-      })
-  })
+  const clearScores = () =>
+    useLeaderboardStore.setState((prev) => {
+      const { [selectedTab]: _removed, ...rest } = prev.entries
+      void _removed
+      return { entries: rest }
+    })
 
   return { allTabs, selectedTab, setSelectedTab, entries, clearScores, closeModal }
 }

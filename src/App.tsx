@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 
 import { GameBoard } from '@/components/board/GameBoard'
+import { GameOverBanner } from '@/components/game-over/GameOverBanner'
 import { Header } from '@/components/header/Header'
 import { HighScorePrompt } from '@/components/modals/HighScorePrompt'
 import { LeaderboardModal } from '@/components/modals/LeaderboardModal'
@@ -23,6 +24,7 @@ export const App = () => {
   const volume = useSettingsStore((s) => s.volume)
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled)
   const isHighScore = useLeaderboardStore((s) => s.isHighScore)
+  const incrementGamesPlayed = useLeaderboardStore((s) => s.incrementGamesPlayed)
   const showHighScorePrompt = useUIStore((s) => s.showHighScorePrompt)
   const openResumePrompt = useUIStore((s) => s.openResumePrompt)
 
@@ -48,6 +50,7 @@ export const App = () => {
         playSound('win', volume)
       }
       const boardKey = createBoardKey(config)
+      incrementGamesPlayed(boardKey)
       if (isHighScore(boardKey, elapsedSeconds)) {
         showHighScorePrompt({ boardKey, timeSeconds: elapsedSeconds })
       }
@@ -55,6 +58,8 @@ export const App = () => {
       if (soundEnabled) {
         playSound('explode', volume)
       }
+      const boardKey = createBoardKey(config)
+      incrementGamesPlayed(boardKey)
     }
   }, [status]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -62,6 +67,7 @@ export const App = () => {
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg)]">
       <div className="game-window">
         <Header />
+        <GameOverBanner />
         <GameBoard />
       </div>
 

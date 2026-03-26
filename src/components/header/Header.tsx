@@ -18,7 +18,7 @@ export const Header = () => {
             aria-label="Leaderboard"
             onClick={openLeaderboardModal}
           >
-            <Trophy size={20} strokeWidth={1.75} />
+            <Trophy size={26} strokeWidth={1.75} />
           </button>
           <MineCounter />
         </div>
@@ -33,7 +33,7 @@ export const Header = () => {
             aria-label="Settings"
             onClick={openSettingsModal}
           >
-            <Settings size={20} strokeWidth={1.75} />
+            <Settings size={26} strokeWidth={1.75} />
           </button>
         </div>
       </div>

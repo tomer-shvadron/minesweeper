@@ -112,9 +112,9 @@
 
 @layer components {
   .smiley-button {
-    width: 38px;
-    height: 38px;
-    font-size: 1.375rem;
+    width: 44px;
+    height: 44px;
+    font-size: 1.625rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -137,16 +137,16 @@
     box-shadow:
       inset 2px 2px 0 var(--color-border-light),
       inset -2px -2px 0 var(--color-border-dark);
-    padding: 4px 16px;
-    font-size: 0.875rem;
+    padding: 6px 20px;
+    font-size: 1rem;
     font-weight: bold;
   }
 
   .btn-secondary {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border-dark);
-    padding: 4px 12px;
-    font-size: 0.875rem;
+    padding: 6px 16px;
+    font-size: 1rem;
   }
 
   .btn-ghost {
@@ -171,9 +171,9 @@
     background: transparent;
     border: none;
     outline: none;
-    width: 36px;
-    height: 36px;
-    font-size: 1.125rem;
+    width: 42px;
+    height: 42px;
+    font-size: 1.375rem;
     cursor: pointer;
     line-height: 1;
     border-radius: 4px;
@@ -206,8 +206,8 @@
       inset 2px 2px 0 var(--color-border-light),
       inset -2px -2px 0 var(--color-border-darker),
       4px 4px 8px rgba(0, 0, 0, 0.4);
-    min-width: 280px;
-    max-width: min(480px, 92vw);
+    min-width: 340px;
+    max-width: min(520px, 94vw);
     display: flex;
     flex-direction: column;
   }
@@ -218,8 +218,8 @@
     justify-content: space-between;
     background-color: var(--color-titlebar-bg);
     color: var(--color-titlebar-text);
-    padding: 3px 4px 3px 6px;
-    font-size: 0.8125rem;
+    padding: 4px 6px 4px 8px;
+    font-size: 0.9375rem;
     font-weight: bold;
     user-select: none;
   }
@@ -229,9 +229,9 @@
     color: #000;
     border: none;
     outline: none;
-    width: 16px;
-    height: 14px;
-    font-size: 0.625rem;
+    width: 20px;
+    height: 18px;
+    font-size: 0.75rem;
     line-height: 1;
     cursor: pointer;
     display: flex;
@@ -249,10 +249,10 @@
   }
 
   .modal-content {
-    padding: 16px;
+    padding: 18px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
   }
 
   .modal-section {
@@ -278,8 +278,8 @@
   }
 
   .preset-radio {
-    width: 14px;
-    height: 14px;
+    width: 17px;
+    height: 17px;
     border-radius: 50%;
     border: 2px solid var(--color-border-dark);
     background-color: var(--color-surface);
@@ -297,20 +297,20 @@
   .preset-radio[data-state='checked']::after {
     content: '';
     display: block;
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background-color: var(--color-n4);
   }
 
   .preset-label {
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
   }
 
   .preset-detail {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     color: var(--color-border-darker);
     margin-left: auto;
   }
@@ -355,26 +355,26 @@
 
 @layer components {
   .settings-group-label {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--color-border-darker);
     border-bottom: 1px solid var(--color-border-dark);
-    padding-bottom: 2px;
+    padding-bottom: 3px;
     margin-bottom: 4px;
   }
 
   .theme-options {
     display: flex;
-    gap: 8px;
+    gap: 16px;
   }
 
   .theme-option {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.875rem;
+    gap: 8px;
+    font-size: 1rem;
     cursor: pointer;
   }
 
@@ -383,7 +383,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
 
   .toggle-label {
@@ -391,8 +391,8 @@
   }
 
   .switch-root {
-    width: 36px;
-    height: 20px;
+    width: 42px;
+    height: 24px;
     border-radius: 9999px;
     border: none;
     cursor: pointer;
@@ -413,8 +413,8 @@
 
   .switch-thumb {
     display: block;
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
     border-radius: 9999px;
     background-color: #fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -423,14 +423,14 @@
   }
 
   .switch-thumb[data-state='checked'] {
-    transform: translateX(19px);
+    transform: translateX(21px);
   }
 
   .slider-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
 
   .slider-label {
@@ -497,8 +497,8 @@
   }
 
   .leaderboard-tab {
-    padding: 4px 10px;
-    font-size: 0.8125rem;
+    padding: 5px 14px;
+    font-size: 0.9375rem;
     cursor: pointer;
     background-color: var(--color-surface);
     border: 1px solid var(--color-border-dark);
@@ -513,26 +513,39 @@
     font-weight: bold;
   }
 
+  .leaderboard-games-played {
+    font-size: 0.8125rem;
+    color: var(--color-border-darker);
+    margin: 0;
+  }
+
   .leaderboard-table {
     width: 100%;
-    min-height: 160px;
+    min-height: 180px;
+  }
+
+  .leaderboard-empty {
+    font-size: 0.9375rem;
+    color: var(--color-border-darker);
+    text-align: center;
+    padding: 24px 0;
   }
 
   .scores-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
   }
 
   .scores-table th {
     text-align: left;
-    padding: 3px 6px;
+    padding: 5px 10px;
     font-weight: bold;
     border-bottom: 1px solid var(--color-border-dark);
   }
 
   .scores-table td {
-    padding: 3px 6px;
+    padding: 5px 10px;
   }
 
   .scores-table tr:nth-child(even) {
@@ -542,11 +555,59 @@
 
 @layer components {
   .highscore-time {
-    font-size: 0.9375rem;
+    font-size: 1rem;
   }
 
   .highscore-prompt {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
+  }
+}
+
+@layer components {
+  .game-over-banner {
+    background-color: var(--color-surface);
+    box-shadow: inset 0 -2px 0 var(--color-border-dark);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    animation: banner-slide-in 0.2s ease-out;
+  }
+
+  @keyframes banner-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  body[data-animations='false'] .game-over-banner {
+    animation: none;
+  }
+
+  .game-over-result-text {
+    font-size: 1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .game-over-time {
+    font-weight: normal;
+    color: var(--color-border-darker);
+  }
+
+  .game-over-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
   }
 }
 

@@ -20,8 +20,16 @@ vi.mock('@/stores/ui.store', () => ({
 const { mockUseLeaderboardStore, mockSetState } = vi.hoisted(() => {
   const mockSetState = vi.fn()
   const mockUseLeaderboardStore = Object.assign(
-    (selector: (s: object) => unknown) => selector({ entries: mockUseLeaderboardStore._entries }),
-    { setState: mockSetState, _entries: {} as Record<string, unknown[]> }
+    (selector: (s: object) => unknown) =>
+      selector({
+        entries: mockUseLeaderboardStore._entries,
+        gamesPlayed: mockUseLeaderboardStore._gamesPlayed,
+      }),
+    {
+      setState: mockSetState,
+      _entries: {} as Record<string, unknown[]>,
+      _gamesPlayed: {} as Record<string, number>,
+    }
   )
   return { mockUseLeaderboardStore, mockSetState }
 })
@@ -43,6 +51,7 @@ describe('LeaderboardModal', () => {
     vi.clearAllMocks()
     mockIsOpen = true
     mockUseLeaderboardStore._entries = {}
+    mockUseLeaderboardStore._gamesPlayed = {}
     mockUseLeaderboardStore.setState = mockSetState
   })
 
@@ -66,7 +75,7 @@ describe('LeaderboardModal', () => {
 
   it('shows "No scores yet" when leaderboard is empty', () => {
     render(<LeaderboardModal />)
-    expect(screen.getByText(/no scores yet/i)).toBeTruthy()
+    expect(screen.getByText(/play a game/i)).toBeTruthy()
   })
 
   it('renders scores when entries exist', () => {

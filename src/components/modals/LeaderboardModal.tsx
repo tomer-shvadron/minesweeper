@@ -18,8 +18,15 @@ function tabLabel(key: BoardKey): string {
 
 export const LeaderboardModal = () => {
   const isOpen = useUIStore((s) => s.leaderboardModalOpen)
-  const { allTabs, selectedTab, setSelectedTab, entries, clearScores, closeModal } =
-    useLeaderboardModalLogic()
+  const {
+    allTabs,
+    selectedTab,
+    setSelectedTab,
+    entries,
+    gamesPlayedCount,
+    clearScores,
+    closeModal,
+  } = useLeaderboardModalLogic()
 
   return (
     <Modal isOpen={isOpen} title="Best Times" onClose={closeModal}>
@@ -37,10 +44,21 @@ export const LeaderboardModal = () => {
         ))}
       </div>
 
+      {/* Games played stat */}
+      <p className="leaderboard-games-played">
+        {gamesPlayedCount > 0
+          ? `${gamesPlayedCount} game${gamesPlayedCount !== 1 ? 's' : ''} played`
+          : 'No games played yet'}
+      </p>
+
       {/* Scores table */}
       <div className="leaderboard-table">
         {entries.length === 0 ? (
-          <p className="leaderboard-empty">No scores yet. Play a game!</p>
+          <p className="leaderboard-empty">
+            {gamesPlayedCount > 0
+              ? 'No high scores yet — keep playing!'
+              : 'Play a game to set a record!'}
+          </p>
         ) : (
           <table className="scores-table">
             <thead>

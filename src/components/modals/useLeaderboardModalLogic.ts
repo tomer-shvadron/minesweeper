@@ -11,6 +11,7 @@ const PRESET_KEYS: BoardKey[] = ['beginner', 'intermediate', 'expert']
 export const useLeaderboardModalLogic = () => {
   const closeModal = useUIStore((s) => s.closeLeaderboardModal)
   const allEntries = useLeaderboardStore((s) => s.entries)
+  const allGamesPlayed = useLeaderboardStore((s) => s.gamesPlayed)
   const config = useGameStore((s) => s.config)
 
   const currentBoardKey = createBoardKey(config)
@@ -29,6 +30,7 @@ export const useLeaderboardModalLogic = () => {
   )
 
   const entries = allEntries[selectedTab] ?? []
+  const gamesPlayedCount = allGamesPlayed[selectedTab] ?? 0
 
   const clearScores = () =>
     useLeaderboardStore.setState((prev) => {
@@ -37,5 +39,13 @@ export const useLeaderboardModalLogic = () => {
       return { entries: rest }
     })
 
-  return { allTabs, selectedTab, setSelectedTab, entries, clearScores, closeModal }
+  return {
+    allTabs,
+    selectedTab,
+    setSelectedTab,
+    entries,
+    gamesPlayedCount,
+    clearScores,
+    closeModal,
+  }
 }

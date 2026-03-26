@@ -24,6 +24,7 @@ vi.mock('@/stores/leaderboard.store', () => ({
   useLeaderboardStore: (selector: (s: object) => unknown) =>
     selector({
       addEntry: mockAddEntry,
+      lastPlayerName: '',
     }),
 }))
 

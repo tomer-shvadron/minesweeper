@@ -20,12 +20,13 @@ vi.mock('@/stores/ui.store', () => ({
 // ---- leaderboard.store mock ----
 const mockAddEntry = vi.fn()
 
+const mockLeaderboardState = { addEntry: mockAddEntry, lastPlayerName: '' }
+
 vi.mock('@/stores/leaderboard.store', () => ({
-  useLeaderboardStore: (selector: (s: object) => unknown) =>
-    selector({
-      addEntry: mockAddEntry,
-      lastPlayerName: '',
-    }),
+  useLeaderboardStore: Object.assign(
+    (selector: (s: object) => unknown) => selector(mockLeaderboardState),
+    { getState: () => mockLeaderboardState }
+  ),
 }))
 
 describe('HighScorePrompt', () => {

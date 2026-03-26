@@ -67,10 +67,10 @@ export const App = () => {
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg)]">
       <div className="game-window">
         <Header />
-        <GameOverBanner />
         <GameBoard />
       </div>
 
+      <GameOverBanner />
       <ResumePrompt />
       <NewGameModal />
       <SettingsModal />

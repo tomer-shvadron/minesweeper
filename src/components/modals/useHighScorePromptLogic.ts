@@ -8,11 +8,12 @@ export const useHighScorePromptLogic = () => {
   const dismissHighScorePrompt = useUIStore((s) => s.dismissHighScorePrompt)
   const openLeaderboardModal = useUIStore((s) => s.openLeaderboardModal)
   const addEntry = useLeaderboardStore((s) => s.addEntry)
-  const lastPlayerName = useLeaderboardStore((s) => s.lastPlayerName)
 
-  // Initialise from the persisted last-used name so the field is pre-filled on first open.
-  // We preserve the value in state across opens so subsequent prompts are also pre-filled.
-  const [name, setName] = useState(lastPlayerName)
+  // Lazy initialiser reads directly from the already-hydrated store instance so the
+  // persisted localStorage value is captured even before any React re-render cycle.
+  // We then preserve the value in local state across opens so subsequent prompts are
+  // also pre-filled without touching the store on every keystroke.
+  const [name, setName] = useState(() => useLeaderboardStore.getState().lastPlayerName)
 
   const handleSubmit = () => {
     if (!highScoreEntry) {

@@ -83,6 +83,26 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
     (e: React.TouchEvent) => {
       clearTimer()
       const pressDuration = Date.now() - (pressStartTimeRef.current ?? 0)
+
+      // Fallback swipe-to-flag: if touchmove didn't fire reliably (iOS coalescing),
+      // check total displacement at lift. If the finger moved ≥ SWIPE_DOWN_THRESHOLD
+      // downward and long-press hasn't already fired, treat it as a swipe flag.
+      if (!swipeFlaggedRef.current && !longPressTriggeredRef.current && startPosRef.current) {
+        const changedTouch = e.changedTouches[0]
+        if (changedTouch) {
+          const totalDy = changedTouch.clientY - startPosRef.current.y
+          if (totalDy >= SWIPE_DOWN_THRESHOLD) {
+            onLongPress()
+            longPressTriggeredRef.current = false
+            movedRef.current = false
+            swipeFlaggedRef.current = false
+            pressStartTimeRef.current = null
+            startPosRef.current = null
+            return
+          }
+        }
+      }
+
       if (
         !longPressTriggeredRef.current &&
         !movedRef.current &&
@@ -96,8 +116,9 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
       movedRef.current = false
       swipeFlaggedRef.current = false
       pressStartTimeRef.current = null
+      startPosRef.current = null
     },
-    [clearTimer, onTap]
+    [clearTimer, onLongPress, onTap]
   )
 
   const onClick = useCallback(

@@ -8,6 +8,7 @@ export const GameBoard = () => {
   return (
     <div
       className="overflow-hidden"
+      data-testid="board"
       style={{ width: boardWidth, height: boardHeight, touchAction: 'none' }}
       {...pinchHandlers}
     >

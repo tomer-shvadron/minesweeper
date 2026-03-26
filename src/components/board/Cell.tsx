@@ -23,6 +23,8 @@ export const Cell = ({ row, col, cell, cellSize }: CellProps) => {
       style={{ width: cellSize, height: cellSize, fontSize }}
       className={containerClass}
       aria-label={`Cell ${row},${col}`}
+      data-row={row}
+      data-col={col}
       {...handlers}
     >
       <span className={numberClass}>{content}</span>

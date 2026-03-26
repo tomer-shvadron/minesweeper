@@ -1,6 +1,5 @@
 import { useLeaderboardModalLogic } from './useLeaderboardModalLogic'
 
-import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { useUIStore } from '@/stores/ui.store'
 import type { BoardKey } from '@/types/game.types'
@@ -18,15 +17,8 @@ function tabLabel(key: BoardKey): string {
 
 export const LeaderboardModal = () => {
   const isOpen = useUIStore((s) => s.leaderboardModalOpen)
-  const {
-    allTabs,
-    selectedTab,
-    setSelectedTab,
-    entries,
-    gamesPlayedCount,
-    clearScores,
-    closeModal,
-  } = useLeaderboardModalLogic()
+  const { allTabs, selectedTab, setSelectedTab, entries, gamesPlayedCount, closeModal } =
+    useLeaderboardModalLogic()
 
   return (
     <Modal isOpen={isOpen} title="Best Times" onClose={closeModal}>
@@ -79,17 +71,6 @@ export const LeaderboardModal = () => {
             </tbody>
           </table>
         )}
-      </div>
-
-      <div className="modal-actions">
-        {entries.length > 0 && (
-          <Button variant="secondary" onClick={clearScores}>
-            Clear
-          </Button>
-        )}
-        <Button variant="primary" onClick={closeModal}>
-          Close
-        </Button>
       </div>
     </Modal>
   )

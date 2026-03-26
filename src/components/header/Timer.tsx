@@ -4,5 +4,9 @@ import { LcdDisplay } from '@/components/ui/LcdDisplay'
 
 export const Timer = () => {
   const { elapsedSeconds } = useTimerLogic()
-  return <LcdDisplay value={elapsedSeconds} />
+  return (
+    <div data-testid="timer">
+      <LcdDisplay value={elapsedSeconds} />
+    </div>
+  )
 }

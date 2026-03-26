@@ -32,20 +32,12 @@ export const useLeaderboardModalLogic = () => {
   const entries = allEntries[selectedTab] ?? []
   const gamesPlayedCount = allGamesPlayed[selectedTab] ?? 0
 
-  const clearScores = () =>
-    useLeaderboardStore.setState((prev) => {
-      const { [selectedTab]: _removed, ...rest } = prev.entries
-      void _removed
-      return { entries: rest }
-    })
-
   return {
     allTabs,
     selectedTab,
     setSelectedTab,
     entries,
     gamesPlayedCount,
-    clearScores,
     closeModal,
   }
 }

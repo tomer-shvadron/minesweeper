@@ -17,8 +17,7 @@ vi.mock('@/stores/ui.store', () => ({
 
 // ---- leaderboard.store mock ----
 // We use vi.hoisted so the mock object exists before the hoisted vi.mock factory runs
-const { mockUseLeaderboardStore, mockSetState } = vi.hoisted(() => {
-  const mockSetState = vi.fn()
+const { mockUseLeaderboardStore } = vi.hoisted(() => {
   const mockUseLeaderboardStore = Object.assign(
     (selector: (s: object) => unknown) =>
       selector({
@@ -26,12 +25,11 @@ const { mockUseLeaderboardStore, mockSetState } = vi.hoisted(() => {
         gamesPlayed: mockUseLeaderboardStore._gamesPlayed,
       }),
     {
-      setState: mockSetState,
       _entries: {} as Record<string, unknown[]>,
       _gamesPlayed: {} as Record<string, number>,
     }
   )
-  return { mockUseLeaderboardStore, mockSetState }
+  return { mockUseLeaderboardStore }
 })
 
 vi.mock('@/stores/leaderboard.store', () => ({
@@ -52,7 +50,6 @@ describe('LeaderboardModal', () => {
     mockIsOpen = true
     mockUseLeaderboardStore._entries = {}
     mockUseLeaderboardStore._gamesPlayed = {}
-    mockUseLeaderboardStore.setState = mockSetState
   })
 
   it('renders nothing when closed', () => {
@@ -87,32 +84,10 @@ describe('LeaderboardModal', () => {
     expect(screen.getByText('45s')).toBeTruthy()
   })
 
-  it('does not show Clear button when no entries', () => {
+  it('does not show Clear or Close buttons', () => {
     render(<LeaderboardModal />)
     expect(screen.queryByText('Clear')).toBeNull()
-  })
-
-  it('shows Clear button when entries exist', () => {
-    mockUseLeaderboardStore._entries = {
-      beginner: [{ name: 'Bob', timeSeconds: 30, date: '2025-01-01T00:00:00.000Z' }],
-    }
-    render(<LeaderboardModal />)
-    expect(screen.getByText('Clear')).toBeTruthy()
-  })
-
-  it('calls setState when Clear is clicked', () => {
-    mockUseLeaderboardStore._entries = {
-      beginner: [{ name: 'Bob', timeSeconds: 30, date: '2025-01-01T00:00:00.000Z' }],
-    }
-    render(<LeaderboardModal />)
-    fireEvent.click(screen.getByText('Clear'))
-    expect(mockSetState).toHaveBeenCalledTimes(1)
-  })
-
-  it('calls closeModal when Close is clicked', () => {
-    render(<LeaderboardModal />)
-    fireEvent.click(screen.getByText('Close'))
-    expect(mockCloseLeaderboard).toHaveBeenCalledTimes(1)
+    expect(screen.queryByText('Close')).toBeNull()
   })
 
   it('switches tab when another tab is clicked', () => {

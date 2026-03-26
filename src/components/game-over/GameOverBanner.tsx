@@ -12,7 +12,7 @@ export const GameOverBanner = () => {
   }
 
   return (
-    <div className="game-over-banner">
+    <div className="game-over-banner" data-testid="game-over-banner">
       <span className="game-over-result-text">
         {isWon ? '😎 You won!' : '💣 Game over'}
         {isWon && <span className="game-over-time"> · {formatTime(elapsedSeconds)}</span>}

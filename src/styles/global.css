@@ -515,7 +515,7 @@
 
   .leaderboard-games-played {
     font-size: 0.8125rem;
-    color: var(--color-border-darker);
+    color: var(--color-text-muted);
     margin: 0;
   }
 
@@ -526,7 +526,7 @@
 
   .leaderboard-empty {
     font-size: 0.9375rem;
-    color: var(--color-border-darker);
+    color: var(--color-text-muted);
     text-align: center;
     padding: 24px 0;
   }
@@ -579,7 +579,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 20px;
     flex-wrap: wrap;
     animation: banner-slide-in 0.2s ease-out;
   }
@@ -609,12 +609,12 @@
 
   .game-over-time {
     font-weight: normal;
-    color: var(--color-border-darker);
+    color: var(--color-text-muted);
   }
 
   .game-over-actions {
     display: flex;
-    gap: 6px;
+    gap: 10px;
     flex-shrink: 0;
   }
 }

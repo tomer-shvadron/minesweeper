@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { GameBoard } from '@/components/board/GameBoard'
 import { GameOverBanner } from '@/components/game-over/GameOverBanner'
@@ -45,7 +45,16 @@ export const App = () => {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const prevStatusRef = useRef(status)
   useEffect(() => {
+    const prevStatus = prevStatusRef.current
+    prevStatusRef.current = status
+
+    // Skip if status hasn't actually changed (e.g. persisted 'won'/'lost' on page refresh)
+    if (status === prevStatus) {
+      return
+    }
+
     if (status === 'won') {
       if (soundEnabled) {
         playSound('win', volume)

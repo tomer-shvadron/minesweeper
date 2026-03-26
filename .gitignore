@@ -38,3 +38,6 @@ coverage
 *.tsbuildinfo
 
 .claude/worktrees/*
+# Playwright test artifacts
+test-results/
+playwright-report/

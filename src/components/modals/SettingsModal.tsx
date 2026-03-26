@@ -1,10 +1,12 @@
+import type React from 'react'
+
 import { useSettingsModalLogic } from './useSettingsModalLogic'
 
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup'
 import { Slider } from '@/components/ui/Slider'
 import { Toggle } from '@/components/ui/Toggle'
+import { THEME_LABELS, THEME_PREVIEW, THEMES } from '@/constants/theme.constants'
 import { useUIStore } from '@/stores/ui.store'
 
 export const SettingsModal = () => {
@@ -27,18 +29,29 @@ export const SettingsModal = () => {
     <Modal isOpen={isOpen} title="Settings" onClose={closeModal}>
       <div className="modal-section">
         <p className="settings-group-label">Theme</p>
-        <RadioGroup
-          value={theme}
-          onValueChange={(v) => setTheme(v as typeof theme)}
-          className="theme-options"
-        >
-          {(['xp', 'dark'] as const).map((t) => (
-            <label key={t} className="theme-option">
-              <RadioGroupItem value={t} className="preset-radio" />
-              <span>{t === 'xp' ? 'Classic XP' : 'Dark'}</span>
-            </label>
+        <div className="theme-picker">
+          {THEMES.map((t) => (
+            <button
+              key={t}
+              type="button"
+              className={theme === t ? 'theme-swatch theme-swatch--active' : 'theme-swatch'}
+              onClick={() => setTheme(t)}
+              aria-label={THEME_LABELS[t]}
+              aria-pressed={theme === t}
+            >
+              <span
+                className="theme-swatch__preview"
+                style={
+                  {
+                    backgroundColor: THEME_PREVIEW[t].surface,
+                    '--swatch-accent': THEME_PREVIEW[t].accent,
+                  } as React.CSSProperties
+                }
+              />
+              <span className="theme-swatch__label">{THEME_LABELS[t]}</span>
+            </button>
           ))}
-        </RadioGroup>
+        </div>
       </div>
 
       <div className="modal-section">

@@ -1,4 +1,4 @@
-export type Theme = 'xp' | 'dark'
+export type Theme = 'xp' | 'dark' | 'material' | 'aero' | 'pastel' | 'neon' | 'aqua'
 export type FlagMode = 'flags-only' | 'flags-and-questions'
 
 export interface Settings {

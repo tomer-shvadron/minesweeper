@@ -2,7 +2,7 @@ import { Cell } from './Cell'
 import { useGameBoardLogic } from './useGameBoardLogic'
 
 export const GameBoard = () => {
-  const { board, config, cellSize, boardWidth, boardHeight, scale, pinchHandlers } =
+  const { board, config, cellSize, boardWidth, boardHeight, scale, panX, panY, pinchHandlers } =
     useGameBoardLogic()
 
   return (
@@ -15,7 +15,7 @@ export const GameBoard = () => {
         style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${config.cols}, ${cellSize}px)`,
-          transform: `scale(${scale})`,
+          transform: `translate(${panX}px, ${panY}px) scale(${scale})`,
           transformOrigin: 'center center',
           width: boardWidth,
           height: boardHeight,

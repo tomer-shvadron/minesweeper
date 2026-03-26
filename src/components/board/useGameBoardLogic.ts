@@ -7,12 +7,17 @@ import { useGameStore } from '@/stores/game.store'
 export const useGameBoardLogic = () => {
   const board = useGameStore((s) => s.board)
   const { cellSize, boardWidth, boardHeight, config } = useGameLayout()
-  const { scale, handlers: pinchHandlers, resetZoom } = usePinchZoom(1, 5)
+  const {
+    scale,
+    panX,
+    panY,
+    handlers: pinchHandlers,
+    resetZoom,
+  } = usePinchZoom(1, 5, boardWidth, boardHeight)
 
-  // Reset zoom whenever the board config changes
   useEffect(() => {
     resetZoom()
   }, [config.rows, config.cols, config.mines, resetZoom])
 
-  return { board, config, cellSize, boardWidth, boardHeight, scale, pinchHandlers }
+  return { board, config, cellSize, boardWidth, boardHeight, scale, panX, panY, pinchHandlers }
 }

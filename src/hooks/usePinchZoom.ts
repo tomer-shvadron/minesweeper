@@ -9,46 +9,101 @@ function getTouchDistance(touches: React.TouchList): number {
   return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
 }
 
-/**
- * Detects a two-finger pinch gesture and returns a scale factor.
- * Spread the returned handlers onto the element you want to be zoomable.
- */
-export function usePinchZoom(minScale = 1, maxScale = 5) {
+const PAN_THRESHOLD = 10
+
+export function usePinchZoom(minScale = 1, maxScale = 5, boardWidth = 0, boardHeight = 0) {
   const [scale, setScale] = useState(1)
+  const [panX, setPanX] = useState(0)
+  const [panY, setPanY] = useState(0)
+
+  const scaleRef = useRef(1)
+  const panXRef = useRef(0)
+  const panYRef = useRef(0)
+
   const lastDistanceRef = useRef<number | null>(null)
   const baseScaleRef = useRef(1)
+  const lastPanPosRef = useRef<{ x: number; y: number } | null>(null)
+  const isPanningRef = useRef(false)
 
-  const onTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      if (e.touches.length === 2) {
-        lastDistanceRef.current = getTouchDistance(e.touches)
-        baseScaleRef.current = scale
-      }
-    },
-    [scale]
+  const clampPan = useCallback(
+    (x: number, y: number, s: number) => ({
+      x: Math.min((boardWidth / 2) * (s - 1), Math.max(-((boardWidth / 2) * (s - 1)), x)),
+      y: Math.min((boardHeight / 2) * (s - 1), Math.max(-((boardHeight / 2) * (s - 1)), y)),
+    }),
+    [boardWidth, boardHeight]
   )
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      lastDistanceRef.current = getTouchDistance(e.touches)
+      baseScaleRef.current = scaleRef.current
+      lastPanPosRef.current = null
+    } else if (e.touches.length === 1) {
+      const touch = e.touches[0]
+      if (touch) {
+        lastPanPosRef.current = { x: touch.clientX, y: touch.clientY }
+        isPanningRef.current = false
+      }
+    }
+  }, [])
 
   const onTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      if (e.touches.length !== 2 || lastDistanceRef.current === null) {
-        return
+      if (e.touches.length === 2 && lastDistanceRef.current !== null) {
+        const newDist = getTouchDistance(e.touches)
+        const ratio = newDist / lastDistanceRef.current
+        const newScale = Math.min(maxScale, Math.max(minScale, baseScaleRef.current * ratio))
+        scaleRef.current = newScale
+        setScale(newScale)
+        const clamped = clampPan(panXRef.current, panYRef.current, newScale)
+        panXRef.current = clamped.x
+        panYRef.current = clamped.y
+        setPanX(clamped.x)
+        setPanY(clamped.y)
+      } else if (e.touches.length === 1 && scaleRef.current > 1 && lastPanPosRef.current) {
+        const touch = e.touches[0]
+        if (!touch) {
+          return
+        }
+        const dx = touch.clientX - lastPanPosRef.current.x
+        const dy = touch.clientY - lastPanPosRef.current.y
+        if (
+          !isPanningRef.current &&
+          (Math.abs(dx) > PAN_THRESHOLD || Math.abs(dy) > PAN_THRESHOLD)
+        ) {
+          isPanningRef.current = true
+        }
+        if (isPanningRef.current) {
+          const clamped = clampPan(panXRef.current + dx, panYRef.current + dy, scaleRef.current)
+          panXRef.current = clamped.x
+          panYRef.current = clamped.y
+          setPanX(clamped.x)
+          setPanY(clamped.y)
+          lastPanPosRef.current = { x: touch.clientX, y: touch.clientY }
+        }
       }
-      e.preventDefault() // prevent page zoom
-      const newDist = getTouchDistance(e.touches)
-      const ratio = newDist / lastDistanceRef.current
-      const newScale = Math.min(maxScale, Math.max(minScale, baseScaleRef.current * ratio))
-      setScale(newScale)
     },
-    [minScale, maxScale]
+    [minScale, maxScale, clampPan]
   )
 
   const onTouchEnd = useCallback((e: React.TouchEvent) => {
     if (e.touches.length < 2) {
       lastDistanceRef.current = null
     }
+    if (e.touches.length === 0) {
+      lastPanPosRef.current = null
+      isPanningRef.current = false
+    }
   }, [])
 
-  const resetZoom = useCallback(() => setScale(1), [])
+  const resetZoom = useCallback(() => {
+    scaleRef.current = 1
+    setScale(1)
+    panXRef.current = 0
+    panYRef.current = 0
+    setPanX(0)
+    setPanY(0)
+  }, [])
 
-  return { scale, handlers: { onTouchStart, onTouchMove, onTouchEnd }, resetZoom }
+  return { scale, panX, panY, handlers: { onTouchStart, onTouchMove, onTouchEnd }, resetZoom }
 }

@@ -6,14 +6,10 @@ interface UseLongPressOptions {
   delay?: number
 }
 
-/**
- * Unified long-press / tap handler for both touch (mobile) and mouse (desktop).
- * - Touch: tap = onTap, long-press = onLongPress
- * - Mouse: click = onTap, right-click (contextmenu) = onLongPress
- */
 export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOptions) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggeredRef = useRef(false)
+  const movedRef = useRef(false)
   const startPosRef = useRef<{ x: number; y: number } | null>(null)
   const isTouchRef = useRef(false)
 
@@ -28,6 +24,7 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
     (e: React.TouchEvent) => {
       isTouchRef.current = true
       longPressTriggeredRef.current = false
+      movedRef.current = false
       const touch = e.touches[0]
       startPosRef.current = touch ? { x: touch.clientX, y: touch.clientY } : null
       timerRef.current = setTimeout(() => {
@@ -51,6 +48,7 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
       const dy = Math.abs(touch.clientY - startPosRef.current.y)
       if (dx > 10 || dy > 10) {
         clearTimer()
+        movedRef.current = true
       }
     },
     [clearTimer]
@@ -59,18 +57,18 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
   const onTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       clearTimer()
-      if (!longPressTriggeredRef.current) {
-        e.preventDefault() // prevent ghost click on mobile
+      if (!longPressTriggeredRef.current && !movedRef.current) {
+        e.preventDefault()
         onTap()
       }
       longPressTriggeredRef.current = false
+      movedRef.current = false
     },
     [clearTimer, onTap]
   )
 
   const onClick = useCallback(
     (_e: React.MouseEvent) => {
-      // Ignore click if this interaction started as a touch (already handled by onTouchEnd)
       if (isTouchRef.current) {
         isTouchRef.current = false
         return

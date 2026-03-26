@@ -87,6 +87,34 @@ describe('useLongPress', () => {
   })
 
   // ----------------------------------------------------------------
+  describe('touch — duration guard (aborted flag attempt)', () => {
+    it('does not call onTap when press is held longer than 200ms but released before long-press fires', () => {
+      const onTap = vi.fn()
+      const onLongPress = vi.fn()
+      const { result } = renderHook(() => useLongPress({ onTap, onLongPress, delay: 500 }))
+
+      act(() => result.current.onTouchStart(touchEvent()))
+      // Simulate holding for 300ms — too long for a tap, too short for long-press
+      act(() => vi.advanceTimersByTime(300))
+      act(() => result.current.onTouchEnd(touchEvent()))
+
+      expect(onTap).not.toHaveBeenCalled()
+      expect(onLongPress).not.toHaveBeenCalled()
+    })
+
+    it('calls onTap when press is released within 200ms', () => {
+      const onTap = vi.fn()
+      const { result } = renderHook(() => useLongPress({ onTap, onLongPress: vi.fn(), delay: 500 }))
+
+      act(() => result.current.onTouchStart(touchEvent()))
+      act(() => vi.advanceTimersByTime(199))
+      act(() => result.current.onTouchEnd(touchEvent()))
+
+      expect(onTap).toHaveBeenCalledOnce()
+    })
+  })
+
+  // ----------------------------------------------------------------
   describe('touch — movement cancels both long-press and tap', () => {
     it('cancels the long-press timer when finger moves more than 10px', () => {
       const onLongPress = vi.fn()

@@ -99,7 +99,9 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
 
   const containerClass = [
     'cell',
-    isRaised ? 'cell-raised' : 'cell-revealed',
+    isRaised
+      ? 'shadow-[inset_2px_2px_0_var(--color-border-light),inset_-2px_-2px_0_var(--color-border-dark)]'
+      : 'cell-revealed',
     isExploded ? 'cell-exploded' : '',
     !isGameOver && !isRaised ? 'cursor-default' : '',
     isGameOver ? 'cursor-default' : 'cursor-pointer',

@@ -10,7 +10,7 @@ export const SmileyButton = () => {
       variant="raised"
       aria-label={label}
       onClick={onPress}
-      className={animClass ? `smiley-button ${animClass}` : 'smiley-button'}
+      className={`flex h-11 w-11 items-center justify-center text-[1.875rem] p-0${animClass ? ` ${animClass}` : ''}`}
       onAnimationEnd={clearAnimClass}
     >
       {emoji}

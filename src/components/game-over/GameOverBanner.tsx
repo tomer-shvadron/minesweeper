@@ -13,11 +13,16 @@ export const GameOverBanner = () => {
 
   return (
     <div className="game-over-banner" data-testid="game-over-banner">
-      <span className="game-over-result-text">
+      <span className="flex items-center gap-1 text-base font-bold">
         {isWon ? '😎 You won!' : '💣 Game over'}
-        {isWon && <span className="game-over-time"> · {formatTime(elapsedSeconds)}</span>}
+        {isWon && (
+          <span className="font-normal text-[var(--color-text-muted)]">
+            {' '}
+            · {formatTime(elapsedSeconds)}
+          </span>
+        )}
       </span>
-      <div className="game-over-actions">
+      <div className="flex shrink-0 gap-[10px]">
         <Button variant="primary" onClick={handlePlayAgain}>
           Play Again
         </Button>

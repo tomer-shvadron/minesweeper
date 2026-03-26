@@ -10,14 +10,14 @@ export const HighScorePrompt = () => {
 
   return (
     <Modal isOpen={isOpen} title="New High Score!" onClose={handleDismiss}>
-      <div className="modal-section">
-        <p className="highscore-time">
+      <div className="flex flex-col gap-[10px]">
+        <p className="text-base">
           Your time: <strong>{formatTime(timeSeconds)}</strong>
         </p>
-        <p className="highscore-prompt">Enter your name:</p>
+        <p className="text-[0.9375rem]">Enter your name:</p>
         <input
           type="text"
-          className="xp-input highscore-name-input"
+          className="xp-input w-full"
           value={name}
           maxLength={20}
           placeholder="Your name"
@@ -25,7 +25,7 @@ export const HighScorePrompt = () => {
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
         />
       </div>
-      <div className="modal-actions">
+      <div className="flex justify-end gap-1.5 px-3 py-2 pb-[10px]">
         <Button variant="primary" onClick={handleSubmit}>
           Save
         </Button>

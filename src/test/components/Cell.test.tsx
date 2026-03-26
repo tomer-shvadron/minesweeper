@@ -63,7 +63,7 @@ describe('Cell — visual states', () => {
   it('renders an unrevealed cell with no content', () => {
     renderCell(unrevealed())
     const btn = screen.getByRole('button')
-    expect(btn).toHaveClass('cell-raised')
+    expect(btn).toHaveClass('cell')
     expect(btn).not.toHaveClass('cell-revealed')
     expect(btn.textContent?.trim()).toBe('')
   })

@@ -77,7 +77,7 @@ export const App = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg)]">
-      <div className="game-window">
+      <div className="inline-flex flex-col shadow-[inset_2px_2px_0_var(--color-border-light),inset_-2px_-2px_0_var(--color-border-darker)] landscape:flex-row">
         <Header />
         <GameBoard />
       </div>

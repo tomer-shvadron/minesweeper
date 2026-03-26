@@ -31,25 +31,32 @@ export const NewGameModal = () => {
 
   return (
     <Modal isOpen={isOpen} title="New Game" onClose={closeModal}>
-      <div className="modal-section">
+      <div className="flex flex-col gap-[10px]">
         <RadioGroup
           value={selectedPreset}
           onValueChange={(v) => setSelectedPreset(v as typeof selectedPreset)}
         >
           {PRESETS.map(({ key, label, detail }) => (
-            <label key={key} className="preset-option">
-              <RadioGroupItem value={key} className="preset-radio" />
-              <span className="preset-label">{label}</span>
-              <span className="preset-detail">{detail}</span>
+            <label key={key} className="flex items-center gap-2 px-0.5 py-1">
+              <RadioGroupItem
+                value={key}
+                className="flex h-[17px] w-[17px] shrink-0 items-center justify-center rounded-full border-2 border-[var(--color-border-dark)] bg-white data-[state=checked]:border-[var(--color-n4)] data-[state=checked]:after:block data-[state=checked]:after:h-[7px] data-[state=checked]:after:w-[7px] data-[state=checked]:after:rounded-full data-[state=checked]:after:bg-[var(--color-n4)] data-[state=checked]:after:content-['']"
+              />
+              <span className="cursor-pointer text-base font-bold">{label}</span>
+              <span className="ml-auto text-[0.8125rem] text-[var(--color-border-darker)]">
+                {detail}
+              </span>
             </label>
           ))}
         </RadioGroup>
       </div>
 
       {selectedPreset === 'custom' && (
-        <div className="modal-section custom-inputs">
-          <div className="input-row">
-            <label htmlFor="custom-rows">Rows</label>
+        <div className="flex flex-col gap-[6px] pt-1 pl-[22px]">
+          <div className="flex items-center gap-2 text-[0.8125rem]">
+            <label htmlFor="custom-rows" className="w-[50px]">
+              Rows
+            </label>
             <input
               id="custom-rows"
               type="number"
@@ -60,8 +67,10 @@ export const NewGameModal = () => {
               onChange={(e) => handleCustomRows(Number(e.target.value))}
             />
           </div>
-          <div className="input-row">
-            <label htmlFor="custom-cols">Columns</label>
+          <div className="flex items-center gap-2 text-[0.8125rem]">
+            <label htmlFor="custom-cols" className="w-[50px]">
+              Columns
+            </label>
             <input
               id="custom-cols"
               type="number"
@@ -72,8 +81,10 @@ export const NewGameModal = () => {
               onChange={(e) => handleCustomCols(Number(e.target.value))}
             />
           </div>
-          <div className="input-row">
-            <label htmlFor="custom-mines">Mines</label>
+          <div className="flex items-center gap-2 text-[0.8125rem]">
+            <label htmlFor="custom-mines" className="w-[50px]">
+              Mines
+            </label>
             <input
               id="custom-mines"
               type="number"
@@ -84,12 +95,12 @@ export const NewGameModal = () => {
               onChange={(e) => handleCustomMines(Number(e.target.value))}
             />
           </div>
-          <p className="input-hint">Max mines: {maxMines}</p>
+          <p className="text-[0.8125rem]">Max mines: {maxMines}</p>
         </div>
       )}
 
       {selectedPreset !== 'custom' && (
-        <div className="modal-section">
+        <div className="flex flex-col gap-[10px]">
           <p>
             {DIFFICULTY_PRESETS[selectedPreset].rows} rows ×{' '}
             {DIFFICULTY_PRESETS[selectedPreset].cols} cols,{' '}
@@ -98,7 +109,7 @@ export const NewGameModal = () => {
         </div>
       )}
 
-      <div className="modal-actions">
+      <div className="flex justify-end gap-1.5 px-3 py-2 pb-[10px]">
         <Button variant="primary" onClick={handleStart}>
           Start
         </Button>

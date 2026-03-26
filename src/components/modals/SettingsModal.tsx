@@ -30,20 +30,22 @@ export const SettingsModal = () => {
 
   return (
     <Modal isOpen={isOpen} title="Settings" onClose={closeModal}>
-      <div className="modal-section">
-        <p className="settings-group-label">Theme</p>
-        <div className="theme-picker">
+      <div className="flex flex-col gap-[10px]">
+        <p className="mb-1 border-b border-[var(--color-border-dark)] pb-[3px] text-[0.8125rem] font-bold tracking-[0.05em] text-[var(--color-border-darker)] uppercase">
+          Theme
+        </p>
+        <div className="flex flex-wrap gap-2">
           {THEMES.map((t) => (
             <button
               key={t}
               type="button"
-              className={theme === t ? 'theme-swatch theme-swatch--active' : 'theme-swatch'}
+              className="flex cursor-pointer flex-col items-center gap-1 border-none bg-transparent p-0"
               onClick={() => setTheme(t)}
               aria-label={THEME_LABELS[t]}
               aria-pressed={theme === t}
             >
               <span
-                className="theme-swatch__preview"
+                className={`relative block h-[38px] w-11 overflow-hidden rounded-md border-2 shadow-[0_1px_4px_rgba(0,0,0,0.3)] transition-[border-color] duration-100 after:absolute after:right-0 after:bottom-0 after:left-0 after:h-[10px] after:bg-[var(--swatch-accent)] after:content-[''] ${theme === t ? 'border-[var(--swatch-accent)]' : 'border-transparent'}`}
                 style={
                   {
                     backgroundColor: THEME_PREVIEW[t].surface,
@@ -51,14 +53,18 @@ export const SettingsModal = () => {
                   } as React.CSSProperties
                 }
               />
-              <span className="theme-swatch__label">{THEME_LABELS[t]}</span>
+              <span className="max-w-11 overflow-hidden text-center text-[0.5625rem] leading-[1.2] text-ellipsis whitespace-nowrap text-[var(--color-text)]">
+                {THEME_LABELS[t]}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="modal-section">
-        <p className="settings-group-label">Sound</p>
+      <div className="flex flex-col gap-[10px]">
+        <p className="mb-1 border-b border-[var(--color-border-dark)] pb-[3px] text-[0.8125rem] font-bold tracking-[0.05em] text-[var(--color-border-darker)] uppercase">
+          Sound
+        </p>
         <Toggle
           id="sound-toggle"
           label="Sound effects"
@@ -74,8 +80,10 @@ export const SettingsModal = () => {
         />
       </div>
 
-      <div className="modal-section">
-        <p className="settings-group-label">Gameplay</p>
+      <div className="flex flex-col gap-[10px]">
+        <p className="mb-1 border-b border-[var(--color-border-dark)] pb-[3px] text-[0.8125rem] font-bold tracking-[0.05em] text-[var(--color-border-darker)] uppercase">
+          Gameplay
+        </p>
         <Toggle
           id="animations-toggle"
           label="Animations"
@@ -98,7 +106,7 @@ export const SettingsModal = () => {
         />
       </div>
 
-      <div className="modal-actions">
+      <div className="flex justify-end gap-1.5 px-3 py-2 pb-[10px]">
         <Button variant="primary" onClick={closeModal}>
           OK
         </Button>

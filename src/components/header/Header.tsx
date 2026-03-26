@@ -25,10 +25,10 @@ export const Header = () => {
       style={headerStyle}
     >
       <div className="game-header__inner">
-        <div className="header-section">
+        <div className="flex items-center gap-1">
           <button
             type="button"
-            className="header-icon-btn"
+            className="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded border-none bg-transparent leading-none outline-none active:opacity-70"
             aria-label="Leaderboard"
             onClick={openLeaderboardModal}
           >
@@ -39,11 +39,11 @@ export const Header = () => {
 
         <SmileyButton />
 
-        <div className="header-section header-section--right">
+        <div className="flex items-center justify-end gap-1">
           <Timer />
           <button
             type="button"
-            className="header-icon-btn"
+            className="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded border-none bg-transparent leading-none outline-none active:opacity-70"
             aria-label="Settings"
             onClick={openSettingsModal}
           >

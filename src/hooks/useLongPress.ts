@@ -88,7 +88,7 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
       // check total displacement at lift. If the finger moved ≥ SWIPE_DOWN_THRESHOLD
       // downward and long-press hasn't already fired, treat it as a swipe flag.
       if (!swipeFlaggedRef.current && !longPressTriggeredRef.current && startPosRef.current) {
-        const changedTouch = e.changedTouches[0]
+        const changedTouch = e.changedTouches?.[0]
         if (changedTouch) {
           const totalDy = changedTouch.clientY - startPosRef.current.y
           if (totalDy >= SWIPE_DOWN_THRESHOLD) {

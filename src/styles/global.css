@@ -577,7 +577,7 @@
     left: 0;
     right: 0;
     /* Respect iPhone home-indicator safe area */
-    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    padding: 14px 16px calc(20px + env(safe-area-inset-bottom, 0px));
     z-index: 90;
     background-color: var(--color-surface);
     box-shadow:
@@ -851,20 +851,18 @@
     }
 
     .game-header--sidebar {
-      /* Do NOT set height: 100% — let flexbox stretch the sidebar to the
-         board's height via the default align-self: stretch.
-         height: 100% on an inline-flex child creates a circular dependency
-         and causes the sidebar to collapse to its content height. */
+      /* Height is set via inline style (boardHeight) for guaranteed resolution.
+         display: flex lets the inner use flex: 1 to fill it. */
+      display: flex;
+      flex-direction: column;
       padding: 10px 8px; /* mirrors portrait's 8px 10px, rotated */
     }
 
     .game-header--sidebar .game-header__inner {
+      flex: 1;
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      /* Parent height is now well-defined (from flex stretch), so
-         height: 100% resolves correctly here */
-      height: 100%;
       padding: 8px 6px; /* mirrors portrait's 6px 8px, rotated */
     }
 

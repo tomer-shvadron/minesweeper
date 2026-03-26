@@ -6,10 +6,18 @@ import { Timer } from './Timer'
 import { useHeaderLogic } from './useHeaderLogic'
 
 export const Header = () => {
-  const { boardWidth, isLandscape, headerSidebarWidth, openSettingsModal, openLeaderboardModal } =
-    useHeaderLogic()
+  const {
+    boardWidth,
+    boardHeight,
+    isLandscape,
+    headerSidebarWidth,
+    openSettingsModal,
+    openLeaderboardModal,
+  } = useHeaderLogic()
 
-  const headerStyle = isLandscape ? { width: headerSidebarWidth } : { width: boardWidth }
+  const headerStyle = isLandscape
+    ? { width: headerSidebarWidth, height: boardHeight }
+    : { width: boardWidth }
 
   return (
     <div

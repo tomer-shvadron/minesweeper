@@ -52,7 +52,6 @@ test.describe('Loss game flow', () => {
 
   test('cells are non-interactive after loss', async ({ gamePage }) => {
     await gamePage.loseGame()
-    // Clicking any cell must not change status
     await gamePage.cell(0, 0).click({ force: true })
     const state = await gamePage.getGameState()
     expect(state.status).toBe('lost')

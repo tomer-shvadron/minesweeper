@@ -1,34 +1,27 @@
 [data-theme='xp'] {
-  /* Background & surfaces */
-  --color-bg: #008080; /* classic Windows teal desktop */
+  --color-bg: #008080;
   --color-surface: #c0c0c0;
 
-  /* XP bevel borders */
   --color-border-light: #ffffff;
   --color-border-dark: #808080;
   --color-border-darker: #404040;
 
-  /* Text */
   --color-text: #000000;
   --color-text-muted: #606060;
   --color-accent: #000080;
   --color-surface-2: #c0c0c0;
 
-  /* Header */
   --color-header-bg: #c0c0c0;
   --color-header-text: #000000;
   --color-header-border-light: #ffffff;
   --color-header-border-dark: #808080;
 
-  /* Modal title bar (classic XP blue gradient) */
   --color-titlebar-bg: #000080;
   --color-titlebar-text: #ffffff;
 
-  /* LCD digit display (mine counter, timer) */
   --color-digit: #ff0000;
   --color-digit-bg: #000000;
 
-  /* Cell mine-count number colors (classic XP) */
   --color-n1: #0000ff;
   --color-n2: #008000;
   --color-n3: #ff0000;

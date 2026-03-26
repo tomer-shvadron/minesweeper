@@ -16,18 +16,12 @@ export const useGameBoardLogic = () => {
     resetZoom,
   } = usePinchZoom(1, 5, boardWidth, boardHeight)
 
-  // Reset zoom whenever board pixel dimensions change — covers:
-  //   • New game with a different board size
-  //   • Window resize on desktop
-  //   • Orientation change when cellSize differs between orientations
   useEffect(() => {
     resetZoom()
   }, [boardWidth, boardHeight, resetZoom])
 
-  // Explicitly reset zoom on orientation change via the modern screen.orientation API
-  // (fires after the browser commits new dimensions, more reliable than `resize` alone).
-  // Delay matches the 100ms layout recalculation in useGameLayout so zoom resets
-  // after the new cell size has been applied.
+  // screen.orientation fires after the browser commits new dimensions, more reliable
+  // than `resize` alone. Delay matches the 100ms recalculation in useGameLayout.
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>
     const handleOrientationChange = () => {
@@ -52,7 +46,6 @@ export const useGameBoardLogic = () => {
     }
   }, [resetZoom])
 
-  // Zoom out automatically when the game ends so the full board is visible
   useEffect(() => {
     if (status === 'won' || status === 'lost') {
       resetZoom()

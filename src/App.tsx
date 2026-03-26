@@ -28,7 +28,6 @@ export const App = () => {
   const showHighScorePrompt = useUIStore((s) => s.showHighScorePrompt)
   const openResumePrompt = useUIStore((s) => s.openResumePrompt)
 
-  // Apply theme to <body> so CSS variables cascade to all components
   useEffect(() => {
     document.body.setAttribute('data-theme', theme)
   }, [theme])
@@ -37,7 +36,6 @@ export const App = () => {
     document.body.setAttribute('data-animations', String(animationsEnabled))
   }, [animationsEnabled])
 
-  // On first mount: prompt to resume if there's a saved in-progress game
   useEffect(() => {
     if (status === 'playing') {
       openResumePrompt()

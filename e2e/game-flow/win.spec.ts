@@ -7,7 +7,6 @@ test.describe('Win game flow', () => {
 
   test('winning shows 😎 You won! banner', async ({ gamePage }) => {
     await gamePage.winGame()
-    // High score prompt may appear; dismiss it first if so
     const hsp = gamePage.highScorePrompt()
     if (await hsp.isVisible({ timeout: 1000 }).catch(() => false)) {
       await gamePage.page.getByRole('button', { name: 'Skip' }).click()
@@ -49,7 +48,6 @@ test.describe('Win game flow', () => {
       await gamePage.page.getByRole('button', { name: 'Skip' }).click()
       await hsp.waitFor({ state: 'detached' })
     }
-    // Force-click a cell; status must remain 'won'
     await gamePage.cell(0, 0).click({ force: true })
     const state = await gamePage.getGameState()
     expect(state.status).toBe('won')
@@ -61,7 +59,6 @@ test.describe('Win game flow', () => {
   })
 
   test('no high score prompt when time is not a record', async ({ gamePage }) => {
-    // Seed leaderboard with 10 entries all at 1 second (fastest possible)
     const entries = Array.from({ length: 10 }, (_, i) => ({
       name: `Player${i}`,
       timeSeconds: 1,
@@ -69,8 +66,6 @@ test.describe('Win game flow', () => {
     }))
     await gamePage.setLeaderboardState({ entries: { beginner: entries } })
 
-    // Win with a very slow time — set elapsed AFTER first click (mines placed),
-    // then reveal all safe cells at once to avoid the cascade/banner-blocking issue.
     await gamePage.firstClick(0, 0)
     await gamePage.setGameState({ elapsedSeconds: 9999 })
     await gamePage.winGameFromCurrentState()

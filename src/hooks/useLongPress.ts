@@ -14,8 +14,6 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
   const pressStartTimeRef = useRef<number | null>(null)
   const isTouchRef = useRef(false)
 
-  // Presses held longer than this threshold are treated as flag attempts,
-  // not taps — so releasing between TAP_MAX_DURATION and `delay` won't reveal a cell.
   const TAP_MAX_DURATION = 200
 
   const clearTimer = useCallback(() => {

@@ -16,7 +16,6 @@
     height: 100%;
     background-color: var(--color-bg);
     color: var(--color-text);
-    /* Prevent text selection during gameplay */
     -webkit-user-select: none;
     user-select: none;
     /* Suppress iOS tap highlight */

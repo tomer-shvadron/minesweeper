@@ -8,7 +8,6 @@ export const useGameOverBannerLogic = () => {
   const highScoreEntry = useUIStore((s) => s.highScoreEntry)
   const openNewGameModal = useUIStore((s) => s.openNewGameModal)
 
-  // Show only when game has ended and the high-score prompt is not blocking
   const isVisible = (status === 'won' || status === 'lost') && highScoreEntry === null
 
   return {

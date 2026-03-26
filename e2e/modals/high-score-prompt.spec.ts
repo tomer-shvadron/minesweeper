@@ -4,7 +4,6 @@ import type { GamePage } from '../fixtures'
 async function triggerHighScore(gamePage: GamePage) {
   await gamePage.startPreset('Beginner')
   await gamePage.winGame()
-  // Should show prompt since leaderboard is empty (< 10 entries)
   await gamePage.highScorePrompt().waitFor({ timeout: 5000 })
 }
 
@@ -36,7 +35,6 @@ test.describe('High Score Prompt', () => {
     await triggerHighScore(gamePage)
     await gamePage.page.getByPlaceholder('Your name').fill('Frank')
     await gamePage.page.getByRole('button', { name: 'Save' }).click()
-    // Saving automatically dismisses the prompt and opens the leaderboard
     await gamePage.leaderboardModal().waitFor()
     await expect(gamePage.highScorePrompt()).not.toBeVisible()
     await expect(gamePage.page.getByText('Frank')).toBeVisible()
@@ -54,7 +52,6 @@ test.describe('High Score Prompt', () => {
     await triggerHighScore(gamePage)
     await gamePage.page.getByRole('button', { name: 'Skip' }).click()
     await expect(gamePage.highScorePrompt()).not.toBeVisible()
-    // Leaderboard should be empty
     const lb = await gamePage.getLeaderboardState()
     expect(Object.values(lb.entries).flat()).toHaveLength(0)
   })
@@ -76,7 +73,6 @@ test.describe('High Score Prompt', () => {
   })
 
   test('prompt does not appear when score does not rank', async ({ gamePage }) => {
-    // Fill leaderboard with 10 entries at 1s each
     const entries = Array.from({ length: 10 }, (_, i) => ({
       name: `P${i}`,
       timeSeconds: 1,

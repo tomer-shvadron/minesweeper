@@ -25,14 +25,12 @@ export const useHighScorePromptLogic = () => {
       timeSeconds: highScoreEntry.timeSeconds,
       date: new Date().toISOString(),
     })
-    // Keep the submitted name in local state so the next prompt is pre-filled
     setName(trimmed)
     dismissHighScorePrompt()
     openLeaderboardModal()
   }
 
   const handleDismiss = () => {
-    // Preserve current name for next time — don't clear it
     dismissHighScorePrompt()
   }
 

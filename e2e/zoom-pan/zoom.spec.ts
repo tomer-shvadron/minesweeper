@@ -48,12 +48,10 @@ test.describe('Zoom and pan', () => {
   test('board transform resets on viewport resize (orientation change simulation)', async ({
     page,
   }) => {
-    // Simulate orientation change by changing viewport size
     await page.setViewportSize({ width: 852, height: 393 }) // landscape
     await page.waitForTimeout(300)
     await page.setViewportSize({ width: 393, height: 852 }) // back to portrait
     await page.waitForTimeout(300)
-    // Scale should be 1 (reset on orientation change)
     const scale = await getScale(page)
     expect(scale).toBeCloseTo(1, 1)
   })

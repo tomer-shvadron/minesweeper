@@ -3,9 +3,6 @@ import { test, expect } from '../fixtures'
 test.describe('Flagging cells', () => {
   test.beforeEach(async ({ gamePage }) => {
     await gamePage.startPreset('Beginner')
-    // Place mines with a first click; the exact cell doesn't matter —
-    // after flood fill some cells near the click may be revealed, so
-    // individual tests use findUnrevealedSafeCell() to pick a safe target.
     await gamePage.firstClick(4, 4)
   })
 

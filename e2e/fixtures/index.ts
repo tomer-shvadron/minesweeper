@@ -92,8 +92,6 @@ export class GamePage {
       state: { entries: {}, gamesPlayed: {}, lastPlayerName: '', ...data },
       version: 0,
     }
-    // This init script runs on every subsequent navigation in this test, after the
-    // fixture's clear script, so the data survives the reload.
     await this.page.addInitScript((p) => {
       localStorage.setItem('minesweeper-leaderboard', JSON.stringify(p))
     }, payload)
@@ -115,7 +113,6 @@ export class GamePage {
     )
   }
 
-  /** Open NewGameModal and start a game with the given preset */
   async startPreset(preset: 'Beginner' | 'Intermediate' | 'Expert') {
     await this.smiley.click()
     const modal = this.newGameModal()
@@ -125,10 +122,6 @@ export class GamePage {
     await modal.waitFor({ state: 'hidden' })
   }
 
-  /**
-   * Performs the first click (which places mines). Returns the post-first-click board state.
-   * The clicked cell is guaranteed mine-free by game rules.
-   */
   async firstClick(row = 0, col = 0): Promise<GameState> {
     await this.page.getByRole('button', { name: `Cell ${row},${col}` }).click()
     await this.page.waitForFunction(() => {
@@ -138,12 +131,6 @@ export class GamePage {
     return this.getGameState()
   }
 
-  /**
-   * Returns the first unrevealed, non-mine, non-flagged cell on the board.
-   * Throws if no such cell exists. Use this after firstClick to find a safe
-   * cell to flag/click without relying on hardcoded coordinates (flood fill
-   * might have already revealed corner cells).
-   */
   async findUnrevealedSafeCell(): Promise<[number, number]> {
     const state = await this.getGameState()
     for (let r = 0; r < state.config.rows; r++) {
@@ -185,18 +172,11 @@ export class GamePage {
     )
   }
 
-  /** Win a game: first-clicks [0,0] to place mines, then reveals all safe cells. */
   async winGame(): Promise<void> {
     await this.firstClick(0, 0)
     await this.winGameFromCurrentState()
   }
 
-  /**
-   * Lose a game by clicking an unflagged mine.
-   * If the game is already in 'playing' state (mines placed), skips the
-   * firstClick to avoid double-clicking an already-revealed cell. Also skips
-   * flagged mines so they don't silently absorb the click.
-   */
   async loseGame(): Promise<void> {
     const initial = await this.getGameState()
     if (initial.status === 'idle') {

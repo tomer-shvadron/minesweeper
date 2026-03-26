@@ -1,8 +1,3 @@
-/**
- * Formats elapsed seconds as a compact string.
- * < 60s → "42s"
- * ≥ 60s → "1:05"
- */
 export function formatTime(seconds: number): string {
   if (seconds < 60) {
     return `${seconds}s`

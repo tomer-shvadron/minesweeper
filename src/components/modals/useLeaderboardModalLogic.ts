@@ -16,7 +16,6 @@ export const useLeaderboardModalLogic = () => {
 
   const currentBoardKey = createBoardKey(config)
 
-  // Collect all board keys that have at least one entry
   const customKeysWithScores = Object.keys(allEntries).filter(
     (k): k is BoardKey =>
       !PRESET_KEYS.includes(k as BoardKey) && (allEntries[k as BoardKey]?.length ?? 0) > 0
@@ -24,7 +23,6 @@ export const useLeaderboardModalLogic = () => {
 
   const allTabs: BoardKey[] = [...PRESET_KEYS, ...customKeysWithScores]
 
-  // Default to current board's tab, falling back to beginner
   const [selectedTab, setSelectedTab] = useState<BoardKey>(() =>
     allTabs.includes(currentBoardKey) ? currentBoardKey : 'beginner'
   )

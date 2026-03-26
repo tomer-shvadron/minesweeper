@@ -7,7 +7,6 @@ test.describe('Cell reveal mechanics', () => {
 
   test('first click never reveals a mine (10 trials)', async ({ gamePage }) => {
     for (let i = 0; i < 10; i++) {
-      // Reset for each trial
       await gamePage.startNewGame()
       await gamePage.cell(0, 0).click()
       const state = await gamePage.getGameState()
@@ -26,7 +25,6 @@ test.describe('Cell reveal mechanics', () => {
     const before = await gamePage.getGameState()
     expect(before.elapsedSeconds).toBe(0)
     await gamePage.cell(0, 0).click()
-    // Wait for at least 1 tick
     await gamePage.page.waitForFunction(
       () => window.__MINESWEEPER_TEST__.getGameState().elapsedSeconds > 0,
       { timeout: 3000 }
@@ -42,19 +40,16 @@ test.describe('Cell reveal mechanics', () => {
     await gamePage.cell(0, 0).click()
     const after2 = await gamePage.getGameState()
     const cellAfter = after2.board[0]?.[0]
-    // Cell stays revealed
     expect(cellAfter?.isRevealed).toBe(true)
     expect(cellAfter?.hasMine).toBe(cellBefore?.hasMine)
   })
 
   test('cannot reveal a flagged cell', async ({ gamePage }) => {
-    await gamePage.firstClick(4, 4) // safe first click somewhere else
-    // Use findUnrevealedSafeCell — flood fill may have revealed [0,0]
+    await gamePage.firstClick(4, 4)
     const [r, c] = await gamePage.findUnrevealedSafeCell()
     await gamePage.cell(r, c).click({ button: 'right' })
     const flaggedState = await gamePage.getGameState()
     expect(flaggedState.board[r]?.[c]?.isFlagged).toBe(true)
-    // Try to reveal it — should remain flagged and unrevealed
     await gamePage.cell(r, c).click()
     const afterState = await gamePage.getGameState()
     expect(afterState.board[r]?.[c]?.isFlagged).toBe(true)

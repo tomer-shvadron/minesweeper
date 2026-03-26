@@ -33,9 +33,7 @@ test.describe('localStorage persistence', () => {
   test('gamesPlayed counter persists across reload', async ({ gamePage, page }) => {
     await gamePage.startPreset('Beginner')
     await gamePage.loseGame()
-    // At this point gamesPlayed.beginner should be 1 in localStorage
     await page.reload()
-    // The game was 'lost' so no ResumePrompt; but guard just in case
     const resume = page.getByRole('dialog', { name: 'Resume Game?' })
     if (await resume.isVisible({ timeout: 1000 }).catch(() => false)) {
       await page.getByRole('button', { name: 'New Game' }).click()
@@ -52,11 +50,9 @@ test.describe('localStorage persistence', () => {
     const animToggle = toggles.nth(count - 1)
     const initialState = await animToggle.getAttribute('aria-checked')
     await animToggle.click()
-    // Verify it toggled
     const toggledState = await animToggle.getAttribute('aria-checked')
     expect(toggledState).not.toBe(initialState)
     await page.keyboard.press('Escape')
-    // Reload — localStorage is NOT cleared because we use persistenceTest fixture
     await page.reload()
     const resume = page.getByRole('dialog', { name: 'Resume Game?' })
     if (await resume.isVisible({ timeout: 1000 }).catch(() => false)) {

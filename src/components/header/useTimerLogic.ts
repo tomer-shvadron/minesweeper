@@ -7,7 +7,6 @@ export const useTimerLogic = () => {
   const status = useGameStore((s) => s.status)
   const tick = useGameStore((s) => s.tick)
 
-  // Tick every second while the game is in progress
   useEffect(() => {
     if (status !== 'playing') {
       return

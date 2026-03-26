@@ -17,7 +17,7 @@ test.describe('Responsive layout', () => {
     await page.setViewportSize({ width: 393, height: 852 })
     await gamePage.startPreset('Beginner')
     const scrollWidth = await page.evaluate(() => document.body.scrollWidth)
-    expect(scrollWidth).toBeLessThanOrEqual(393 + 5) // 5px tolerance
+    expect(scrollWidth).toBeLessThanOrEqual(393 + 5)
   })
 
   test('header visible in portrait', async ({ gamePage, page }) => {
@@ -29,7 +29,7 @@ test.describe('Responsive layout', () => {
       return
     }
     expect(smileyBox.y).toBeGreaterThanOrEqual(0)
-    expect(smileyBox.y).toBeLessThan(300) // header is near top
+    expect(smileyBox.y).toBeLessThan(300)
   })
 
   test('board fits viewport in landscape', async ({ gamePage, page }) => {

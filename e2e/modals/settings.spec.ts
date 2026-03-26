@@ -21,7 +21,6 @@ test.describe('Settings modal', () => {
   })
 
   test('sound toggle changes state', async ({ gamePage }) => {
-    // Find the sound toggle
     const soundToggle = gamePage.page.locator('[role="switch"]').first()
     const initialState = await soundToggle.getAttribute('aria-checked')
     await soundToggle.click()
@@ -32,7 +31,6 @@ test.describe('Settings modal', () => {
   test('animation toggle changes state', async ({ gamePage }) => {
     const toggles = gamePage.page.locator('[role="switch"]')
     const count = await toggles.count()
-    // Click the last toggle (animation)
     const animToggle = toggles.nth(count - 1)
     const initialState = await animToggle.getAttribute('aria-checked')
     await animToggle.click()
@@ -41,7 +39,6 @@ test.describe('Settings modal', () => {
   })
 
   test('modal does not affect game state', async ({ gamePage }) => {
-    // Open settings then close — game state unchanged
     await gamePage.page.keyboard.press('Escape')
     const state = await gamePage.getGameState()
     expect(state.status).toBe('idle')

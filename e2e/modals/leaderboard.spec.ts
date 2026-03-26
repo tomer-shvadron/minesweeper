@@ -41,10 +41,8 @@ test.describe('Leaderboard modal', () => {
     if (await prompt.isVisible({ timeout: 2000 }).catch(() => false)) {
       await gamePage.page.getByPlaceholder('Your name').fill('TestPlayer')
       await gamePage.page.getByRole('button', { name: 'Save' }).click()
-      // Saving automatically dismisses prompt and opens leaderboard
       await gamePage.leaderboardModal().waitFor()
     } else {
-      // No prompt (time didn't qualify) — open leaderboard manually
       await gamePage.page.locator('[aria-label="Leaderboard"]').click()
       await gamePage.leaderboardModal().waitFor()
     }
@@ -61,15 +59,12 @@ test.describe('Leaderboard modal', () => {
 
   test('games played counter shows correct count after multiple games', async ({ gamePage }) => {
     await gamePage.startPreset('Beginner')
-    // Game 1
     await gamePage.loseGame()
     await gamePage.gameOverBanner.waitFor()
     await gamePage.page.getByRole('button', { name: 'Play Again' }).click()
-    // Game 2
     await gamePage.loseGame()
     await gamePage.gameOverBanner.waitFor()
     await gamePage.page.getByRole('button', { name: 'Play Again' }).click()
-    // Game 3
     await gamePage.loseGame()
 
     await gamePage.page.getByRole('button', { name: 'Leaderboard' }).click()
@@ -77,7 +72,6 @@ test.describe('Leaderboard modal', () => {
   })
 
   test('switching tabs shows correct difficulty scores', async ({ gamePage }) => {
-    // Seed entries for beginner and intermediate
     await gamePage.setLeaderboardState({
       entries: {
         beginner: [{ name: 'AliceB', timeSeconds: 30, date: new Date().toISOString() }],
@@ -85,9 +79,7 @@ test.describe('Leaderboard modal', () => {
       },
     })
     await gamePage.page.getByRole('button', { name: 'Leaderboard' }).click()
-    // Default tab is beginner
     await expect(gamePage.page.getByText('AliceB')).toBeVisible()
-    // Switch to intermediate
     await gamePage.page.getByRole('button', { name: 'Inter.' }).click()
     await expect(gamePage.page.getByText('BobI')).toBeVisible()
     await expect(gamePage.page.getByText('AliceB')).not.toBeVisible()

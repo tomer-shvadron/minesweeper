@@ -42,7 +42,6 @@ function playFlag(volume: number): void {
   const out = master(ac, volume * 0.45)
   const t = ac.currentTime
 
-  // Two short tones — feels like a "click-click"
   for (let i = 0; i < 2; i++) {
     const osc = ac.createOscillator()
     const env = ac.createGain()

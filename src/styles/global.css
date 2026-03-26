@@ -57,6 +57,9 @@
     background-color: var(--color-surface);
     font-family: inherit;
     line-height: 1;
+    /* Prevent iOS from intercepting swipe gestures as scroll/pan,
+       ensuring touchmove events are always delivered to our handlers */
+    touch-action: none;
   }
 
   .cell-raised {
@@ -848,16 +851,21 @@
     }
 
     .game-header--sidebar {
-      height: 100%;
-      padding: 6px 4px;
+      /* Do NOT set height: 100% — let flexbox stretch the sidebar to the
+         board's height via the default align-self: stretch.
+         height: 100% on an inline-flex child creates a circular dependency
+         and causes the sidebar to collapse to its content height. */
+      padding: 10px 8px; /* mirrors portrait's 8px 10px, rotated */
     }
 
     .game-header--sidebar .game-header__inner {
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
+      /* Parent height is now well-defined (from flex stretch), so
+         height: 100% resolves correctly here */
       height: 100%;
-      padding: 4px 2px;
+      padding: 8px 6px; /* mirrors portrait's 6px 8px, rotated */
     }
 
     .game-header--sidebar .header-section {
@@ -867,7 +875,10 @@
     }
 
     .game-header--sidebar .header-section--right {
-      justify-content: flex-start;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start; /* override portrait's flex-end */
+      gap: 4px;
     }
   }
 }

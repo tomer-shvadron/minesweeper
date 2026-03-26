@@ -17,7 +17,7 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
 
   const TAP_MAX_DURATION = 200
   const SWIPE_DOWN_THRESHOLD = 20 // px downward to trigger swipe-to-flag
-  const SWIPE_TIME_WINDOW = 200 // ms — swipe must start within this window
+  const SWIPE_TIME_WINDOW = 350 // ms — generous window accounts for iOS touch event coalescing
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -28,6 +28,11 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
 
   const onTouchStart = useCallback(
     (e: React.TouchEvent) => {
+      // Prevent iOS from holding off touchmove events while it decides
+      // whether the gesture is a tap, scroll, or custom action.
+      // With touch-action: none on .cell, this ensures all move events
+      // are delivered to our handler immediately.
+      e.preventDefault()
       isTouchRef.current = true
       longPressTriggeredRef.current = false
       movedRef.current = false

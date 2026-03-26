@@ -13,6 +13,8 @@ const mockChordClick = vi.fn()
 const mockSetCellPressStart = vi.fn()
 const mockSetCellPressEnd = vi.fn()
 
+let mockGameStatus = 'playing'
+
 vi.mock('@/stores/game.store', () => ({
   useGameStore: (selector: (s: object) => unknown) =>
     selector({
@@ -21,12 +23,15 @@ vi.mock('@/stores/game.store', () => ({
       chordClick: mockChordClick,
       setCellPressStart: mockSetCellPressStart,
       setCellPressEnd: mockSetCellPressEnd,
-      status: 'playing',
+      status: mockGameStatus,
     }),
 }))
 
+let mockFlagMode = 'flags-only'
+
 vi.mock('@/stores/settings.store', () => ({
-  useSettingsStore: (selector: (s: object) => unknown) => selector({ flagMode: 'flags-only' }),
+  useSettingsStore: (selector: (s: object) => unknown) =>
+    selector({ flagMode: mockFlagMode, soundEnabled: false, volume: 0.5 }),
 }))
 
 // ---------------------------------------------------------------------------
@@ -51,6 +56,8 @@ function renderCell(cell: CellState) {
 describe('Cell — visual states', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockGameStatus = 'playing'
+    mockFlagMode = 'flags-only'
   })
 
   it('renders an unrevealed cell with no content', () => {
@@ -99,6 +106,8 @@ describe('Cell — visual states', () => {
 describe('Cell — interactions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockGameStatus = 'playing'
+    mockFlagMode = 'flags-only'
   })
 
   it('calls revealCell on desktop click for an unrevealed cell', () => {
@@ -135,5 +144,55 @@ describe('Cell — interactions', () => {
     expect(mockSetCellPressStart).toHaveBeenCalled()
     fireEvent.mouseUp(btn)
     expect(mockSetCellPressEnd).toHaveBeenCalled()
+  })
+
+  it('clears pressed state on mouseLeave', () => {
+    renderCell(unrevealed())
+    const btn = screen.getByRole('button')
+    fireEvent.mouseDown(btn)
+    fireEvent.mouseLeave(btn)
+    expect(mockSetCellPressEnd).toHaveBeenCalled()
+  })
+
+  it('passes allowQuestionMarks=true to flagCell when flagMode is flags-and-questions', () => {
+    mockFlagMode = 'flags-and-questions'
+    renderCell(unrevealed())
+    fireEvent.contextMenu(screen.getByRole('button'))
+    expect(mockFlagCell).toHaveBeenCalledWith(0, 0, true)
+  })
+})
+
+describe('Cell — game-over state', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockFlagMode = 'flags-only'
+  })
+
+  it('does not call revealCell when game is won', () => {
+    mockGameStatus = 'won'
+    renderCell(unrevealed())
+    fireEvent.click(screen.getByRole('button'))
+    expect(mockRevealCell).not.toHaveBeenCalled()
+  })
+
+  it('does not call revealCell when game is lost', () => {
+    mockGameStatus = 'lost'
+    renderCell(unrevealed())
+    fireEvent.click(screen.getByRole('button'))
+    expect(mockRevealCell).not.toHaveBeenCalled()
+  })
+
+  it('does not call flagCell via right-click when game is won', () => {
+    mockGameStatus = 'won'
+    renderCell(unrevealed())
+    fireEvent.contextMenu(screen.getByRole('button'))
+    expect(mockFlagCell).not.toHaveBeenCalled()
+  })
+
+  it('does not call flagCell via right-click when game is lost', () => {
+    mockGameStatus = 'lost'
+    renderCell(unrevealed())
+    fireEvent.contextMenu(screen.getByRole('button'))
+    expect(mockFlagCell).not.toHaveBeenCalled()
   })
 })

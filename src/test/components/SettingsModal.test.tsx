@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { SettingsModal } from '@/components/modals/SettingsModal'
+import type { FlagMode, Theme } from '@/types/settings.types'
 
 let mockIsOpen = true
 const mockCloseSettings = vi.fn()
@@ -20,9 +21,22 @@ const mockSetSoundEnabled = vi.fn()
 const mockSetVolume = vi.fn()
 const mockSetAnimationsEnabled = vi.fn()
 
-let mockSettings = {
-  theme: 'xp' as const,
-  flagMode: 'flags-only' as const,
+interface MockSettings {
+  theme: Theme
+  flagMode: FlagMode
+  soundEnabled: boolean
+  volume: number
+  animationsEnabled: boolean
+  setTheme: typeof mockSetTheme
+  setFlagMode: typeof mockSetFlagMode
+  setSoundEnabled: typeof mockSetSoundEnabled
+  setVolume: typeof mockSetVolume
+  setAnimationsEnabled: typeof mockSetAnimationsEnabled
+}
+
+let mockSettings: MockSettings = {
+  theme: 'xp',
+  flagMode: 'flags-only',
   soundEnabled: true,
   volume: 0.5,
   animationsEnabled: true,
@@ -107,5 +121,56 @@ describe('SettingsModal', () => {
     render(<SettingsModal />)
     fireEvent.click(screen.getByText('OK'))
     expect(mockCloseSettings).toHaveBeenCalledTimes(1)
+  })
+
+  it('has Dark radio checked when theme is dark', () => {
+    mockSettings = { ...mockSettings, theme: 'dark' }
+    render(<SettingsModal />)
+    const darkRadio = screen.getByRole('radio', { name: /dark/i })
+    expect(darkRadio.getAttribute('data-state')).toBe('checked')
+  })
+
+  it('calls setTheme with "xp" when Classic XP radio is selected', () => {
+    mockSettings = { ...mockSettings, theme: 'dark' }
+    render(<SettingsModal />)
+    fireEvent.click(screen.getByRole('radio', { name: /classic xp/i }))
+    expect(mockSetTheme).toHaveBeenCalledWith('xp')
+  })
+
+  it('calls setSoundEnabled with false when sound toggle is clicked while enabled', () => {
+    render(<SettingsModal />)
+    fireEvent.click(screen.getByRole('switch', { name: /sound effects/i }))
+    expect(mockSetSoundEnabled).toHaveBeenCalledWith(false)
+  })
+
+  it('calls setSoundEnabled with true when sound toggle is clicked while disabled', () => {
+    mockSettings = { ...mockSettings, soundEnabled: false }
+    render(<SettingsModal />)
+    fireEvent.click(screen.getByRole('switch', { name: /sound effects/i }))
+    expect(mockSetSoundEnabled).toHaveBeenCalledWith(true)
+  })
+
+  it('shows the flag mode toggle in the Gameplay section', () => {
+    render(<SettingsModal />)
+    expect(screen.getByRole('switch', { name: /flag \+ question mark cycle/i })).toBeTruthy()
+  })
+
+  it('flag cycle toggle is unchecked when flagMode is flags-only', () => {
+    render(<SettingsModal />)
+    const toggle = screen.getByRole('switch', { name: /flag \+ question mark cycle/i })
+    expect(toggle.getAttribute('data-state')).toBe('unchecked')
+  })
+
+  it('flag cycle toggle is checked when flagMode is flags-and-questions', () => {
+    mockSettings = { ...mockSettings, flagMode: 'flags-and-questions' }
+    render(<SettingsModal />)
+    const toggle = screen.getByRole('switch', { name: /flag \+ question mark cycle/i })
+    expect(toggle.getAttribute('data-state')).toBe('checked')
+  })
+
+  it('calls setFlagMode with "flags-and-questions" when flag cycle toggle is turned on', () => {
+    render(<SettingsModal />)
+    fireEvent.click(screen.getByRole('switch', { name: /flag \+ question mark cycle/i }))
+    expect(mockSetFlagMode).toHaveBeenCalledWith('flags-and-questions')
   })
 })

@@ -23,6 +23,9 @@ interface GameState {
   minesRemaining: number
   isFirstClick: boolean
   isPressingCell: boolean
+  gameKey: number
+  mineRevealOrder: [number, number][]
+  lastChordReveal: { origin: [number, number]; cells: [number, number][] } | null
 }
 
 interface GameActions {
@@ -33,6 +36,7 @@ interface GameActions {
   tick: () => void
   setCellPressStart: () => void
   setCellPressEnd: () => void
+  clearChordReveal: () => void
 }
 
 type GameStore = GameState & GameActions
@@ -49,6 +53,9 @@ export const useGameStore = create<GameStore>()(
       minesRemaining: DEFAULT_CONFIG.mines,
       isFirstClick: true,
       isPressingCell: false,
+      gameKey: 0,
+      mineRevealOrder: [],
+      lastChordReveal: null,
 
       startNewGame: (config) => {
         const newConfig = config ?? get().config
@@ -60,6 +67,9 @@ export const useGameStore = create<GameStore>()(
           minesRemaining: newConfig.mines,
           isFirstClick: true,
           isPressingCell: false,
+          gameKey: get().gameKey + 1,
+          mineRevealOrder: [],
+          lastChordReveal: null,
         })
       },
 
@@ -85,11 +95,29 @@ export const useGameStore = create<GameStore>()(
           newStatus = 'won'
         }
 
+        let mineRevealOrder: [number, number][] = []
+        if (newStatus === 'lost') {
+          const mines: [number, number][] = []
+          for (let r = 0; r < config.rows; r++) {
+            for (let c = 0; c < config.cols; c++) {
+              if (newBoard[r]?.[c]?.hasMine && !newBoard[r]?.[c]?.isExploded) {
+                mines.push([r, c])
+              }
+            }
+          }
+          mineRevealOrder = mines.sort(
+            (a, b) =>
+              Math.max(Math.abs(a[0] - row), Math.abs(a[1] - col)) -
+              Math.max(Math.abs(b[0] - row), Math.abs(b[1] - col))
+          )
+        }
+
         set({
           board: newBoard,
           status: newStatus,
           minesRemaining: countRemainingFlags(newBoard, config.mines),
           isFirstClick: false,
+          mineRevealOrder,
         })
       },
 
@@ -119,10 +147,26 @@ export const useGameStore = create<GameStore>()(
           newStatus = 'won'
         }
 
+        let lastChordReveal: GameState['lastChordReveal'] = null
+        if (newStatus !== 'lost') {
+          const cells: [number, number][] = []
+          for (let r = 0; r < config.rows; r++) {
+            for (let c = 0; c < config.cols; c++) {
+              if (!board[r]?.[c]?.isRevealed && newBoard[r]?.[c]?.isRevealed) {
+                cells.push([r, c])
+              }
+            }
+          }
+          if (cells.length > 0) {
+            lastChordReveal = { origin: [row, col], cells }
+          }
+        }
+
         set({
           board: newBoard,
           status: newStatus,
           minesRemaining: countRemainingFlags(newBoard, config.mines),
+          lastChordReveal,
         })
       },
 
@@ -134,6 +178,7 @@ export const useGameStore = create<GameStore>()(
 
       setCellPressStart: () => set({ isPressingCell: true }),
       setCellPressEnd: () => set({ isPressingCell: false }),
+      clearChordReveal: () => set({ lastChordReveal: null }),
     }),
     {
       name: 'minesweeper-game',

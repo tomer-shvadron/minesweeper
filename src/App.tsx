@@ -8,6 +8,7 @@ import { LeaderboardModal } from '@/components/modals/LeaderboardModal'
 import { NewGameModal } from '@/components/modals/NewGameModal'
 import { ResumePrompt } from '@/components/modals/ResumePrompt'
 import { SettingsModal } from '@/components/modals/SettingsModal'
+import { Confetti } from '@/components/ui/Confetti'
 import { createBoardKey } from '@/services/board.service'
 import { playSound } from '@/services/sound.service'
 import { useGameStore } from '@/stores/game.store'
@@ -69,6 +70,7 @@ export const App = () => {
       </div>
 
       <GameOverBanner />
+      <Confetti />
       <ResumePrompt />
       <NewGameModal />
       <SettingsModal />

@@ -86,15 +86,15 @@ describe('SettingsModal', () => {
     expect(screen.getByText('Dark')).toBeTruthy()
   })
 
-  it('has Classic XP radio checked when theme is xp', () => {
+  it('has Classic XP swatch pressed when theme is xp', () => {
     render(<SettingsModal />)
-    const xpRadio = screen.getByRole('radio', { name: /classic xp/i })
-    expect(xpRadio.getAttribute('data-state')).toBe('checked')
+    const xpSwatch = screen.getByRole('button', { name: /classic xp/i })
+    expect(xpSwatch.getAttribute('aria-pressed')).toBe('true')
   })
 
-  it('calls setTheme when Dark radio is selected', () => {
+  it('calls setTheme when Dark swatch is clicked', () => {
     render(<SettingsModal />)
-    fireEvent.click(screen.getByRole('radio', { name: /dark/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^dark$/i }))
     expect(mockSetTheme).toHaveBeenCalledWith('dark')
   })
 
@@ -123,17 +123,17 @@ describe('SettingsModal', () => {
     expect(mockCloseSettings).toHaveBeenCalledTimes(1)
   })
 
-  it('has Dark radio checked when theme is dark', () => {
+  it('has Dark swatch pressed when theme is dark', () => {
     mockSettings = { ...mockSettings, theme: 'dark' }
     render(<SettingsModal />)
-    const darkRadio = screen.getByRole('radio', { name: /dark/i })
-    expect(darkRadio.getAttribute('data-state')).toBe('checked')
+    const darkSwatch = screen.getByRole('button', { name: /^dark$/i })
+    expect(darkSwatch.getAttribute('aria-pressed')).toBe('true')
   })
 
-  it('calls setTheme with "xp" when Classic XP radio is selected', () => {
+  it('calls setTheme with "xp" when Classic XP swatch is clicked', () => {
     mockSettings = { ...mockSettings, theme: 'dark' }
     render(<SettingsModal />)
-    fireEvent.click(screen.getByRole('radio', { name: /classic xp/i }))
+    fireEvent.click(screen.getByRole('button', { name: /classic xp/i }))
     expect(mockSetTheme).toHaveBeenCalledWith('xp')
   })
 

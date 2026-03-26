@@ -104,7 +104,7 @@ export const Confetti = () => {
         position: 'fixed',
         inset: 0,
         pointerEvents: 'none',
-        zIndex: 92,
+        zIndex: 102,
       }}
     />
   )

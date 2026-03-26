@@ -707,7 +707,7 @@
     }
   }
 
-  .cell--mine-reveal {
+  .cell.cell--mine-reveal {
     animation: mine-reveal 0.28s ease-out both;
     animation-delay: var(--mine-delay, 0ms);
   }
@@ -726,7 +726,7 @@
     }
   }
 
-  .cell--chord-ripple {
+  .cell.cell--chord-ripple {
     animation: chord-ripple 0.18s ease-out both;
     animation-delay: var(--chord-delay, 0ms);
   }
@@ -736,8 +736,8 @@
   body[data-animations='false'] .smiley--win,
   body[data-animations='false'] .smiley--loss,
   body[data-animations='false'] .board--entering .cell,
-  body[data-animations='false'] .cell--mine-reveal,
-  body[data-animations='false'] .cell--chord-ripple {
+  body[data-animations='false'] .cell.cell--mine-reveal,
+  body[data-animations='false'] .cell.cell--chord-ripple {
     animation: none;
   }
 }

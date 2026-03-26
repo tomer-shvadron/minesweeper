@@ -11,28 +11,28 @@
   --color-text: #5a3820;
   --color-text-muted: #9e7a5c;
 
-  --color-accent: #c9a0e8;
-  --color-accent-hover: #d8b8f0;
+  --color-accent: #7c3ca0;
+  --color-accent-hover: #9650c0;
 
   --color-header-bg: #fef5e4;
   --color-header-text: #5a3820;
   --color-header-border-light: #fff8f0;
   --color-header-border-dark: #e8c4a0;
 
-  --color-titlebar-bg: #c9a0e8;
+  --color-titlebar-bg: #7c3ca0;
   --color-titlebar-text: #ffffff;
 
   --color-digit: #c9a0e8;
   --color-digit-bg: #2d1a4a;
 
-  --color-n1: #7da9e8;
-  --color-n2: #7ec896;
-  --color-n3: #e87d7d;
-  --color-n4: #c9a0e8;
-  --color-n5: #e8b07d;
-  --color-n6: #7dd4e8;
+  --color-n1: #2255cc;
+  --color-n2: #007030;
+  --color-n3: #c41010;
+  --color-n4: #7c3ca0;
+  --color-n5: #8a4000;
+  --color-n6: #006674;
   --color-n7: #7a5a48;
-  --color-n8: #b09070;
+  --color-n8: #6a4828;
 }
 
 [data-theme='pastel'] body {

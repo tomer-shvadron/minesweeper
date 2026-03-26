@@ -22,17 +22,17 @@
   --color-titlebar-bg: #1e6fcc;
   --color-titlebar-text: #ffffff;
 
-  --color-digit: #0a3060;
+  --color-digit: #ff4040;
   --color-digit-bg: rgba(0, 20, 60, 0.88);
 
   --color-n1: #0000cc;
   --color-n2: #006600;
-  --color-n3: #cc0000;
+  --color-n3: #b50000;
   --color-n4: #000080;
   --color-n5: #660000;
   --color-n6: #006666;
   --color-n7: #000000;
-  --color-n8: #666666;
+  --color-n8: #505050;
 }
 
 [data-theme='aero'] body {

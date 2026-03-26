@@ -19,20 +19,20 @@
   --color-header-border-light: #ffffff;
   --color-header-border-dark: #a8a8a8;
 
-  --color-titlebar-bg: #007aff;
+  --color-titlebar-bg: #0060e0;
   --color-titlebar-text: #ffffff;
 
   --color-digit: #ff3b30;
   --color-digit-bg: #1c1c1e;
 
   --color-n1: #0000ff;
-  --color-n2: #008000;
-  --color-n3: #ff0000;
+  --color-n2: #006800;
+  --color-n3: #bb0000;
   --color-n4: #000080;
   --color-n5: #800000;
-  --color-n6: #008080;
+  --color-n6: #006060;
   --color-n7: #000000;
-  --color-n8: #808080;
+  --color-n8: #505050;
 }
 
 [data-theme='aqua'] body {

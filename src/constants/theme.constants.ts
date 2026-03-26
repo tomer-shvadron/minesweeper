@@ -17,7 +17,7 @@ export const THEME_PREVIEW: Record<Theme, { surface: string; accent: string }> =
   dark: { surface: '#1c1c28', accent: '#6366f1' },
   material: { surface: '#2d2d2d', accent: '#bb86fc' },
   aero: { surface: '#d2e6fa', accent: '#1e6fcc' },
-  pastel: { surface: '#fef5e4', accent: '#c9a0e8' },
+  pastel: { surface: '#fef5e4', accent: '#7c3ca0' },
   neon: { surface: '#220040', accent: '#ff00ff' },
   aqua: { surface: '#ebebeb', accent: '#007aff' },
 }

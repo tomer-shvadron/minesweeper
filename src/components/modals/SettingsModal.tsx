@@ -17,11 +17,14 @@ export const SettingsModal = () => {
     soundEnabled,
     volume,
     animationsEnabled,
+    hapticEnabled,
+    hapticSupported,
     setTheme,
     setFlagMode,
     setSoundEnabled,
     setVolume,
     setAnimationsEnabled,
+    setHapticEnabled,
     closeModal,
   } = useSettingsModalLogic()
 
@@ -79,6 +82,14 @@ export const SettingsModal = () => {
           checked={animationsEnabled}
           onChange={setAnimationsEnabled}
         />
+        {hapticSupported && (
+          <Toggle
+            id="haptic-toggle"
+            label="Haptic feedback"
+            checked={hapticEnabled}
+            onChange={setHapticEnabled}
+          />
+        )}
         <Toggle
           id="flagmode-toggle"
           label="Flag + question mark cycle"

@@ -840,3 +840,34 @@
     white-space: nowrap;
   }
 }
+
+@layer components {
+  @media (orientation: landscape) {
+    .game-window {
+      flex-direction: row;
+    }
+
+    .game-header--sidebar {
+      height: 100%;
+      padding: 6px 4px;
+    }
+
+    .game-header--sidebar .game-header__inner {
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      height: 100%;
+      padding: 4px 2px;
+    }
+
+    .game-header--sidebar .header-section {
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .game-header--sidebar .header-section--right {
+      justify-content: flex-start;
+    }
+  }
+}

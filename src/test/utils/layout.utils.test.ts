@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { BOARD_PADDING, HEADER_HEIGHT, calcCellSize } from '@/utils/layout.utils'
+import {
+  BOARD_PADDING,
+  HEADER_HEIGHT,
+  HEADER_SIDEBAR_WIDTH,
+  calcCellSize,
+} from '@/utils/layout.utils'
 
 function setViewport(width: number, height: number) {
   Object.defineProperty(window, 'innerWidth', { value: width, writable: true, configurable: true })
@@ -42,10 +47,13 @@ describe('calcCellSize', () => {
   })
 
   it('is constrained by height when height is the bottleneck', () => {
+    // 2000×200 is landscape (width > height), so sidebar width is subtracted from W
+    // and no header height is subtracted from H
     setViewport(2000, 200)
     const size = calcCellSize(9, 9)
-    const availH = 200 - HEADER_HEIGHT - BOARD_PADDING * 2
-    expect(size).toBe(Math.max(12, Math.floor(availH / 9)))
+    const availW = 2000 - BOARD_PADDING * 2 - HEADER_SIDEBAR_WIDTH
+    const availH = 200 - BOARD_PADDING * 2
+    expect(size).toBe(Math.max(12, Math.min(Math.floor(availW / 9), Math.floor(availH / 9))))
   })
 
   it('never returns less than 12px even on a tiny viewport', () => {

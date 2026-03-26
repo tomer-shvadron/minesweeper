@@ -10,11 +10,14 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggeredRef = useRef(false)
   const movedRef = useRef(false)
+  const swipeFlaggedRef = useRef(false)
   const startPosRef = useRef<{ x: number; y: number } | null>(null)
   const pressStartTimeRef = useRef<number | null>(null)
   const isTouchRef = useRef(false)
 
   const TAP_MAX_DURATION = 200
+  const SWIPE_DOWN_THRESHOLD = 20 // px downward to trigger swipe-to-flag
+  const SWIPE_TIME_WINDOW = 200 // ms — swipe must start within this window
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -28,6 +31,7 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
       isTouchRef.current = true
       longPressTriggeredRef.current = false
       movedRef.current = false
+      swipeFlaggedRef.current = false
       pressStartTimeRef.current = Date.now()
       const touch = e.touches[0]
       startPosRef.current = touch ? { x: touch.clientX, y: touch.clientY } : null
@@ -49,25 +53,43 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
         return
       }
       const dx = Math.abs(touch.clientX - startPosRef.current.x)
-      const dy = Math.abs(touch.clientY - startPosRef.current.y)
-      if (dx > 10 || dy > 10) {
+      const dy = touch.clientY - startPosRef.current.y // signed: positive = downward
+
+      // A quick downward swipe within the time window fires flag immediately,
+      // without waiting for the long-press timer.
+      const elapsed = Date.now() - (pressStartTimeRef.current ?? 0)
+      if (dy >= SWIPE_DOWN_THRESHOLD && elapsed < SWIPE_TIME_WINDOW && !swipeFlaggedRef.current) {
+        clearTimer()
+        swipeFlaggedRef.current = true
+        movedRef.current = true
+        onLongPress()
+        return
+      }
+
+      if (dx > 10 || Math.abs(dy) > 10) {
         clearTimer()
         movedRef.current = true
       }
     },
-    [clearTimer]
+    [clearTimer, onLongPress]
   )
 
   const onTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       clearTimer()
       const pressDuration = Date.now() - (pressStartTimeRef.current ?? 0)
-      if (!longPressTriggeredRef.current && !movedRef.current && pressDuration < TAP_MAX_DURATION) {
+      if (
+        !longPressTriggeredRef.current &&
+        !movedRef.current &&
+        !swipeFlaggedRef.current &&
+        pressDuration < TAP_MAX_DURATION
+      ) {
         e.preventDefault()
         onTap()
       }
       longPressTriggeredRef.current = false
       movedRef.current = false
+      swipeFlaggedRef.current = false
       pressStartTimeRef.current = null
     },
     [clearTimer, onTap]

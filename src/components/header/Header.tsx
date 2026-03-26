@@ -6,10 +6,16 @@ import { Timer } from './Timer'
 import { useHeaderLogic } from './useHeaderLogic'
 
 export const Header = () => {
-  const { boardWidth, openSettingsModal, openLeaderboardModal } = useHeaderLogic()
+  const { boardWidth, isLandscape, headerSidebarWidth, openSettingsModal, openLeaderboardModal } =
+    useHeaderLogic()
+
+  const headerStyle = isLandscape ? { width: headerSidebarWidth } : { width: boardWidth }
 
   return (
-    <div className="game-header" style={{ width: boardWidth }}>
+    <div
+      className={isLandscape ? 'game-header game-header--sidebar' : 'game-header'}
+      style={headerStyle}
+    >
       <div className="game-header__inner">
         <div className="header-section">
           <button

@@ -9,6 +9,7 @@ type SettingsStore = Settings & {
   setSoundEnabled: (enabled: boolean) => void
   setVolume: (volume: number) => void
   setAnimationsEnabled: (enabled: boolean) => void
+  setHapticEnabled: (enabled: boolean) => void
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -19,12 +20,14 @@ export const useSettingsStore = create<SettingsStore>()(
       soundEnabled: true,
       volume: 0.5,
       animationsEnabled: true,
+      hapticEnabled: true,
 
       setTheme: (theme) => set({ theme }),
       setFlagMode: (mode) => set({ flagMode: mode }),
       setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
       setVolume: (volume) => set({ volume }),
       setAnimationsEnabled: (enabled) => set({ animationsEnabled: enabled }),
+      setHapticEnabled: (enabled) => set({ hapticEnabled: enabled }),
     }),
     { name: 'minesweeper-settings' }
   )

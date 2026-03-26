@@ -1,4 +1,5 @@
 import { useLongPress } from '@/hooks/useLongPress'
+import { haptic } from '@/services/haptic.service'
 import { playSound } from '@/services/sound.service'
 import { useGameStore } from '@/stores/game.store'
 import { useSettingsStore } from '@/stores/settings.store'
@@ -31,6 +32,7 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
   const flagMode = useSettingsStore((s) => s.flagMode)
   const soundEnabled = useSettingsStore((s) => s.soundEnabled)
   const volume = useSettingsStore((s) => s.volume)
+  const hapticEnabled = useSettingsStore((s) => s.hapticEnabled)
 
   const isGameOver = status === 'won' || status === 'lost'
   const allowQuestionMarks = flagMode === 'flags-and-questions'
@@ -46,9 +48,11 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
       return
     }
     if (cell.isRevealed) {
+      haptic('chord', hapticEnabled)
       chordClick(row, col)
       sound('reveal')
     } else {
+      haptic('reveal', hapticEnabled)
       revealCell(row, col)
       sound('reveal')
     }
@@ -58,7 +62,7 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
     if (isGameOver || cell.isRevealed) {
       return
     }
-    navigator.vibrate?.(40)
+    haptic(cell.isFlagged ? 'unflag' : 'flag', hapticEnabled)
     flagCell(row, col, allowQuestionMarks)
     sound('flag')
   }

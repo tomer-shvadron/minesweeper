@@ -10,6 +10,7 @@ import { ResumePrompt } from '@/components/modals/ResumePrompt'
 import { SettingsModal } from '@/components/modals/SettingsModal'
 import { Confetti } from '@/components/ui/Confetti'
 import { createBoardKey } from '@/services/board.service'
+import { haptic } from '@/services/haptic.service'
 import { playSound } from '@/services/sound.service'
 import { useGameStore } from '@/stores/game.store'
 import { useLeaderboardStore } from '@/stores/leaderboard.store'
@@ -24,6 +25,7 @@ export const App = () => {
   const soundEnabled = useSettingsStore((s) => s.soundEnabled)
   const volume = useSettingsStore((s) => s.volume)
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled)
+  const hapticEnabled = useSettingsStore((s) => s.hapticEnabled)
   const isHighScore = useLeaderboardStore((s) => s.isHighScore)
   const incrementGamesPlayed = useLeaderboardStore((s) => s.incrementGamesPlayed)
   const showHighScorePrompt = useUIStore((s) => s.showHighScorePrompt)
@@ -48,6 +50,7 @@ export const App = () => {
       if (soundEnabled) {
         playSound('win', volume)
       }
+      haptic('win', hapticEnabled)
       const boardKey = createBoardKey(config)
       incrementGamesPlayed(boardKey)
       if (isHighScore(boardKey, elapsedSeconds)) {
@@ -57,6 +60,7 @@ export const App = () => {
       if (soundEnabled) {
         playSound('explode', volume)
       }
+      haptic('loss', hapticEnabled)
       const boardKey = createBoardKey(config)
       incrementGamesPlayed(boardKey)
     }

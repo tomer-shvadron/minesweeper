@@ -7,4 +7,5 @@ export interface Settings {
   soundEnabled: boolean
   volume: number // 0–1
   animationsEnabled: boolean
+  hapticEnabled: boolean
 }

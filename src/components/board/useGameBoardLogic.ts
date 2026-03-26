@@ -16,10 +16,13 @@ export const useGameBoardLogic = () => {
     resetZoom,
   } = usePinchZoom(1, 5, boardWidth, boardHeight)
 
-  // Reset zoom when board size changes (new game with different difficulty)
+  // Reset zoom whenever board pixel dimensions change — covers three cases:
+  //   1. New game with a different board size
+  //   2. Orientation change (portrait ↔ landscape) — cellSize recalculates, changing boardWidth/boardHeight
+  //   3. Window resize on desktop
   useEffect(() => {
     resetZoom()
-  }, [config.rows, config.cols, config.mines, resetZoom])
+  }, [boardWidth, boardHeight, resetZoom])
 
   // Zoom out automatically when the game ends so the full board is visible
   useEffect(() => {

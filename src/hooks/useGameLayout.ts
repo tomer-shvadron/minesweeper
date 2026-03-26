@@ -16,8 +16,22 @@ export const useGameLayout = () => {
   useEffect(() => {
     const recalc = () => setCellSize(calcCellSize(config.rows, config.cols))
     recalc()
+
+    // On iOS Safari the viewport dimensions haven't updated yet when the `resize`
+    // event fires during an orientation change, so we delay the recalculation.
+    let orientationTimer: ReturnType<typeof setTimeout>
+    const handleOrientationChange = () => {
+      orientationTimer = setTimeout(recalc, 100)
+    }
+
     window.addEventListener('resize', recalc)
-    return () => window.removeEventListener('resize', recalc)
+    window.addEventListener('orientationchange', handleOrientationChange)
+
+    return () => {
+      window.removeEventListener('resize', recalc)
+      window.removeEventListener('orientationchange', handleOrientationChange)
+      clearTimeout(orientationTimer)
+    }
   }, [config.rows, config.cols])
 
   return {

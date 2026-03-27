@@ -340,4 +340,102 @@ describe('game.store', () => {
       expect(useGameStore.getState().isPressingCell).toBe(false);
     });
   });
+
+  // ----------------------------------------------------------------
+  describe('generating status / _applyGeneratedBoard', () => {
+    it('revealCell is a no-op when status is generating', () => {
+      useGameStore.setState({ status: 'generating' });
+      const boardBefore = useGameStore.getState().board;
+      useGameStore.getState().revealCell(0, 0);
+      expect(useGameStore.getState().board).toBe(boardBefore);
+    });
+
+    it('startNewGame resets generating status to idle', () => {
+      useGameStore.setState({ status: 'generating' });
+      useGameStore.getState().startNewGame(beginner);
+      expect(useGameStore.getState().status).toBe('idle');
+    });
+
+    it('_applyGeneratedBoard reveals the pending cell and transitions to playing', () => {
+      // pendingRevealRow/pendingRevealCol are module-level vars defaulting to 0
+      // We build a 2×2 board where [0,0] is a safe cell with value 1
+      const board = makeBoard([
+        [{ value: 1 as CellValue }, { hasMine: true }],
+        [{ value: 1 as CellValue }, { value: 1 as CellValue }],
+      ]);
+      useGameStore.setState({
+        board,
+        status: 'generating',
+        config: { rows: 2, cols: 2, mines: 1 },
+        isFirstClick: true,
+      });
+      useGameStore.getState()._applyGeneratedBoard(board);
+      const state = useGameStore.getState();
+      // [0,0] should now be revealed (pending cell)
+      expect(state.board[0]?.[0]?.isRevealed).toBe(true);
+      expect(['playing', 'won', 'lost']).toContain(state.status);
+      expect(state.isFirstClick).toBe(false);
+    });
+
+    it('_applyGeneratedBoard sets status to won when only mines remain unrevealed', () => {
+      // 2×2 board: mine at [1,1], [0,1] and [1,0] already revealed, [0,0] is the pending safe cell
+      const board = makeBoard([
+        [{ value: 1 as CellValue }, { isRevealed: true, value: 1 as CellValue }],
+        [{ isRevealed: true, value: 1 as CellValue }, { hasMine: true }],
+      ]);
+      useGameStore.setState({
+        board,
+        status: 'generating',
+        config: { rows: 2, cols: 2, mines: 1 },
+        isFirstClick: true,
+      });
+      // pendingRevealRow=0, pendingRevealCol=0 by default (module-level)
+      useGameStore.getState()._applyGeneratedBoard(board);
+      const state = useGameStore.getState();
+      // Revealing [0,0] means all non-mine cells are now revealed → won
+      expect(state.status).toBe('won');
+    });
+
+    it('_applyGeneratedBoard sets status to lost when pending cell is a mine', () => {
+      // Mine is at [0,0] (the pending cell)
+      const board = makeBoard([
+        [{ hasMine: true }, { value: 1 as CellValue }],
+        [{ value: 1 as CellValue }, { isRevealed: true }],
+      ]);
+      useGameStore.setState({
+        board,
+        status: 'generating',
+        config: { rows: 2, cols: 2, mines: 1 },
+        isFirstClick: true,
+      });
+      useGameStore.getState()._applyGeneratedBoard(board);
+      expect(useGameStore.getState().status).toBe('lost');
+    });
+
+    it('partialize maps generating status to idle', () => {
+      useGameStore.setState({ status: 'generating' });
+      const partialize = (
+        useGameStore as unknown as {
+          persist: {
+            getOptions(): { partialize?: (s: ReturnType<typeof useGameStore.getState>) => unknown };
+          };
+        }
+      ).persist.getOptions().partialize;
+      const result = partialize?.(useGameStore.getState()) as { status: string } | undefined;
+      expect(result?.status).toBe('idle');
+    });
+
+    it('partialize preserves playing status as playing', () => {
+      useGameStore.setState({ status: 'playing' });
+      const partialize = (
+        useGameStore as unknown as {
+          persist: {
+            getOptions(): { partialize?: (s: ReturnType<typeof useGameStore.getState>) => unknown };
+          };
+        }
+      ).persist.getOptions().partialize;
+      const result = partialize?.(useGameStore.getState()) as { status: string } | undefined;
+      expect(result?.status).toBe('playing');
+    });
+  });
 });

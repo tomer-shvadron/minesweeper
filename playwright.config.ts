@@ -1,20 +1,26 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// In CI we run e2e against the production preview build (port 4173).
+// Locally, we run against the dev server (port 5173).
+const usePreview = !!process.env.PLAYWRIGHT_PREVIEW || !!process.env.CI;
+const BASE_URL = usePreview ? 'http://localhost:4173' : 'http://localhost:5173';
+const WEB_SERVER_CMD = usePreview ? 'pnpm preview' : 'pnpm dev';
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'html',
   timeout: 30_000,
   expect: { timeout: 8_000 },
 
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: BASE_URL,
     trace: 'on-first-retry',
-    // Disable animations globally via prefers-reduced-motion
     reducedMotion: 'reduce',
+    screenshot: 'only-on-failure',
   },
 
   projects: [
@@ -37,8 +43,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:5173',
+    command: WEB_SERVER_CMD,
+    url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

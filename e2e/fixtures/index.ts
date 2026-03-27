@@ -4,7 +4,7 @@ import type { CellState, Board, BoardConfig } from '../../src/types/game.types';
 
 interface GameState {
   board: Board;
-  status: 'idle' | 'playing' | 'won' | 'lost';
+  status: 'idle' | 'playing' | 'won' | 'lost' | 'generating';
   config: BoardConfig;
   elapsedSeconds: number;
   minesRemaining: number;
@@ -200,11 +200,41 @@ export class GamePage {
     throw new Error('No unflagged mine found on board');
   }
 
-  async waitForStatus(status: 'idle' | 'playing' | 'won' | 'lost') {
+  async waitForStatus(status: 'idle' | 'playing' | 'won' | 'lost' | 'generating') {
     await this.page.waitForFunction(
       (s) => window.__MINESWEEPER_TEST__.getGameState().status === s,
       status
     );
+  }
+
+  /** Click a cell on a canvas board by computing pixel coordinates from the canvas bounding box. */
+  async canvasClick(row: number, col: number): Promise<void> {
+    const canvas = this.page.locator('canvas');
+    const box = await canvas.boundingBox();
+    if (!box) {
+      throw new Error('Canvas element not found — is this a canvas board?');
+    }
+    const state = await this.getGameState();
+    const cellW = box.width / state.config.cols;
+    const cellH = box.height / state.config.rows;
+    const x = box.x + (col + 0.5) * cellW;
+    const y = box.y + (row + 0.5) * cellH;
+    await this.page.mouse.click(x, y);
+  }
+
+  /** Right-click a cell on a canvas board (long-press/flag equivalent for desktop). */
+  async canvasRightClick(row: number, col: number): Promise<void> {
+    const canvas = this.page.locator('canvas');
+    const box = await canvas.boundingBox();
+    if (!box) {
+      throw new Error('Canvas element not found — is this a canvas board?');
+    }
+    const state = await this.getGameState();
+    const cellW = box.width / state.config.cols;
+    const cellH = box.height / state.config.rows;
+    const x = box.x + (col + 0.5) * cellW;
+    const y = box.y + (row + 0.5) * cellH;
+    await this.page.mouse.click(x, y, { button: 'right' });
   }
 
   cell(row: number, col: number) {

@@ -27,6 +27,9 @@ export const NewGameModal = () => {
     handleCustomRows,
     handleCustomCols,
     handleCustomMines,
+    handleCustomRowsBlur,
+    handleCustomColsBlur,
+    handleCustomMinesBlur,
     handleStart,
     noGuessMode,
     setNoGuessMode,
@@ -67,7 +70,8 @@ export const NewGameModal = () => {
               value={customRows}
               min={5}
               max={30}
-              onChange={(e) => handleCustomRows(Number(e.target.value))}
+              onChange={(e) => handleCustomRows(e.target.value)}
+              onBlur={handleCustomRowsBlur}
             />
           </div>
           <div className="flex items-center gap-2 text-[0.8125rem]">
@@ -81,7 +85,8 @@ export const NewGameModal = () => {
               value={customCols}
               min={5}
               max={50}
-              onChange={(e) => handleCustomCols(Number(e.target.value))}
+              onChange={(e) => handleCustomCols(e.target.value)}
+              onBlur={handleCustomColsBlur}
             />
           </div>
           <div className="flex items-center gap-2 text-[0.8125rem]">
@@ -95,7 +100,8 @@ export const NewGameModal = () => {
               value={customMines}
               min={1}
               max={maxMines}
-              onChange={(e) => handleCustomMines(Number(e.target.value))}
+              onChange={(e) => handleCustomMines(e.target.value)}
+              onBlur={handleCustomMinesBlur}
             />
           </div>
           <p className="text-[0.8125rem]">Max mines: {maxMines}</p>

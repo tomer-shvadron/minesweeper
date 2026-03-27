@@ -25,6 +25,14 @@ vi.mock('@/stores/game.store', () => ({
     }),
 }))
 
+vi.mock('@/stores/settings.store', () => ({
+  useSettingsStore: (selector: (s: object) => unknown) =>
+    selector({
+      noGuessMode: false,
+      setNoGuessMode: vi.fn(),
+    }),
+}))
+
 describe('NewGameModal', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -83,5 +91,108 @@ describe('NewGameModal', () => {
   it('does not show custom inputs when a preset is selected', () => {
     render(<NewGameModal />)
     expect(screen.queryByLabelText('Rows')).toBeNull()
+  })
+})
+
+describe('NewGameModal – custom size inputs', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockIsOpen = true
+    // A config that doesn't match any preset → Custom is pre-selected
+    mockConfig = { rows: 10, cols: 20, mines: 15 }
+  })
+
+  function renderCustom() {
+    render(<NewGameModal />)
+    // Custom preset should already be selected
+    return {
+      rowsInput: screen.getByLabelText('Rows') as HTMLInputElement,
+      colsInput: screen.getByLabelText('Columns') as HTMLInputElement,
+      minesInput: screen.getByLabelText('Mines') as HTMLInputElement,
+    }
+  }
+
+  it('pre-selects Custom when current config does not match any preset', () => {
+    render(<NewGameModal />)
+    expect(screen.getByLabelText('Rows')).toBeTruthy()
+  })
+
+  it('does NOT clamp intermediate values while the user is still typing', () => {
+    const { rowsInput } = renderCustom()
+    // Simulate clearing "10" and typing "1" (first keystroke of "15")
+    fireEvent.change(rowsInput, { target: { value: '1' } })
+    // Should show "1", not clamp to MIN_ROWS (5)
+    expect(rowsInput.value).toBe('1')
+  })
+
+  it('allows typing a valid rows value and starts the game with it', () => {
+    const { rowsInput } = renderCustom()
+    fireEvent.change(rowsInput, { target: { value: '15' } })
+    expect(rowsInput.value).toBe('15')
+    fireEvent.click(screen.getByText('Start'))
+    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ rows: 15 }))
+  })
+
+  it('clamps below-minimum rows to MIN_ROWS on blur', () => {
+    const { rowsInput } = renderCustom()
+    fireEvent.change(rowsInput, { target: { value: '1' } })
+    fireEvent.blur(rowsInput)
+    expect(rowsInput.value).toBe('5')
+  })
+
+  it('clamps above-maximum rows to MAX_ROWS on blur', () => {
+    const { rowsInput } = renderCustom()
+    fireEvent.change(rowsInput, { target: { value: '99' } })
+    fireEvent.blur(rowsInput)
+    expect(rowsInput.value).toBe('30')
+  })
+
+  it('clamps out-of-range rows to valid bounds when Start is clicked', () => {
+    const { rowsInput } = renderCustom()
+    fireEvent.change(rowsInput, { target: { value: '99' } })
+    fireEvent.click(screen.getByText('Start'))
+    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ rows: 30 }))
+  })
+
+  it('does NOT clamp intermediate cols values while typing', () => {
+    const { colsInput } = renderCustom()
+    fireEvent.change(colsInput, { target: { value: '2' } })
+    expect(colsInput.value).toBe('2')
+  })
+
+  it('allows typing a valid cols value and starts the game with it', () => {
+    const { colsInput } = renderCustom()
+    fireEvent.change(colsInput, { target: { value: '25' } })
+    fireEvent.click(screen.getByText('Start'))
+    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ cols: 25 }))
+  })
+
+  it('clamps cols on blur', () => {
+    const { colsInput } = renderCustom()
+    fireEvent.change(colsInput, { target: { value: '2' } })
+    fireEvent.blur(colsInput)
+    expect(colsInput.value).toBe('5')
+  })
+
+  it('does NOT clamp intermediate mines values while typing', () => {
+    const { minesInput } = renderCustom()
+    fireEvent.change(minesInput, { target: { value: '1' } })
+    expect(minesInput.value).toBe('1')
+  })
+
+  it('allows typing a valid mines value and starts the game with it', () => {
+    const { minesInput } = renderCustom()
+    fireEvent.change(minesInput, { target: { value: '50' } })
+    fireEvent.click(screen.getByText('Start'))
+    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ mines: 50 }))
+  })
+
+  it('clamps mines on blur', () => {
+    const { minesInput } = renderCustom()
+    // 10 rows × 20 cols − 9 = 191 max; try to type above that
+    fireEvent.change(minesInput, { target: { value: '999' } })
+    fireEvent.blur(minesInput)
+    // maxMines for 10×20 = 191
+    expect(Number(minesInput.value)).toBeLessThanOrEqual(191)
   })
 })

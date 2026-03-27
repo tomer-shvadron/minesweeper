@@ -14,22 +14,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # ── 1. Unit tests ── runs in parallel with build ───────────────────────────
+  unit-test:
+    name: Unit tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
@@ -40,32 +36,127 @@ jobs:
       - name: Run unit tests
         run: pnpm test:run
 
+  # ── 2. Build ── runs in parallel with unit-test ────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Build
         run: pnpm build
 
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
+      # Share the production bundle with downstream e2e and deploy jobs
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
 
-      - name: Run e2e tests (against production build)
-        run: pnpm e2e
+  # ── 3. E2E ── four browsers run in parallel, each against the production build
+  e2e:
+    name: E2E (${{ matrix.project }})
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false   # let all browsers finish even if one fails
+      matrix:
+        include:
+          - project: chromium
+            browser: chromium
+          - project: webkit
+            browser: webkit
+          - project: mobile-chrome
+            browser: chromium   # reuses chromium cache
+          - project: mobile-safari
+            browser: webkit     # reuses webkit cache
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      # Cache keyed per browser + lockfile so chromium/mobile-chrome share one entry
+      # and webkit/mobile-safari share another.
+      - name: Cache Playwright ${{ matrix.browser }}
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ matrix.browser }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      # On cache miss: download browser binary + system deps (~2-3 min, cached after)
+      - name: Install Playwright + system deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+
+      # On cache hit: binary already present, only install OS-level deps (~15 s)
+      - name: Install system deps (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps ${{ matrix.browser }}
+
+      - name: Run e2e — ${{ matrix.project }}
+        run: pnpm e2e --project=${{ matrix.project }}
         env:
           CI: true
 
-      - name: Upload e2e report on failure
+      - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.project }}
           path: playwright-report/
           retention-days: 7
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+  # ── 4. Deploy ── only runs when both unit-test AND all e2e jobs pass ────────
+  deploy:
+    name: Deploy
+    needs: [unit-test, e2e]
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      # No checkout, no Node/pnpm needed — just the pre-built artifact
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
         with:
-          path: dist
+          name: dist
+          path: dist/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
 
       - name: Deploy to GitHub Pages
         id: deployment

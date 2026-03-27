@@ -9,7 +9,7 @@ test.describe('Leaderboard modal', () => {
   test('closes with X button', async ({ gamePage }) => {
     await gamePage.page.getByRole('button', { name: 'Leaderboard' }).click();
     await gamePage.leaderboardModal().waitFor();
-    await gamePage.page.locator('.modal-close-btn').click();
+    await gamePage.page.getByRole('button', { name: 'Close' }).click();
     await expect(gamePage.leaderboardModal()).not.toBeVisible();
   });
 
@@ -98,7 +98,8 @@ test.describe('Leaderboard modal', () => {
       },
     });
     await gamePage.page.getByRole('button', { name: 'Leaderboard' }).click();
-    const rows = gamePage.page.locator('.scores-table tbody tr');
+    // Scope to table rows inside the leaderboard modal (table has no CSS class — Tailwind only)
+    const rows = gamePage.leaderboardModal().locator('tbody tr');
     await expect(rows.nth(0)).toContainText('Fast');
     await expect(rows.nth(1)).toContainText('Mid');
     await expect(rows.nth(2)).toContainText('Slow');

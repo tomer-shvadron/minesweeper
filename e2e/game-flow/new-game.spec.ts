@@ -20,17 +20,19 @@ test.describe('New Game flow', () => {
     await expect(gamePage.mineCounter).toContainText('10');
   });
 
-  test('intermediate preset: 256 cells, 40 mines', async ({ gamePage }) => {
+  test('intermediate preset: canvas board, 40 mines', async ({ gamePage }) => {
+    // Intermediate (16×16 = 256 cells) exceeds CANVAS_THRESHOLD (250) → renders <canvas>
     await gamePage.startPreset('Intermediate');
-    const cells = gamePage.page.getByRole('button', { name: /^Cell \d+,\d+$/ });
-    await expect(cells).toHaveCount(256);
+    await expect(gamePage.board.locator('canvas')).toBeVisible();
+    await expect(gamePage.page.getByRole('button', { name: /^Cell / })).toHaveCount(0);
     await expect(gamePage.mineCounter).toContainText('40');
   });
 
-  test('expert preset: 480 cells, 99 mines', async ({ gamePage }) => {
+  test('expert preset: canvas board, 99 mines', async ({ gamePage }) => {
+    // Expert (16×30 = 480 cells) exceeds CANVAS_THRESHOLD (250) → renders <canvas>
     await gamePage.startPreset('Expert');
-    const cells = gamePage.page.getByRole('button', { name: /^Cell \d+,\d+$/ });
-    await expect(cells).toHaveCount(480);
+    await expect(gamePage.board.locator('canvas')).toBeVisible();
+    await expect(gamePage.page.getByRole('button', { name: /^Cell / })).toHaveCount(0);
     await expect(gamePage.mineCounter).toContainText('99');
   });
 

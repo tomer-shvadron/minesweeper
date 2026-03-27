@@ -44,8 +44,9 @@ test.describe('Play Again & Change Level', () => {
     await gamePage.page.getByLabel('Expert').check();
     await gamePage.page.getByRole('button', { name: 'Start' }).click();
     await expect(gamePage.newGameModal()).not.toBeVisible();
-    const cells = gamePage.page.getByRole('button', { name: /^Cell \d+,\d+$/ });
-    await expect(cells).toHaveCount(480);
+    // Expert (16×30 = 480 cells) exceeds CANVAS_THRESHOLD (250) → renders <canvas>, not cell buttons
+    await expect(gamePage.board.locator('canvas')).toBeVisible();
+    await expect(gamePage.mineCounter).toContainText('99');
   });
 
   test('mine counter resets to full count on Play Again', async ({ gamePage }) => {

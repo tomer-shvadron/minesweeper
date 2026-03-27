@@ -115,7 +115,9 @@ test.describe('Canvas board (large boards)', () => {
       expect(['playing', 'won', 'lost']).toContain(state.status);
     });
 
-    test('right-clicking canvas cell flags it', async ({ gamePage }) => {
+    test('right-clicking canvas cell flags it', async ({ gamePage, isMobile }) => {
+      // Mobile devices don't support right-click (context menu); flagging there is via long-press.
+      test.skip(isMobile, 'Right-click flag not supported on touch devices');
       // First click to start the game
       await gamePage.canvasClick(8, 15);
       await gamePage.page.waitForFunction(() =>

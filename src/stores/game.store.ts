@@ -9,10 +9,12 @@ import {
   chordReveal,
   countRemainingFlags,
   createEmptyBoard,
+  isBoardSolvable,
   placeMines,
   revealCell as revealCellFn,
   toggleFlag,
 } from '@/services/board.service'
+import { useSettingsStore } from '@/stores/settings.store'
 import type { Board, BoardConfig, GameStatus } from '@/types/game.types'
 
 interface GameState {
@@ -90,8 +92,29 @@ export const useGameStore = create<GameStore>()(
         let currentBoard = board
 
         if (isFirstClick) {
-          const boardWithMines = placeMines(currentBoard, config, row, col)
-          currentBoard = calculateAdjacentValues(boardWithMines)
+          const { noGuessMode } = useSettingsStore.getState()
+
+          if (noGuessMode) {
+            const MAX_ATTEMPTS = 100
+            let found = false
+            for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+              const mineBoard = placeMines(board, config, row, col)
+              const valuedBoard = calculateAdjacentValues(mineBoard)
+              if (isBoardSolvable(valuedBoard, [row, col])) {
+                currentBoard = valuedBoard
+                found = true
+                break
+              }
+            }
+            if (!found) {
+              // Fallback to standard board after 100 failed attempts
+              const mineBoard = placeMines(board, config, row, col)
+              currentBoard = calculateAdjacentValues(mineBoard)
+            }
+          } else {
+            const boardWithMines = placeMines(currentBoard, config, row, col)
+            currentBoard = calculateAdjacentValues(boardWithMines)
+          }
         }
 
         const newBoard = revealCellFn(currentBoard, row, col)

@@ -3,6 +3,7 @@ import { useUIStore } from '@/stores/ui.store'
 
 export const useSettingsModalLogic = () => {
   const closeModal = useUIStore((s) => s.closeSettingsModal)
+  const openKeyboardModal = useUIStore((s) => s.openKeyboardModal)
 
   const theme = useSettingsStore((s) => s.theme)
   const flagMode = useSettingsStore((s) => s.flagMode)
@@ -11,6 +12,7 @@ export const useSettingsModalLogic = () => {
   const soundTheme = useSettingsStore((s) => s.soundTheme)
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled)
   const hapticEnabled = useSettingsStore((s) => s.hapticEnabled)
+  const noGuessMode = useSettingsStore((s) => s.noGuessMode)
 
   const setTheme = useSettingsStore((s) => s.setTheme)
   const setFlagMode = useSettingsStore((s) => s.setFlagMode)
@@ -19,6 +21,7 @@ export const useSettingsModalLogic = () => {
   const setSoundTheme = useSettingsStore((s) => s.setSoundTheme)
   const setAnimationsEnabled = useSettingsStore((s) => s.setAnimationsEnabled)
   const setHapticEnabled = useSettingsStore((s) => s.setHapticEnabled)
+  const setNoGuessMode = useSettingsStore((s) => s.setNoGuessMode)
 
   // navigator.vibrate is undefined in non-touch environments (desktop browsers)
   const hapticSupported = typeof navigator !== 'undefined' && 'vibrate' in navigator
@@ -31,6 +34,7 @@ export const useSettingsModalLogic = () => {
     soundTheme,
     animationsEnabled,
     hapticEnabled,
+    noGuessMode,
     hapticSupported,
     setTheme,
     setFlagMode,
@@ -39,6 +43,8 @@ export const useSettingsModalLogic = () => {
     setSoundTheme,
     setAnimationsEnabled,
     setHapticEnabled,
+    setNoGuessMode,
+    openKeyboardModal,
     closeModal,
   }
 }

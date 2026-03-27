@@ -4,6 +4,7 @@ import { GameBoard } from '@/components/board/GameBoard'
 import { GameOverBanner } from '@/components/game-over/GameOverBanner'
 import { Header } from '@/components/header/Header'
 import { HighScorePrompt } from '@/components/modals/HighScorePrompt'
+import { KeyboardModal } from '@/components/modals/KeyboardModal'
 import { LeaderboardModal } from '@/components/modals/LeaderboardModal'
 import { NewGameModal } from '@/components/modals/NewGameModal'
 import { ResumePrompt } from '@/components/modals/ResumePrompt'
@@ -115,6 +116,7 @@ export const App = () => {
       <SettingsModal />
       <LeaderboardModal />
       <StatisticsModal />
+      <KeyboardModal />
       <HighScorePrompt />
     </div>
   )

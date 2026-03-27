@@ -320,6 +320,16 @@
 }
 
 @layer components {
+  /* .cell-focused stays in CSS: needs z-index + outline override for all themes */
+  .cell-focused {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+    position: relative;
+    z-index: 2;
+  }
+}
+
+@layer components {
   @media (orientation: landscape) {
     .game-header--sidebar {
       /* Height is set via inline style (boardHeight) for guaranteed resolution.

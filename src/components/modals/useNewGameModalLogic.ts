@@ -9,6 +9,7 @@ import {
   MIN_ROWS,
 } from '@/constants/game.constants'
 import { useGameStore } from '@/stores/game.store'
+import { useSettingsStore } from '@/stores/settings.store'
 import { useUIStore } from '@/stores/ui.store'
 
 type Preset = 'beginner' | 'intermediate' | 'expert' | 'custom'
@@ -21,6 +22,8 @@ export const useNewGameModalLogic = () => {
   const startNewGame = useGameStore((s) => s.startNewGame)
   const currentConfig = useGameStore((s) => s.config)
   const closeModal = useUIStore((s) => s.closeNewGameModal)
+  const noGuessMode = useSettingsStore((s) => s.noGuessMode)
+  const setNoGuessMode = useSettingsStore((s) => s.setNoGuessMode)
 
   const detectCurrentPreset = (): Preset => {
     for (const [key, preset] of Object.entries(DIFFICULTY_PRESETS)) {
@@ -84,5 +87,7 @@ export const useNewGameModalLogic = () => {
     handleCustomCols,
     handleCustomMines,
     handleStart,
+    noGuessMode,
+    setNoGuessMode,
   }
 }

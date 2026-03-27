@@ -3,6 +3,7 @@ import { useNewGameModalLogic } from './useNewGameModalLogic'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup'
+import { Toggle } from '@/components/ui/Toggle'
 import { DIFFICULTY_PRESETS } from '@/constants/game.constants'
 import { useUIStore } from '@/stores/ui.store'
 
@@ -27,6 +28,8 @@ export const NewGameModal = () => {
     handleCustomCols,
     handleCustomMines,
     handleStart,
+    noGuessMode,
+    setNoGuessMode,
   } = useNewGameModalLogic()
 
   return (
@@ -108,6 +111,13 @@ export const NewGameModal = () => {
           </p>
         </div>
       )}
+
+      <Toggle
+        id="no-guess-toggle"
+        label="No guessing (logic-solvable board)"
+        checked={noGuessMode}
+        onChange={setNoGuessMode}
+      />
 
       <div className="flex justify-end gap-1.5 px-3 py-2 pb-[10px]">
         <Button variant="primary" onClick={handleStart}>

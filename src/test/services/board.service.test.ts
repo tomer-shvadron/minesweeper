@@ -9,6 +9,7 @@ import {
   createBoardKey,
   createEmptyBoard,
   floodFill,
+  isBoardSolvable,
   placeMines,
   revealAllMines,
   revealCell,
@@ -642,5 +643,65 @@ describe('countRemainingFlags', () => {
   it('does not count revealed cells (they cannot be flagged)', () => {
     const board = makeBoard([[R(1), F(), M()]])
     expect(countRemainingFlags(board, 1)).toBe(0)
+  })
+})
+
+// -------------------------------------------------------------------
+describe('isBoardSolvable', () => {
+  it('returns true when first click opens all of the board (no mines)', () => {
+    // A 2x3 board with no mines — any click reveals everything via flood fill
+    const config: BoardConfig = { rows: 2, cols: 3, mines: 0 }
+    const empty = createEmptyBoard(config)
+    const withValues = calculateAdjacentValues(empty)
+    expect(isBoardSolvable(withValues, [0, 0])).toBe(true)
+  })
+
+  it('returns false when a guess is required (center cell with 2 mines among 8 neighbors)', () => {
+    // 3x3: mines at [0][0] and [2][2], first click at [1][1]
+    // [1][1] reveals as "2", all 8 neighbors are candidates for 2 mines
+    // No single constraint pins down where the mines are → not solvable
+    const config: BoardConfig = { rows: 3, cols: 3, mines: 2 }
+    const empty = createEmptyBoard(config)
+    const withMines: Board = empty.map((row, r) =>
+      row.map((cell, c) => {
+        if ((r === 0 && c === 0) || (r === 2 && c === 2)) {
+          return { ...cell, hasMine: true }
+        }
+        return cell
+      })
+    )
+    const withValues = calculateAdjacentValues(withMines)
+    // First click at center [1][1] — value is 2, all 8 neighbors unrevealed → no rules fire
+    expect(isBoardSolvable(withValues, [1, 1])).toBe(false)
+  })
+
+  it('returns true for a board solved by constraint propagation (linear layout)', () => {
+    // 1x5: [safe][safe][mine][safe][safe]
+    // mine at [0][2], first click at [0][0]
+    // [0][0] value=0: floods to [0][1]? No — [0][0] has neighbor [0][1] (value=1, not mine), so flood stops.
+    // Actually [0][0] value=1 (neighbor [0][1] is also 1 and has mine neighbor [0][2])
+    // Let's place mine at [0][4]: first click at [0][0]
+    // [0][0]=0, floods [0][1] (0 too?), yes. [0][1] floods [0][2] (value=1), stops.
+    // [0][2] has unrevealed neighbor [0][3] and [0][4]. Rule1: 1=2+0? No. Rule2: 1=0? No.
+    // Still not solvable. Need a cleaner setup.
+    //
+    // Better: 1x3 board: [safe(0)][safe(1)][mine]
+    // first click at [0][0]: floods [0][0] (value=0) → reveals [0][1] (value=1)
+    // [0][1] value=1, unrevealed neighbors: [0][2]. flagged=0.
+    // Rule1: 1 == 1+0 → flag [0][2]. Progress! No more unrevealed safe cells → done.
+    const config: BoardConfig = { rows: 1, cols: 3, mines: 1 }
+    const empty = createEmptyBoard(config)
+    const withMine: Board = empty.map((row, r) =>
+      row.map((cell, c) => (r === 0 && c === 2 ? { ...cell, hasMine: true } : cell))
+    )
+    const withValues = calculateAdjacentValues(withMine)
+    expect(isBoardSolvable(withValues, [0, 0])).toBe(true)
+  })
+
+  it('handles empty board (no mines) — always solvable from any click', () => {
+    const config: BoardConfig = { rows: 3, cols: 3, mines: 0 }
+    const empty = createEmptyBoard(config)
+    const withValues = calculateAdjacentValues(empty)
+    expect(isBoardSolvable(withValues, [1, 1])).toBe(true)
   })
 })

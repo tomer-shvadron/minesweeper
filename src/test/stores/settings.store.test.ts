@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { DEFAULT_KEY_BINDINGS } from '@/constants/keyboard.constants'
 import { useSettingsStore } from '@/stores/settings.store'
 
 const defaults = {
@@ -8,6 +9,8 @@ const defaults = {
   soundEnabled: true,
   volume: 0.5,
   animationsEnabled: true,
+  noGuessMode: false,
+  keyboardBindings: DEFAULT_KEY_BINDINGS,
 }
 
 beforeEach(() => {
@@ -103,6 +106,39 @@ describe('settings.store', () => {
 
     it('has animations enabled by default', () => {
       expect(useSettingsStore.getState().animationsEnabled).toBe(true)
+    })
+
+    it('has noGuessMode disabled by default', () => {
+      expect(useSettingsStore.getState().noGuessMode).toBe(false)
+    })
+
+    it('has default keyboard bindings', () => {
+      expect(useSettingsStore.getState().keyboardBindings).toEqual(DEFAULT_KEY_BINDINGS)
+    })
+  })
+
+  describe('setNoGuessMode', () => {
+    it('enables no-guess mode', () => {
+      useSettingsStore.getState().setNoGuessMode(true)
+      expect(useSettingsStore.getState().noGuessMode).toBe(true)
+    })
+
+    it('disables no-guess mode', () => {
+      useSettingsStore.setState({ noGuessMode: true })
+      useSettingsStore.getState().setNoGuessMode(false)
+      expect(useSettingsStore.getState().noGuessMode).toBe(false)
+    })
+  })
+
+  describe('setKeyBinding', () => {
+    it('updates a single key binding', () => {
+      useSettingsStore.getState().setKeyBinding('moveUp', 'w')
+      expect(useSettingsStore.getState().keyboardBindings.moveUp).toBe('w')
+    })
+
+    it('does not affect other bindings when updating one', () => {
+      useSettingsStore.getState().setKeyBinding('flag', 'x')
+      expect(useSettingsStore.getState().keyboardBindings.reveal).toBe(DEFAULT_KEY_BINDINGS.reveal)
     })
   })
 })

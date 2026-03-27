@@ -7,6 +7,7 @@ interface CellProps {
   col: number
   cell: CellState
   cellSize: number
+  isFocused?: boolean
   mineRevealIndex?: number
   chordRippleDelay?: number
 }
@@ -16,6 +17,7 @@ export const Cell = ({
   col,
   cell,
   cellSize,
+  isFocused,
   mineRevealIndex,
   chordRippleDelay,
 }: CellProps) => {
@@ -29,6 +31,7 @@ export const Cell = ({
   const animClass = [
     mineRevealIndex !== undefined ? 'cell--mine-reveal' : '',
     chordRippleDelay !== undefined ? 'cell--chord-ripple' : '',
+    isFocused ? 'cell-focused' : '',
   ]
     .filter(Boolean)
     .join(' ')

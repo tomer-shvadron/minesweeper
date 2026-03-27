@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import type { FlagMode, Settings, SoundTheme, Theme } from '@/types/settings.types'
+import { DEFAULT_KEY_BINDINGS } from '@/constants/keyboard.constants'
+import type { FlagMode, KeyboardAction, Settings, SoundTheme, Theme } from '@/types/settings.types'
 
 type SettingsStore = Settings & {
   setTheme: (theme: Theme) => void
@@ -11,6 +12,8 @@ type SettingsStore = Settings & {
   setSoundTheme: (soundTheme: SoundTheme) => void
   setAnimationsEnabled: (enabled: boolean) => void
   setHapticEnabled: (enabled: boolean) => void
+  setNoGuessMode: (enabled: boolean) => void
+  setKeyBinding: (action: KeyboardAction, key: string) => void
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -23,6 +26,8 @@ export const useSettingsStore = create<SettingsStore>()(
       soundTheme: 'classic',
       animationsEnabled: true,
       hapticEnabled: true,
+      noGuessMode: false,
+      keyboardBindings: DEFAULT_KEY_BINDINGS,
 
       setTheme: (theme) => set({ theme }),
       setFlagMode: (mode) => set({ flagMode: mode }),
@@ -31,6 +36,9 @@ export const useSettingsStore = create<SettingsStore>()(
       setSoundTheme: (soundTheme) => set({ soundTheme }),
       setAnimationsEnabled: (enabled) => set({ animationsEnabled: enabled }),
       setHapticEnabled: (enabled) => set({ hapticEnabled: enabled }),
+      setNoGuessMode: (enabled) => set({ noGuessMode: enabled }),
+      setKeyBinding: (action, key) =>
+        set((s) => ({ keyboardBindings: { ...s.keyboardBindings, [action]: key } })),
     }),
     { name: 'minesweeper-settings' }
   )

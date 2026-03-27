@@ -15,13 +15,23 @@ export const GameBoard = () => {
     boardEntering,
     mineRevealLookup,
     chordRippleLookup,
+    focusedCell,
+    handleKeyDown,
+    handleBoardFocus,
+    handleBoardBlur,
   } = useGameBoardLogic()
 
   return (
     <div
+      role="grid"
       className={boardEntering ? 'board--entering overflow-hidden' : 'overflow-hidden'}
       data-testid="board"
       style={{ width: boardWidth, height: boardHeight, touchAction: 'none' }}
+      tabIndex={0}
+      aria-label="Minesweeper board"
+      onKeyDown={handleKeyDown}
+      onFocus={handleBoardFocus}
+      onBlur={handleBoardBlur}
       {...pinchHandlers}
     >
       <div
@@ -39,6 +49,8 @@ export const GameBoard = () => {
             const key = `${rowIdx},${colIdx}`
             const mineRevealIndex = mineRevealLookup.get(key)
             const chordRippleDelay = chordRippleLookup.get(key)
+            const isFocused =
+              focusedCell !== null && focusedCell[0] === rowIdx && focusedCell[1] === colIdx
             return (
               <Cell
                 key={`${rowIdx}-${colIdx}`}
@@ -46,6 +58,7 @@ export const GameBoard = () => {
                 col={colIdx}
                 cell={cell}
                 cellSize={cellSize}
+                isFocused={isFocused}
                 {...(mineRevealIndex !== undefined && { mineRevealIndex })}
                 {...(chordRippleDelay !== undefined && { chordRippleDelay })}
               />

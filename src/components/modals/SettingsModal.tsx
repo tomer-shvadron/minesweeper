@@ -26,6 +26,7 @@ export const SettingsModal = () => {
     soundTheme,
     animationsEnabled,
     hapticEnabled,
+    noGuessMode,
     hapticSupported,
     setTheme,
     setFlagMode,
@@ -34,6 +35,8 @@ export const SettingsModal = () => {
     setSoundTheme,
     setAnimationsEnabled,
     setHapticEnabled,
+    setNoGuessMode,
+    openKeyboardModal,
     closeModal,
   } = useSettingsModalLogic()
 
@@ -125,11 +128,27 @@ export const SettingsModal = () => {
           />
         )}
         <Toggle
+          id="no-guess-toggle"
+          label="No guessing (logic-solvable boards)"
+          checked={noGuessMode}
+          onChange={setNoGuessMode}
+        />
+        <Toggle
           id="flagmode-toggle"
           label="Flag + question mark cycle"
           checked={flagMode === 'flags-and-questions'}
           onChange={(v) => setFlagMode(v ? 'flags-and-questions' : 'flags-only')}
         />
+        <div className="flex items-center justify-between gap-3 text-base">
+          <span className="flex-1">Keyboard shortcuts</span>
+          <button
+            type="button"
+            onClick={openKeyboardModal}
+            className="cursor-pointer border border-[var(--color-border-dark)] bg-[var(--color-surface)] px-2.5 py-0.5 text-sm shadow-[inset_1px_1px_0_var(--color-border-light),inset_-1px_-1px_0_var(--color-border-dark)] active:shadow-[inset_-1px_-1px_0_var(--color-border-light),inset_1px_1px_0_var(--color-border-dark)]"
+          >
+            Configure →
+          </button>
+        </div>
       </div>
 
       <div className="flex justify-end gap-1.5 px-3 py-2 pb-[10px]">

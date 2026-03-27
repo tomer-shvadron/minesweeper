@@ -12,9 +12,12 @@ interface UIState {
   settingsModalOpen: boolean
   leaderboardModalOpen: boolean
   statisticsModalOpen: boolean
+  keyboardModalOpen: boolean
   resumePromptOpen: boolean
   /** Non-null when the player just set a high score and needs to enter their name */
   highScoreEntry: HighScoreEntry | null
+  /** Currently keyboard-focused cell [row, col], null when keyboard nav not active */
+  focusedCell: [number, number] | null
 }
 
 interface UIActions {
@@ -22,14 +25,17 @@ interface UIActions {
   openSettingsModal: () => void
   openLeaderboardModal: () => void
   openStatisticsModal: () => void
+  openKeyboardModal: () => void
   closeNewGameModal: () => void
   closeSettingsModal: () => void
   closeLeaderboardModal: () => void
   closeStatisticsModal: () => void
+  closeKeyboardModal: () => void
   openResumePrompt: () => void
   closeResumePrompt: () => void
   showHighScorePrompt: (entry: HighScoreEntry) => void
   dismissHighScorePrompt: () => void
+  setFocusedCell: (cell: [number, number] | null) => void
 }
 
 type UIStore = UIState & UIActions
@@ -39,8 +45,10 @@ export const useUIStore = create<UIStore>()((set) => ({
   settingsModalOpen: false,
   leaderboardModalOpen: false,
   statisticsModalOpen: false,
+  keyboardModalOpen: false,
   resumePromptOpen: false,
   highScoreEntry: null,
+  focusedCell: null,
 
   openNewGameModal: () =>
     set({
@@ -70,15 +78,18 @@ export const useUIStore = create<UIStore>()((set) => ({
       settingsModalOpen: false,
       leaderboardModalOpen: false,
     }),
-
+  openKeyboardModal: () => set({ keyboardModalOpen: true }),
   closeNewGameModal: () => set({ newGameModalOpen: false }),
   closeSettingsModal: () => set({ settingsModalOpen: false }),
   closeLeaderboardModal: () => set({ leaderboardModalOpen: false }),
   closeStatisticsModal: () => set({ statisticsModalOpen: false }),
+  closeKeyboardModal: () => set({ keyboardModalOpen: false }),
 
   openResumePrompt: () => set({ resumePromptOpen: true }),
   closeResumePrompt: () => set({ resumePromptOpen: false }),
 
   showHighScorePrompt: (entry) => set({ highScoreEntry: entry }),
   dismissHighScorePrompt: () => set({ highScoreEntry: null }),
+
+  setFocusedCell: (cell) => set({ focusedCell: cell }),
 }))

@@ -1,9 +1,10 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 
 import { useGameLayout } from '@/hooks/useGameLayout'
 import { usePinchZoom } from '@/hooks/usePinchZoom'
 import { useGameStore } from '@/stores/game.store'
 import { useSettingsStore } from '@/stores/settings.store'
+import { useUIStore } from '@/stores/ui.store'
 
 export const useGameBoardLogic = () => {
   const board = useGameStore((s) => s.board)
@@ -12,7 +13,15 @@ export const useGameBoardLogic = () => {
   const mineRevealOrder = useGameStore((s) => s.mineRevealOrder)
   const lastChordReveal = useGameStore((s) => s.lastChordReveal)
   const clearChordReveal = useGameStore((s) => s.clearChordReveal)
+  const revealCell = useGameStore((s) => s.revealCell)
+  const flagCell = useGameStore((s) => s.flagCell)
+  const chordClick = useGameStore((s) => s.chordClick)
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled)
+  const flagMode = useSettingsStore((s) => s.flagMode)
+  const keyboardBindings = useSettingsStore((s) => s.keyboardBindings)
+  const focusedCell = useUIStore((s) => s.focusedCell)
+  const setFocusedCell = useUIStore((s) => s.setFocusedCell)
+  const openNewGameModal = useUIStore((s) => s.openNewGameModal)
   const { cellSize, boardWidth, boardHeight, config } = useGameLayout()
   const {
     scale,
@@ -23,6 +32,7 @@ export const useGameBoardLogic = () => {
   } = usePinchZoom(1, 5, boardWidth, boardHeight)
 
   const [boardEntering, setBoardEntering] = useState(false)
+  const [boardFocused, setBoardFocused] = useState(false)
 
   useLayoutEffect(() => {
     if (!animationsEnabled) {
@@ -57,8 +67,6 @@ export const useGameBoardLogic = () => {
     resetZoom()
   }, [boardWidth, boardHeight, resetZoom])
 
-  // screen.orientation fires after the browser commits new dimensions, more reliable
-  // than `resize` alone. Delay matches the 100ms recalculation in useGameLayout.
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>
     const handleOrientationChange = () => {
@@ -87,6 +95,94 @@ export const useGameBoardLogic = () => {
       resetZoom()
     }
   }, [status, resetZoom])
+
+  // Clear focused cell when game resets
+  useEffect(() => {
+    setFocusedCell(null)
+  }, [gameKey, setFocusedCell])
+
+  const handleBoardFocus = useCallback(() => {
+    setBoardFocused(true)
+    if (!focusedCell) {
+      setFocusedCell([0, 0])
+    }
+  }, [focusedCell, setFocusedCell])
+
+  const handleBoardBlur = useCallback(() => {
+    setBoardFocused(false)
+  }, [])
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      const key = e.key
+      const bindings = keyboardBindings
+
+      // New game shortcut (always active when board focused)
+      if (key === bindings.newGame) {
+        e.preventDefault()
+        openNewGameModal()
+        return
+      }
+
+      const current = focusedCell ?? [0, 0]
+      const [r, c] = current
+
+      if (key === bindings.moveUp) {
+        e.preventDefault()
+        setFocusedCell([r === 0 ? config.rows - 1 : r - 1, c])
+        return
+      }
+      if (key === bindings.moveDown) {
+        e.preventDefault()
+        setFocusedCell([r === config.rows - 1 ? 0 : r + 1, c])
+        return
+      }
+      if (key === bindings.moveLeft) {
+        e.preventDefault()
+        setFocusedCell([r, c === 0 ? config.cols - 1 : c - 1])
+        return
+      }
+      if (key === bindings.moveRight) {
+        e.preventDefault()
+        setFocusedCell([r, c === config.cols - 1 ? 0 : c + 1])
+        return
+      }
+      if (key === bindings.reveal) {
+        e.preventDefault()
+        const cell = board[r]?.[c]
+        if (cell && !cell.isRevealed) {
+          revealCell(r, c)
+        }
+        return
+      }
+      if (key === bindings.flag) {
+        e.preventDefault()
+        const cell = board[r]?.[c]
+        if (cell && !cell.isRevealed) {
+          flagCell(r, c, flagMode === 'flags-and-questions')
+        }
+        return
+      }
+      if (key === bindings.chord) {
+        e.preventDefault()
+        chordClick(r, c)
+        return
+      }
+    },
+    [
+      keyboardBindings,
+      focusedCell,
+      config.rows,
+      config.cols,
+      board,
+      revealCell,
+      flagCell,
+      chordClick,
+      flagMode,
+      setFocusedCell,
+      openNewGameModal,
+    ]
+  )
 
   const mineRevealLookup = useMemo(
     () => new Map(mineRevealOrder.map(([r, c], i) => [`${r},${c}`, i])),
@@ -119,5 +215,9 @@ export const useGameBoardLogic = () => {
     boardEntering: animationsEnabled && boardEntering,
     mineRevealLookup: animationsEnabled ? mineRevealLookup : new Map<string, number>(),
     chordRippleLookup: animationsEnabled ? chordRippleLookup : new Map<string, number>(),
+    focusedCell: boardFocused ? focusedCell : null,
+    handleKeyDown,
+    handleBoardFocus,
+    handleBoardBlur,
   }
 }

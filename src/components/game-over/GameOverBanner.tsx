@@ -1,14 +1,14 @@
-import { useGameOverBannerLogic } from './useGameOverBannerLogic'
+import { useGameOverBannerLogic } from './useGameOverBannerLogic';
 
-import { Button } from '@/components/ui/Button'
-import { formatTime } from '@/utils/time.utils'
+import { Button } from '@/components/ui/Button';
+import { formatTime } from '@/utils/time.utils';
 
 export const GameOverBanner = () => {
   const { isVisible, isWon, elapsedSeconds, efficiency, handlePlayAgain, handleChangeLevel } =
-    useGameOverBannerLogic()
+    useGameOverBannerLogic();
 
   if (!isVisible) {
-    return null
+    return null;
   }
 
   return (
@@ -32,5 +32,5 @@ export const GameOverBanner = () => {
         </Button>
       </div>
     </div>
-  )
-}
+  );
+};

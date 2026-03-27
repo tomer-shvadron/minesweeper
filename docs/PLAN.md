@@ -213,30 +213,30 @@ Every non-trivial component is split into a render file and a logic file.
 
 ```tsx
 // SmileyButton.tsx — render only, zero logic
-import { useSmileyButtonLogic } from './useSmileyButtonLogic'
-import { Button } from '@/components/ui/Button'
+import { useSmileyButtonLogic } from './useSmileyButtonLogic';
+import { Button } from '@/components/ui/Button';
 
 export const SmileyButton = () => {
-  const { emoji, label, onPress } = useSmileyButtonLogic()
+  const { emoji, label, onPress } = useSmileyButtonLogic();
   return (
     <Button variant="smiley" aria-label={label} onPress={onPress}>
       {emoji}
     </Button>
-  )
-}
+  );
+};
 ```
 
 ```ts
 // useSmileyButtonLogic.ts — all logic, no JSX
-import { useGameStore } from '@/stores/game.store'
+import { useGameStore } from '@/stores/game.store';
 
 export const useSmileyButtonLogic = () => {
-  const status = useGameStore((s) => s.status)
-  const startNewGame = useGameStore((s) => s.startNewGame)
-  const config = useGameStore((s) => s.config)
-  const emoji = { idle: '🙂', playing: '🙂', won: '😎', lost: '😵', nervous: '😮' }[status]
-  return { emoji, label: 'New game', onPress: () => startNewGame(config) }
-}
+  const status = useGameStore((s) => s.status);
+  const startNewGame = useGameStore((s) => s.startNewGame);
+  const config = useGameStore((s) => s.config);
+  const emoji = { idle: '🙂', playing: '🙂', won: '😎', lost: '😵', nervous: '😮' }[status];
+  return { emoji, label: 'New game', onPress: () => startNewGame(config) };
+};
 ```
 
 UI primitives use **variants** for all visual states:
@@ -283,10 +283,10 @@ export const useGameStore = create<GameStore>()(
     }),
     { name: 'minesweeper-game' }
   )
-)
+);
 
 // Components subscribe granularly — no unnecessary re-renders
-const revealCell = useGameStore((s) => s.revealCell)
+const revealCell = useGameStore((s) => s.revealCell);
 ```
 
 ---

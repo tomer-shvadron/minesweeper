@@ -1,4 +1,4 @@
-import type { KeyboardAction } from '@/types/settings.types'
+import type { KeyboardAction } from '@/types/settings.types';
 
 export const DEFAULT_KEY_BINDINGS: Record<KeyboardAction, string> = {
   moveUp: 'ArrowUp',
@@ -9,7 +9,7 @@ export const DEFAULT_KEY_BINDINGS: Record<KeyboardAction, string> = {
   flag: 'f',
   chord: 'Enter',
   newGame: 'n',
-}
+};
 
 export const KEYBOARD_ACTION_LABELS: Record<KeyboardAction, string> = {
   moveUp: 'Move up',
@@ -20,4 +20,4 @@ export const KEYBOARD_ACTION_LABELS: Record<KeyboardAction, string> = {
   flag: 'Flag cell',
   chord: 'Chord (auto-reveal)',
   newGame: 'New game',
-}
+};

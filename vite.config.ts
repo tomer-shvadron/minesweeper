@@ -1,9 +1,9 @@
-import { resolve } from 'node:path'
+import { resolve } from 'node:path';
 
-import tailwindcss from '@tailwindcss/vite'
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
-import { VitePWA } from 'vite-plugin-pwa'
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   base: '/minesweeper/',
@@ -61,4 +61,4 @@ export default defineConfig({
       '@': resolve(import.meta.dirname, './src'),
     },
   },
-})
+});

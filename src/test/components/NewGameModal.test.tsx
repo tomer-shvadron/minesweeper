@@ -1,10 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { NewGameModal } from '@/components/modals/NewGameModal'
+import { NewGameModal } from '@/components/modals/NewGameModal';
 
-let mockIsOpen = true
-const mockClose = vi.fn()
+let mockIsOpen = true;
+const mockClose = vi.fn();
 
 vi.mock('@/stores/ui.store', () => ({
   useUIStore: (selector: (s: object) => unknown) =>
@@ -12,10 +12,10 @@ vi.mock('@/stores/ui.store', () => ({
       newGameModalOpen: mockIsOpen,
       closeNewGameModal: mockClose,
     }),
-}))
+}));
 
-const mockStartNewGame = vi.fn()
-let mockConfig = { rows: 9, cols: 9, mines: 10 }
+const mockStartNewGame = vi.fn();
+let mockConfig = { rows: 9, cols: 9, mines: 10 };
 
 vi.mock('@/stores/game.store', () => ({
   useGameStore: (selector: (s: object) => unknown) =>
@@ -23,7 +23,7 @@ vi.mock('@/stores/game.store', () => ({
       startNewGame: mockStartNewGame,
       config: mockConfig,
     }),
-}))
+}));
 
 vi.mock('@/stores/settings.store', () => ({
   useSettingsStore: (selector: (s: object) => unknown) =>
@@ -31,168 +31,168 @@ vi.mock('@/stores/settings.store', () => ({
       noGuessMode: false,
       setNoGuessMode: vi.fn(),
     }),
-}))
+}));
 
 describe('NewGameModal', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    mockIsOpen = true
-    mockConfig = { rows: 9, cols: 9, mines: 10 }
-  })
+    vi.clearAllMocks();
+    mockIsOpen = true;
+    mockConfig = { rows: 9, cols: 9, mines: 10 };
+  });
 
   it('renders nothing when closed', () => {
-    mockIsOpen = false
-    render(<NewGameModal />)
-    expect(screen.queryByRole('dialog')).toBeNull()
-  })
+    mockIsOpen = false;
+    render(<NewGameModal />);
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
 
   it('renders the modal title when open', () => {
-    render(<NewGameModal />)
-    expect(screen.getByRole('dialog')).toBeTruthy()
-    expect(screen.getByText('New Game')).toBeTruthy()
-  })
+    render(<NewGameModal />);
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    expect(screen.getByText('New Game')).toBeTruthy();
+  });
 
   it('shows all difficulty preset options', () => {
-    render(<NewGameModal />)
-    expect(screen.getByRole('radio', { name: /beginner/i })).toBeTruthy()
-    expect(screen.getByRole('radio', { name: /intermediate/i })).toBeTruthy()
-    expect(screen.getByRole('radio', { name: /expert/i })).toBeTruthy()
-    expect(screen.getByRole('radio', { name: /custom/i })).toBeTruthy()
-  })
+    render(<NewGameModal />);
+    expect(screen.getByRole('radio', { name: /beginner/i })).toBeTruthy();
+    expect(screen.getByRole('radio', { name: /intermediate/i })).toBeTruthy();
+    expect(screen.getByRole('radio', { name: /expert/i })).toBeTruthy();
+    expect(screen.getByRole('radio', { name: /custom/i })).toBeTruthy();
+  });
 
   it('pre-selects Beginner when current config matches beginner preset', () => {
-    render(<NewGameModal />)
-    const beginnerRadio = screen.getByRole('radio', { name: /beginner/i })
-    expect(beginnerRadio.getAttribute('data-state')).toBe('checked')
-  })
+    render(<NewGameModal />);
+    const beginnerRadio = screen.getByRole('radio', { name: /beginner/i });
+    expect(beginnerRadio.getAttribute('data-state')).toBe('checked');
+  });
 
   it('calls startNewGame and closeModal when Start is clicked', () => {
-    render(<NewGameModal />)
-    fireEvent.click(screen.getByText('Start'))
-    expect(mockStartNewGame).toHaveBeenCalledTimes(1)
-    expect(mockClose).toHaveBeenCalledTimes(1)
-  })
+    render(<NewGameModal />);
+    fireEvent.click(screen.getByText('Start'));
+    expect(mockStartNewGame).toHaveBeenCalledTimes(1);
+    expect(mockClose).toHaveBeenCalledTimes(1);
+  });
 
   it('calls closeModal when Cancel is clicked', () => {
-    render(<NewGameModal />)
-    fireEvent.click(screen.getByText('Cancel'))
-    expect(mockClose).toHaveBeenCalledTimes(1)
-    expect(mockStartNewGame).not.toHaveBeenCalled()
-  })
+    render(<NewGameModal />);
+    fireEvent.click(screen.getByText('Cancel'));
+    expect(mockClose).toHaveBeenCalledTimes(1);
+    expect(mockStartNewGame).not.toHaveBeenCalled();
+  });
 
   it('shows custom inputs when Custom preset is selected', () => {
-    render(<NewGameModal />)
-    fireEvent.click(screen.getByRole('radio', { name: /custom/i }))
-    expect(screen.getByLabelText('Rows')).toBeTruthy()
-    expect(screen.getByLabelText('Columns')).toBeTruthy()
-    expect(screen.getByLabelText('Mines')).toBeTruthy()
-  })
+    render(<NewGameModal />);
+    fireEvent.click(screen.getByRole('radio', { name: /custom/i }));
+    expect(screen.getByLabelText('Rows')).toBeTruthy();
+    expect(screen.getByLabelText('Columns')).toBeTruthy();
+    expect(screen.getByLabelText('Mines')).toBeTruthy();
+  });
 
   it('does not show custom inputs when a preset is selected', () => {
-    render(<NewGameModal />)
-    expect(screen.queryByLabelText('Rows')).toBeNull()
-  })
-})
+    render(<NewGameModal />);
+    expect(screen.queryByLabelText('Rows')).toBeNull();
+  });
+});
 
 describe('NewGameModal – custom size inputs', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    mockIsOpen = true
+    vi.clearAllMocks();
+    mockIsOpen = true;
     // A config that doesn't match any preset → Custom is pre-selected
-    mockConfig = { rows: 10, cols: 20, mines: 15 }
-  })
+    mockConfig = { rows: 10, cols: 20, mines: 15 };
+  });
 
   function renderCustom() {
-    render(<NewGameModal />)
+    render(<NewGameModal />);
     // Custom preset should already be selected
     return {
       rowsInput: screen.getByLabelText('Rows') as HTMLInputElement,
       colsInput: screen.getByLabelText('Columns') as HTMLInputElement,
       minesInput: screen.getByLabelText('Mines') as HTMLInputElement,
-    }
+    };
   }
 
   it('pre-selects Custom when current config does not match any preset', () => {
-    render(<NewGameModal />)
-    expect(screen.getByLabelText('Rows')).toBeTruthy()
-  })
+    render(<NewGameModal />);
+    expect(screen.getByLabelText('Rows')).toBeTruthy();
+  });
 
   it('does NOT clamp intermediate values while the user is still typing', () => {
-    const { rowsInput } = renderCustom()
+    const { rowsInput } = renderCustom();
     // Simulate clearing "10" and typing "1" (first keystroke of "15")
-    fireEvent.change(rowsInput, { target: { value: '1' } })
+    fireEvent.change(rowsInput, { target: { value: '1' } });
     // Should show "1", not clamp to MIN_ROWS (5)
-    expect(rowsInput.value).toBe('1')
-  })
+    expect(rowsInput.value).toBe('1');
+  });
 
   it('allows typing a valid rows value and starts the game with it', () => {
-    const { rowsInput } = renderCustom()
-    fireEvent.change(rowsInput, { target: { value: '15' } })
-    expect(rowsInput.value).toBe('15')
-    fireEvent.click(screen.getByText('Start'))
-    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ rows: 15 }))
-  })
+    const { rowsInput } = renderCustom();
+    fireEvent.change(rowsInput, { target: { value: '15' } });
+    expect(rowsInput.value).toBe('15');
+    fireEvent.click(screen.getByText('Start'));
+    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ rows: 15 }));
+  });
 
   it('clamps below-minimum rows to MIN_ROWS on blur', () => {
-    const { rowsInput } = renderCustom()
-    fireEvent.change(rowsInput, { target: { value: '1' } })
-    fireEvent.blur(rowsInput)
-    expect(rowsInput.value).toBe('5')
-  })
+    const { rowsInput } = renderCustom();
+    fireEvent.change(rowsInput, { target: { value: '1' } });
+    fireEvent.blur(rowsInput);
+    expect(rowsInput.value).toBe('5');
+  });
 
   it('clamps above-maximum rows to MAX_ROWS on blur', () => {
-    const { rowsInput } = renderCustom()
-    fireEvent.change(rowsInput, { target: { value: '99' } })
-    fireEvent.blur(rowsInput)
-    expect(rowsInput.value).toBe('30')
-  })
+    const { rowsInput } = renderCustom();
+    fireEvent.change(rowsInput, { target: { value: '99' } });
+    fireEvent.blur(rowsInput);
+    expect(rowsInput.value).toBe('30');
+  });
 
   it('clamps out-of-range rows to valid bounds when Start is clicked', () => {
-    const { rowsInput } = renderCustom()
-    fireEvent.change(rowsInput, { target: { value: '99' } })
-    fireEvent.click(screen.getByText('Start'))
-    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ rows: 30 }))
-  })
+    const { rowsInput } = renderCustom();
+    fireEvent.change(rowsInput, { target: { value: '99' } });
+    fireEvent.click(screen.getByText('Start'));
+    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ rows: 30 }));
+  });
 
   it('does NOT clamp intermediate cols values while typing', () => {
-    const { colsInput } = renderCustom()
-    fireEvent.change(colsInput, { target: { value: '2' } })
-    expect(colsInput.value).toBe('2')
-  })
+    const { colsInput } = renderCustom();
+    fireEvent.change(colsInput, { target: { value: '2' } });
+    expect(colsInput.value).toBe('2');
+  });
 
   it('allows typing a valid cols value and starts the game with it', () => {
-    const { colsInput } = renderCustom()
-    fireEvent.change(colsInput, { target: { value: '25' } })
-    fireEvent.click(screen.getByText('Start'))
-    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ cols: 25 }))
-  })
+    const { colsInput } = renderCustom();
+    fireEvent.change(colsInput, { target: { value: '25' } });
+    fireEvent.click(screen.getByText('Start'));
+    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ cols: 25 }));
+  });
 
   it('clamps cols on blur', () => {
-    const { colsInput } = renderCustom()
-    fireEvent.change(colsInput, { target: { value: '2' } })
-    fireEvent.blur(colsInput)
-    expect(colsInput.value).toBe('5')
-  })
+    const { colsInput } = renderCustom();
+    fireEvent.change(colsInput, { target: { value: '2' } });
+    fireEvent.blur(colsInput);
+    expect(colsInput.value).toBe('5');
+  });
 
   it('does NOT clamp intermediate mines values while typing', () => {
-    const { minesInput } = renderCustom()
-    fireEvent.change(minesInput, { target: { value: '1' } })
-    expect(minesInput.value).toBe('1')
-  })
+    const { minesInput } = renderCustom();
+    fireEvent.change(minesInput, { target: { value: '1' } });
+    expect(minesInput.value).toBe('1');
+  });
 
   it('allows typing a valid mines value and starts the game with it', () => {
-    const { minesInput } = renderCustom()
-    fireEvent.change(minesInput, { target: { value: '50' } })
-    fireEvent.click(screen.getByText('Start'))
-    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ mines: 50 }))
-  })
+    const { minesInput } = renderCustom();
+    fireEvent.change(minesInput, { target: { value: '50' } });
+    fireEvent.click(screen.getByText('Start'));
+    expect(mockStartNewGame).toHaveBeenCalledWith(expect.objectContaining({ mines: 50 }));
+  });
 
   it('clamps mines on blur', () => {
-    const { minesInput } = renderCustom()
+    const { minesInput } = renderCustom();
     // 10 rows × 20 cols − 9 = 191 max; try to type above that
-    fireEvent.change(minesInput, { target: { value: '999' } })
-    fireEvent.blur(minesInput)
+    fireEvent.change(minesInput, { target: { value: '999' } });
+    fireEvent.blur(minesInput);
     // maxMines for 10×20 = 191
-    expect(Number(minesInput.value)).toBeLessThanOrEqual(191)
-  })
-})
+    expect(Number(minesInput.value)).toBeLessThanOrEqual(191);
+  });
+});

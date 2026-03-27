@@ -1,23 +1,23 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react';
 
-import { useGameStore } from '@/stores/game.store'
-import { useSettingsStore } from '@/stores/settings.store'
+import { useGameStore } from '@/stores/game.store';
+import { useSettingsStore } from '@/stores/settings.store';
 
-const COLORS = ['#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
-const PARTICLE_COUNT = 65
-const DURATION_MS = 2400
+const COLORS = ['#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+const PARTICLE_COUNT = 65;
+const DURATION_MS = 2400;
 
 interface Particle {
-  x: number
-  y: number
-  vx: number
-  vy: number
-  rotation: number
-  rotationSpeed: number
-  color: string
-  width: number
-  height: number
-  opacity: number
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  rotation: number;
+  rotationSpeed: number;
+  color: string;
+  width: number;
+  height: number;
+  opacity: number;
 }
 
 function createParticle(canvasWidth: number): Particle {
@@ -32,72 +32,72 @@ function createParticle(canvasWidth: number): Particle {
     width: Math.random() * 8 + 5,
     height: Math.random() * 5 + 3,
     opacity: 1,
-  }
+  };
 }
 
 export const Confetti = () => {
-  const status = useGameStore((s) => s.status)
-  const gameKey = useGameStore((s) => s.gameKey)
-  const animationsEnabled = useSettingsStore((s) => s.animationsEnabled)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const status = useGameStore((s) => s.status);
+  const gameKey = useGameStore((s) => s.gameKey);
+  const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current
+    const canvas = canvasRef.current;
     if (!canvas) {
-      return
+      return;
     }
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d');
     if (!ctx) {
-      return
+      return;
     }
 
     if (status !== 'won' || !animationsEnabled) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      return
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
     }
 
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, () =>
       createParticle(canvas.width)
-    )
+    );
 
-    const startTime = performance.now()
-    let rafId: number
+    const startTime = performance.now();
+    let rafId: number;
 
     const draw = (now: number) => {
-      const elapsed = now - startTime
-      const progress = Math.min(elapsed / DURATION_MS, 1)
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / DURATION_MS, 1);
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       for (const p of particles) {
-        p.x += p.vx
-        p.y += p.vy
-        p.vy += 0.06
-        p.rotation += p.rotationSpeed
-        p.opacity = 1 - Math.pow(progress, 2)
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.06;
+        p.rotation += p.rotationSpeed;
+        p.opacity = 1 - Math.pow(progress, 2);
 
-        ctx.save()
-        ctx.globalAlpha = Math.max(0, p.opacity)
-        ctx.translate(p.x, p.y)
-        ctx.rotate((p.rotation * Math.PI) / 180)
-        ctx.fillStyle = p.color
-        ctx.fillRect(-p.width / 2, -p.height / 2, p.width, p.height)
-        ctx.restore()
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.opacity);
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.width / 2, -p.height / 2, p.width, p.height);
+        ctx.restore();
       }
 
       if (progress < 1) {
-        rafId = requestAnimationFrame(draw)
+        rafId = requestAnimationFrame(draw);
       } else {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
-    }
+    };
 
-    rafId = requestAnimationFrame(draw)
-    return () => cancelAnimationFrame(rafId)
-  }, [status, gameKey, animationsEnabled])
+    rafId = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(rafId);
+  }, [status, gameKey, animationsEnabled]);
 
   return (
     <canvas
@@ -109,5 +109,5 @@ export const Confetti = () => {
         zIndex: 102,
       }}
     />
-  )
-}
+  );
+};

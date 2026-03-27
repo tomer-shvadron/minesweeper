@@ -1,12 +1,12 @@
-import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
-import { type ReactNode } from 'react'
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
+import { type ReactNode } from 'react';
 
 interface ModalProps {
-  isOpen: boolean
-  title: string
-  onClose: () => void
-  children: ReactNode
+  isOpen: boolean;
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
 }
 
 export const Modal = ({ isOpen, title, onClose, children }: ModalProps) => (
@@ -14,7 +14,7 @@ export const Modal = ({ isOpen, title, onClose, children }: ModalProps) => (
     open={isOpen}
     onOpenChange={(open) => {
       if (!open) {
-        onClose()
+        onClose();
       }
     }}
   >
@@ -41,4 +41,4 @@ export const Modal = ({ isOpen, title, onClose, children }: ModalProps) => (
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   </DialogPrimitive.Root>
-)
+);

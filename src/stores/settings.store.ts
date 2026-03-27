@@ -1,19 +1,19 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-import { DEFAULT_KEY_BINDINGS } from '@/constants/keyboard.constants'
-import type { FlagMode, KeyboardAction, Settings, Theme } from '@/types/settings.types'
+import { DEFAULT_KEY_BINDINGS } from '@/constants/keyboard.constants';
+import type { FlagMode, KeyboardAction, Settings, Theme } from '@/types/settings.types';
 
 type SettingsStore = Settings & {
-  setTheme: (theme: Theme) => void
-  setFlagMode: (mode: FlagMode) => void
-  setSoundEnabled: (enabled: boolean) => void
-  setVolume: (volume: number) => void
-  setAnimationsEnabled: (enabled: boolean) => void
-  setHapticEnabled: (enabled: boolean) => void
-  setNoGuessMode: (enabled: boolean) => void
-  setKeyBinding: (action: KeyboardAction, key: string) => void
-}
+  setTheme: (theme: Theme) => void;
+  setFlagMode: (mode: FlagMode) => void;
+  setSoundEnabled: (enabled: boolean) => void;
+  setVolume: (volume: number) => void;
+  setAnimationsEnabled: (enabled: boolean) => void;
+  setHapticEnabled: (enabled: boolean) => void;
+  setNoGuessMode: (enabled: boolean) => void;
+  setKeyBinding: (action: KeyboardAction, key: string) => void;
+};
 
 export const useSettingsStore = create<SettingsStore>()(
   persist(
@@ -39,4 +39,4 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     { name: 'minesweeper-settings' }
   )
-)
+);

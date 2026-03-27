@@ -1,44 +1,44 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
-import type { BoardKey } from '@/types/game.types'
+import type { BoardKey } from '@/types/game.types';
 
 export interface HighScoreEntry {
-  timeSeconds: number
-  boardKey: BoardKey
+  timeSeconds: number;
+  boardKey: BoardKey;
 }
 
 interface UIState {
-  newGameModalOpen: boolean
-  settingsModalOpen: boolean
-  leaderboardModalOpen: boolean
-  statisticsModalOpen: boolean
-  keyboardModalOpen: boolean
-  resumePromptOpen: boolean
+  newGameModalOpen: boolean;
+  settingsModalOpen: boolean;
+  leaderboardModalOpen: boolean;
+  statisticsModalOpen: boolean;
+  keyboardModalOpen: boolean;
+  resumePromptOpen: boolean;
   /** Non-null when the player just set a high score and needs to enter their name */
-  highScoreEntry: HighScoreEntry | null
+  highScoreEntry: HighScoreEntry | null;
   /** Currently keyboard-focused cell [row, col], null when keyboard nav not active */
-  focusedCell: [number, number] | null
+  focusedCell: [number, number] | null;
 }
 
 interface UIActions {
-  openNewGameModal: () => void
-  openSettingsModal: () => void
-  openLeaderboardModal: () => void
-  openStatisticsModal: () => void
-  openKeyboardModal: () => void
-  closeNewGameModal: () => void
-  closeSettingsModal: () => void
-  closeLeaderboardModal: () => void
-  closeStatisticsModal: () => void
-  closeKeyboardModal: () => void
-  openResumePrompt: () => void
-  closeResumePrompt: () => void
-  showHighScorePrompt: (entry: HighScoreEntry) => void
-  dismissHighScorePrompt: () => void
-  setFocusedCell: (cell: [number, number] | null) => void
+  openNewGameModal: () => void;
+  openSettingsModal: () => void;
+  openLeaderboardModal: () => void;
+  openStatisticsModal: () => void;
+  openKeyboardModal: () => void;
+  closeNewGameModal: () => void;
+  closeSettingsModal: () => void;
+  closeLeaderboardModal: () => void;
+  closeStatisticsModal: () => void;
+  closeKeyboardModal: () => void;
+  openResumePrompt: () => void;
+  closeResumePrompt: () => void;
+  showHighScorePrompt: (entry: HighScoreEntry) => void;
+  dismissHighScorePrompt: () => void;
+  setFocusedCell: (cell: [number, number] | null) => void;
 }
 
-type UIStore = UIState & UIActions
+type UIStore = UIState & UIActions;
 
 export const useUIStore = create<UIStore>()((set) => ({
   newGameModalOpen: false,
@@ -92,4 +92,4 @@ export const useUIStore = create<UIStore>()((set) => ({
   dismissHighScorePrompt: () => set({ highScoreEntry: null }),
 
   setFocusedCell: (cell) => set({ focusedCell: cell }),
-}))
+}));

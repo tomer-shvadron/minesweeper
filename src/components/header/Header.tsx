@@ -1,9 +1,9 @@
-import { BarChart2, Settings, Trophy } from 'lucide-react'
+import { BarChart2, Settings, Trophy } from 'lucide-react';
 
-import { MineCounter } from './MineCounter'
-import { SmileyButton } from './SmileyButton'
-import { Timer } from './Timer'
-import { useHeaderLogic } from './useHeaderLogic'
+import { MineCounter } from './MineCounter';
+import { SmileyButton } from './SmileyButton';
+import { Timer } from './Timer';
+import { useHeaderLogic } from './useHeaderLogic';
 
 export const Header = () => {
   const {
@@ -14,11 +14,11 @@ export const Header = () => {
     openSettingsModal,
     openLeaderboardModal,
     openStatisticsModal,
-  } = useHeaderLogic()
+  } = useHeaderLogic();
 
   const headerStyle = isLandscape
     ? { width: headerSidebarWidth, height: boardHeight }
-    : { width: boardWidth }
+    : { width: boardWidth };
 
   return (
     <div
@@ -69,5 +69,5 @@ export const Header = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

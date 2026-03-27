@@ -1,22 +1,22 @@
-import { useNewGameModalLogic } from './useNewGameModalLogic'
+import { useNewGameModalLogic } from './useNewGameModalLogic';
 
-import { Button } from '@/components/ui/Button'
-import { Modal } from '@/components/ui/Modal'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup'
-import { Toggle } from '@/components/ui/Toggle'
-import { DIFFICULTY_PRESETS } from '@/constants/game.constants'
-import { useUIStore } from '@/stores/ui.store'
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup';
+import { Toggle } from '@/components/ui/Toggle';
+import { DIFFICULTY_PRESETS } from '@/constants/game.constants';
+import { useUIStore } from '@/stores/ui.store';
 
 const PRESETS = [
   { key: 'beginner', label: 'Beginner', detail: '9×9, 10 mines' },
   { key: 'intermediate', label: 'Intermediate', detail: '16×16, 40 mines' },
   { key: 'expert', label: 'Expert', detail: '30×16, 99 mines' },
   { key: 'custom', label: 'Custom', detail: 'Choose your own' },
-] as const
+] as const;
 
 export const NewGameModal = () => {
-  const isOpen = useUIStore((s) => s.newGameModalOpen)
-  const closeModal = useUIStore((s) => s.closeNewGameModal)
+  const isOpen = useUIStore((s) => s.newGameModalOpen);
+  const closeModal = useUIStore((s) => s.closeNewGameModal);
   const {
     selectedPreset,
     setSelectedPreset,
@@ -33,7 +33,7 @@ export const NewGameModal = () => {
     handleStart,
     noGuessMode,
     setNoGuessMode,
-  } = useNewGameModalLogic()
+  } = useNewGameModalLogic();
 
   return (
     <Modal isOpen={isOpen} title="New Game" onClose={closeModal}>
@@ -134,5 +134,5 @@ export const NewGameModal = () => {
         </Button>
       </div>
     </Modal>
-  )
-}
+  );
+};

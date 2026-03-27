@@ -1,19 +1,19 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react';
 
-import { tabLabel, useStatisticsModalLogic } from './useStatisticsModalLogic'
+import { tabLabel, useStatisticsModalLogic } from './useStatisticsModalLogic';
 
-import { Modal } from '@/components/ui/Modal'
-import { useUIStore } from '@/stores/ui.store'
-import { formatTime } from '@/utils/time.utils'
+import { Modal } from '@/components/ui/Modal';
+import { useUIStore } from '@/stores/ui.store';
+import { formatTime } from '@/utils/time.utils';
 
-const HEATMAP_CELL_SIZE = 8
+const HEATMAP_CELL_SIZE = 8;
 
 function formatPercent(rate: number): string {
-  return `${Math.round(rate * 100)}%`
+  return `${Math.round(rate * 100)}%`;
 }
 
 function formatEfficiency(eff: number): string {
-  return `×${eff.toFixed(1)}`
+  return `×${eff.toFixed(1)}`;
 }
 
 function HeatmapCanvas({
@@ -21,37 +21,37 @@ function HeatmapCanvas({
   rows,
   cols,
 }: {
-  heatmap: number[][]
-  rows: number
-  cols: number
+  heatmap: number[][];
+  rows: number;
+  cols: number;
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current
+    const canvas = canvasRef.current;
     if (!canvas) {
-      return
+      return;
     }
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d');
     if (!ctx) {
-      return
+      return;
     }
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
-        const value = heatmap[r]?.[c] ?? 0
-        const alpha = 0.15 + value * 0.85
-        ctx.fillStyle = `rgba(34, 197, 94, ${alpha})`
+        const value = heatmap[r]?.[c] ?? 0;
+        const alpha = 0.15 + value * 0.85;
+        ctx.fillStyle = `rgba(34, 197, 94, ${alpha})`;
         ctx.fillRect(
           c * HEATMAP_CELL_SIZE,
           r * HEATMAP_CELL_SIZE,
           HEATMAP_CELL_SIZE - 1,
           HEATMAP_CELL_SIZE - 1
-        )
+        );
       }
     }
-  }, [heatmap, rows, cols])
+  }, [heatmap, rows, cols]);
 
   return (
     <canvas
@@ -60,11 +60,11 @@ function HeatmapCanvas({
       height={rows * HEATMAP_CELL_SIZE}
       className="rounded border border-[var(--color-border-dark)]"
     />
-  )
+  );
 }
 
 export const StatisticsModal = () => {
-  const isOpen = useUIStore((s) => s.statisticsModalOpen)
+  const isOpen = useUIStore((s) => s.statisticsModalOpen);
   const {
     allTabs,
     selectedTab,
@@ -82,7 +82,7 @@ export const StatisticsModal = () => {
     heatmap,
     heatmapDims,
     showHeatmap,
-  } = useStatisticsModalLogic()
+  } = useStatisticsModalLogic();
 
   return (
     <Modal isOpen={isOpen} title="Statistics" onClose={closeModal}>
@@ -201,5 +201,5 @@ export const StatisticsModal = () => {
         </>
       )}
     </Modal>
-  )
-}
+  );
+};

@@ -1,7 +1,7 @@
-import { useKeyboardModalLogic } from './useKeyboardModalLogic'
+import { useKeyboardModalLogic } from './useKeyboardModalLogic';
 
-import { Button } from '@/components/ui/Button'
-import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 
 export const KeyboardModal = () => {
   const {
@@ -16,7 +16,7 @@ export const KeyboardModal = () => {
     getDuplicateActions,
     formatKey,
     KEYBOARD_ACTION_LABELS,
-  } = useKeyboardModalLogic()
+  } = useKeyboardModalLogic();
 
   return (
     <Modal isOpen={isOpen} title="Keyboard Shortcuts" onClose={closeModal}>
@@ -30,9 +30,9 @@ export const KeyboardModal = () => {
         </p>
         <div className="flex flex-col">
           {actions.map((action) => {
-            const isRecording = recordingAction === action
-            const duplicates = getDuplicateActions(action)
-            const hasDuplicate = duplicates.length > 0
+            const isRecording = recordingAction === action;
+            const duplicates = getDuplicateActions(action);
+            const hasDuplicate = duplicates.length > 0;
 
             return (
               <button
@@ -58,7 +58,7 @@ export const KeyboardModal = () => {
                   {isRecording ? 'Press key…' : formatKey(keyboardBindings[action])}
                 </span>
               </button>
-            )
+            );
           })}
         </div>
         {actions.some((a) => getDuplicateActions(a).length > 0) && (
@@ -74,5 +74,5 @@ export const KeyboardModal = () => {
         </Button>
       </div>
     </Modal>
-  )
-}
+  );
+};

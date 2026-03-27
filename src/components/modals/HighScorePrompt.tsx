@@ -1,12 +1,12 @@
-import { useHighScorePromptLogic } from './useHighScorePromptLogic'
+import { useHighScorePromptLogic } from './useHighScorePromptLogic';
 
-import { Button } from '@/components/ui/Button'
-import { Modal } from '@/components/ui/Modal'
-import { formatTime } from '@/utils/time.utils'
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { formatTime } from '@/utils/time.utils';
 
 export const HighScorePrompt = () => {
   const { isOpen, timeSeconds, name, setName, handleSubmit, handleDismiss } =
-    useHighScorePromptLogic()
+    useHighScorePromptLogic();
 
   return (
     <Modal isOpen={isOpen} title="New High Score!" onClose={handleDismiss}>
@@ -34,5 +34,5 @@ export const HighScorePrompt = () => {
         </Button>
       </div>
     </Modal>
-  )
-}
+  );
+};

@@ -1,74 +1,74 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react';
 
-import { GameBoard } from '@/components/board/GameBoard'
-import { GameOverBanner } from '@/components/game-over/GameOverBanner'
-import { Header } from '@/components/header/Header'
-import { HighScorePrompt } from '@/components/modals/HighScorePrompt'
-import { KeyboardModal } from '@/components/modals/KeyboardModal'
-import { LeaderboardModal } from '@/components/modals/LeaderboardModal'
-import { NewGameModal } from '@/components/modals/NewGameModal'
-import { ResumePrompt } from '@/components/modals/ResumePrompt'
-import { SettingsModal } from '@/components/modals/SettingsModal'
-import { StatisticsModal } from '@/components/modals/StatisticsModal'
-import { Confetti } from '@/components/ui/Confetti'
-import { soundThemeForTheme } from '@/constants/theme.constants'
-import { createBoardKey } from '@/services/board.service'
-import { haptic } from '@/services/haptic.service'
-import { playSound } from '@/services/sound.service'
-import { useGameStore } from '@/stores/game.store'
-import { useLeaderboardStore } from '@/stores/leaderboard.store'
-import { useSettingsStore } from '@/stores/settings.store'
-import { useStatsStore } from '@/stores/stats.store'
-import { useUIStore } from '@/stores/ui.store'
+import { GameBoard } from '@/components/board/GameBoard';
+import { GameOverBanner } from '@/components/game-over/GameOverBanner';
+import { Header } from '@/components/header/Header';
+import { HighScorePrompt } from '@/components/modals/HighScorePrompt';
+import { KeyboardModal } from '@/components/modals/KeyboardModal';
+import { LeaderboardModal } from '@/components/modals/LeaderboardModal';
+import { NewGameModal } from '@/components/modals/NewGameModal';
+import { ResumePrompt } from '@/components/modals/ResumePrompt';
+import { SettingsModal } from '@/components/modals/SettingsModal';
+import { StatisticsModal } from '@/components/modals/StatisticsModal';
+import { Confetti } from '@/components/ui/Confetti';
+import { soundThemeForTheme } from '@/constants/theme.constants';
+import { createBoardKey } from '@/services/board.service';
+import { haptic } from '@/services/haptic.service';
+import { playSound } from '@/services/sound.service';
+import { useGameStore } from '@/stores/game.store';
+import { useLeaderboardStore } from '@/stores/leaderboard.store';
+import { useSettingsStore } from '@/stores/settings.store';
+import { useStatsStore } from '@/stores/stats.store';
+import { useUIStore } from '@/stores/ui.store';
 
 export const App = () => {
-  const theme = useSettingsStore((s) => s.theme)
-  const status = useGameStore((s) => s.status)
-  const elapsedSeconds = useGameStore((s) => s.elapsedSeconds)
-  const config = useGameStore((s) => s.config)
-  const soundEnabled = useSettingsStore((s) => s.soundEnabled)
-  const volume = useSettingsStore((s) => s.volume)
-  const animationsEnabled = useSettingsStore((s) => s.animationsEnabled)
-  const soundTheme = soundThemeForTheme(theme)
-  const hapticEnabled = useSettingsStore((s) => s.hapticEnabled)
-  const board = useGameStore((s) => s.board)
-  const totalClicks = useGameStore((s) => s.totalClicks)
-  const firstClick = useGameStore((s) => s.firstClick)
-  const isHighScore = useLeaderboardStore((s) => s.isHighScore)
-  const incrementGamesPlayed = useLeaderboardStore((s) => s.incrementGamesPlayed)
-  const recordGame = useStatsStore((s) => s.recordGame)
-  const showHighScorePrompt = useUIStore((s) => s.showHighScorePrompt)
-  const openResumePrompt = useUIStore((s) => s.openResumePrompt)
+  const theme = useSettingsStore((s) => s.theme);
+  const status = useGameStore((s) => s.status);
+  const elapsedSeconds = useGameStore((s) => s.elapsedSeconds);
+  const config = useGameStore((s) => s.config);
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
+  const volume = useSettingsStore((s) => s.volume);
+  const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
+  const soundTheme = soundThemeForTheme(theme);
+  const hapticEnabled = useSettingsStore((s) => s.hapticEnabled);
+  const board = useGameStore((s) => s.board);
+  const totalClicks = useGameStore((s) => s.totalClicks);
+  const firstClick = useGameStore((s) => s.firstClick);
+  const isHighScore = useLeaderboardStore((s) => s.isHighScore);
+  const incrementGamesPlayed = useLeaderboardStore((s) => s.incrementGamesPlayed);
+  const recordGame = useStatsStore((s) => s.recordGame);
+  const showHighScorePrompt = useUIStore((s) => s.showHighScorePrompt);
+  const openResumePrompt = useUIStore((s) => s.openResumePrompt);
 
   useEffect(() => {
-    document.body.setAttribute('data-theme', theme)
-  }, [theme])
+    document.body.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
-    document.body.setAttribute('data-animations', String(animationsEnabled))
-  }, [animationsEnabled])
+    document.body.setAttribute('data-animations', String(animationsEnabled));
+  }, [animationsEnabled]);
 
   useEffect(() => {
     if (status === 'playing') {
-      openResumePrompt()
+      openResumePrompt();
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const prevStatusRef = useRef(status)
+  const prevStatusRef = useRef(status);
   useEffect(() => {
-    const prevStatus = prevStatusRef.current
-    prevStatusRef.current = status
+    const prevStatus = prevStatusRef.current;
+    prevStatusRef.current = status;
 
     // Skip if status hasn't actually changed (e.g. persisted 'won'/'lost' on page refresh)
     if (status === prevStatus) {
-      return
+      return;
     }
 
     if (status === 'won' || status === 'lost') {
-      const boardKey = createBoardKey(config)
-      const cellsRevealed = board.flat().filter((c) => c.isRevealed && !c.hasMine).length
-      const minesFlagged = board.flat().filter((c) => c.isFlagged && c.hasMine).length
-      const safeFirstClick = firstClick ?? [0, 0]
+      const boardKey = createBoardKey(config);
+      const cellsRevealed = board.flat().filter((c) => c.isRevealed && !c.hasMine).length;
+      const minesFlagged = board.flat().filter((c) => c.isFlagged && c.hasMine).length;
+      const safeFirstClick = firstClick ?? [0, 0];
       recordGame({
         id: crypto.randomUUID(),
         boardKey,
@@ -80,28 +80,28 @@ export const App = () => {
         cellsRevealed,
         minesFlagged,
         efficiency: totalClicks > 0 ? cellsRevealed / totalClicks : 0,
-      })
+      });
     }
 
     if (status === 'won') {
       if (soundEnabled) {
-        playSound('win', volume, { soundTheme })
+        playSound('win', volume, { soundTheme });
       }
-      haptic('win', hapticEnabled)
-      const boardKey = createBoardKey(config)
-      incrementGamesPlayed(boardKey)
+      haptic('win', hapticEnabled);
+      const boardKey = createBoardKey(config);
+      incrementGamesPlayed(boardKey);
       if (isHighScore(boardKey, elapsedSeconds)) {
-        showHighScorePrompt({ boardKey, timeSeconds: elapsedSeconds })
+        showHighScorePrompt({ boardKey, timeSeconds: elapsedSeconds });
       }
     } else if (status === 'lost') {
       if (soundEnabled) {
-        playSound('explode', volume, { soundTheme })
+        playSound('explode', volume, { soundTheme });
       }
-      haptic('loss', hapticEnabled)
-      const boardKey = createBoardKey(config)
-      incrementGamesPlayed(boardKey)
+      haptic('loss', hapticEnabled);
+      const boardKey = createBoardKey(config);
+      incrementGamesPlayed(boardKey);
     }
-  }, [status]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg)]">
@@ -120,5 +120,5 @@ export const App = () => {
       <KeyboardModal />
       <HighScorePrompt />
     </div>
-  )
-}
+  );
+};

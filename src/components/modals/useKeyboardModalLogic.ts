@@ -1,17 +1,17 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
-import { DEFAULT_KEY_BINDINGS, KEYBOARD_ACTION_LABELS } from '@/constants/keyboard.constants'
-import { useSettingsStore } from '@/stores/settings.store'
-import { useUIStore } from '@/stores/ui.store'
-import type { KeyboardAction } from '@/types/settings.types'
+import { DEFAULT_KEY_BINDINGS, KEYBOARD_ACTION_LABELS } from '@/constants/keyboard.constants';
+import { useSettingsStore } from '@/stores/settings.store';
+import { useUIStore } from '@/stores/ui.store';
+import type { KeyboardAction } from '@/types/settings.types';
 
 export const useKeyboardModalLogic = () => {
-  const isOpen = useUIStore((s) => s.keyboardModalOpen)
-  const closeModal = useUIStore((s) => s.closeKeyboardModal)
-  const keyboardBindings = useSettingsStore((s) => s.keyboardBindings)
-  const setKeyBinding = useSettingsStore((s) => s.setKeyBinding)
+  const isOpen = useUIStore((s) => s.keyboardModalOpen);
+  const closeModal = useUIStore((s) => s.closeKeyboardModal);
+  const keyboardBindings = useSettingsStore((s) => s.keyboardBindings);
+  const setKeyBinding = useSettingsStore((s) => s.setKeyBinding);
 
-  const [recordingAction, setRecordingAction] = useState<KeyboardAction | null>(null)
+  const [recordingAction, setRecordingAction] = useState<KeyboardAction | null>(null);
 
   const actions: KeyboardAction[] = [
     'moveUp',
@@ -22,74 +22,74 @@ export const useKeyboardModalLogic = () => {
     'flag',
     'chord',
     'newGame',
-  ]
+  ];
 
   // Check for duplicate bindings
   const getDuplicateActions = (action: KeyboardAction): KeyboardAction[] => {
-    const key = keyboardBindings[action]
-    return actions.filter((a) => a !== action && keyboardBindings[a] === key)
-  }
+    const key = keyboardBindings[action];
+    return actions.filter((a) => a !== action && keyboardBindings[a] === key);
+  };
 
   const startRecording = (action: KeyboardAction) => {
-    setRecordingAction(action)
-  }
+    setRecordingAction(action);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!recordingAction) {
-      return
+      return;
     }
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
     if (e.key === 'Escape') {
-      setRecordingAction(null)
-      return
+      setRecordingAction(null);
+      return;
     }
 
-    setKeyBinding(recordingAction, e.key)
-    setRecordingAction(null)
-  }
+    setKeyBinding(recordingAction, e.key);
+    setRecordingAction(null);
+  };
 
   const resetToDefaults = () => {
     for (const [action, key] of Object.entries(DEFAULT_KEY_BINDINGS) as [
       KeyboardAction,
       string,
     ][]) {
-      setKeyBinding(action, key)
+      setKeyBinding(action, key);
     }
-    setRecordingAction(null)
-  }
+    setRecordingAction(null);
+  };
 
   const formatKey = (key: string): string => {
     if (key === ' ') {
-      return 'Space'
+      return 'Space';
     }
     if (key === 'ArrowUp') {
-      return '↑'
+      return '↑';
     }
     if (key === 'ArrowDown') {
-      return '↓'
+      return '↓';
     }
     if (key === 'ArrowLeft') {
-      return '←'
+      return '←';
     }
     if (key === 'ArrowRight') {
-      return '→'
+      return '→';
     }
     if (key === 'Enter') {
-      return 'Enter'
+      return 'Enter';
     }
     if (key === 'Escape') {
-      return 'Esc'
+      return 'Esc';
     }
     if (key === 'Backspace') {
-      return '⌫'
+      return '⌫';
     }
     if (key === 'Tab') {
-      return 'Tab'
+      return 'Tab';
     }
-    return key.length === 1 ? key.toUpperCase() : key
-  }
+    return key.length === 1 ? key.toUpperCase() : key;
+  };
 
   return {
     isOpen,
@@ -103,5 +103,5 @@ export const useKeyboardModalLogic = () => {
     getDuplicateActions,
     formatKey,
     KEYBOARD_ACTION_LABELS,
-  }
-}
+  };
+};

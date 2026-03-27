@@ -1,11 +1,11 @@
-import * as SliderPrimitive from '@radix-ui/react-slider'
+import * as SliderPrimitive from '@radix-ui/react-slider';
 
 interface SliderProps {
-  id: string
-  label: string
-  value: number
-  onChange: (value: number) => void
-  disabled?: boolean
+  id: string;
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  disabled?: boolean;
 }
 
 export const Slider = ({ id, label, value, onChange, disabled = false }: SliderProps) => (
@@ -20,7 +20,7 @@ export const Slider = ({ id, label, value, onChange, disabled = false }: SliderP
       step={0.05}
       value={[value]}
       onValueChange={([v]) => {
-        onChange(v ?? 0)
+        onChange(v ?? 0);
       }}
       disabled={disabled}
       className="relative flex h-5 flex-1 cursor-pointer items-center data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40"
@@ -35,4 +35,4 @@ export const Slider = ({ id, label, value, onChange, disabled = false }: SliderP
     </SliderPrimitive.Root>
     <span className="min-w-9 text-right">{Math.round(value * 100)}%</span>
   </div>
-)
+);

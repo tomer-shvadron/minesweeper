@@ -205,15 +205,15 @@ New `src/types/stats.types.ts`:
 
 ```ts
 interface GameRecord {
-  id: string // crypto.randomUUID()
-  boardKey: BoardKey
-  result: 'won' | 'lost'
-  timeSeconds: number
-  date: string // ISO 8601
-  firstClick: [number, number]
-  totalClicks: number // left-clicks (reveal + chord attempts)
-  cellsRevealed: number // total safe cells revealed
-  minesFlagged: number // correct flags at game end
+  id: string; // crypto.randomUUID()
+  boardKey: BoardKey;
+  result: 'won' | 'lost';
+  timeSeconds: number;
+  date: string; // ISO 8601
+  firstClick: [number, number];
+  totalClicks: number; // left-clicks (reveal + chord attempts)
+  cellsRevealed: number; // total safe cells revealed
+  minesFlagged: number; // correct flags at game end
 }
 ```
 

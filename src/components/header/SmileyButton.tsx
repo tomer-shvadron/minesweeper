@@ -1,9 +1,9 @@
-import { useSmileyButtonLogic } from './useSmileyButtonLogic'
+import { useSmileyButtonLogic } from './useSmileyButtonLogic';
 
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/Button';
 
 export const SmileyButton = () => {
-  const { emoji, label, onPress, animClass, clearAnimClass } = useSmileyButtonLogic()
+  const { emoji, label, onPress, animClass, clearAnimClass } = useSmileyButtonLogic();
 
   return (
     <Button
@@ -15,5 +15,5 @@ export const SmileyButton = () => {
     >
       {emoji}
     </Button>
-  )
-}
+  );
+};

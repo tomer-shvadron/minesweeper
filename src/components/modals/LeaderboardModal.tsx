@@ -1,34 +1,34 @@
-import { RECENT_TAB, useLeaderboardModalLogic } from './useLeaderboardModalLogic'
+import { RECENT_TAB, useLeaderboardModalLogic } from './useLeaderboardModalLogic';
 
-import { Modal } from '@/components/ui/Modal'
-import { useUIStore } from '@/stores/ui.store'
-import type { BoardKey } from '@/types/game.types'
-import { formatRelativeDate } from '@/utils/date.utils'
-import { formatTime } from '@/utils/time.utils'
+import { Modal } from '@/components/ui/Modal';
+import { useUIStore } from '@/stores/ui.store';
+import type { BoardKey } from '@/types/game.types';
+import { formatRelativeDate } from '@/utils/date.utils';
+import { formatTime } from '@/utils/time.utils';
 
 const TAB_LABELS: Record<string, string> = {
   beginner: 'Beginner',
   intermediate: 'Inter.',
   expert: 'Expert',
   [RECENT_TAB]: 'Recent',
-}
+};
 
 const BOARD_LABELS: Record<string, string> = {
   beginner: 'Beginner',
   intermediate: 'Intermediate',
   expert: 'Expert',
-}
+};
 
 function tabLabel(key: BoardKey): string {
-  return TAB_LABELS[key] ?? key
+  return TAB_LABELS[key] ?? key;
 }
 
 function boardLabel(key: BoardKey): string {
-  return BOARD_LABELS[key] ?? key
+  return BOARD_LABELS[key] ?? key;
 }
 
 export const LeaderboardModal = () => {
-  const isOpen = useUIStore((s) => s.leaderboardModalOpen)
+  const isOpen = useUIStore((s) => s.leaderboardModalOpen);
   const {
     allTabs,
     selectedTab,
@@ -37,9 +37,9 @@ export const LeaderboardModal = () => {
     gamesPlayedCount,
     recentGames,
     closeModal,
-  } = useLeaderboardModalLogic()
+  } = useLeaderboardModalLogic();
 
-  const isRecent = selectedTab === RECENT_TAB
+  const isRecent = selectedTab === RECENT_TAB;
 
   return (
     <Modal isOpen={isOpen} title="Best Times" onClose={closeModal}>
@@ -144,5 +144,5 @@ export const LeaderboardModal = () => {
         </>
       )}
     </Modal>
-  )
-}
+  );
+};

@@ -1,15 +1,15 @@
-import { useCellLogic } from './useCellLogic'
+import { useCellLogic } from './useCellLogic';
 
-import type { CellState } from '@/types/game.types'
+import type { CellState } from '@/types/game.types';
 
 interface CellProps {
-  row: number
-  col: number
-  cell: CellState
-  cellSize: number
-  isFocused?: boolean
-  mineRevealIndex?: number
-  chordRippleDelay?: number
+  row: number;
+  col: number;
+  cell: CellState;
+  cellSize: number;
+  isFocused?: boolean;
+  mineRevealIndex?: number;
+  chordRippleDelay?: number;
 }
 
 export const Cell = ({
@@ -25,12 +25,12 @@ export const Cell = ({
     row,
     col,
     cell,
-  })
+  });
 
   const fontSize =
     cell.isRevealed && !cell.hasMine && cell.value > 0
       ? Math.floor(cellSize * 0.65)
-      : Math.floor(cellSize * 0.72)
+      : Math.floor(cellSize * 0.72);
 
   const animClass = [
     mineRevealIndex !== undefined ? 'cell--mine-reveal' : '',
@@ -38,7 +38,7 @@ export const Cell = ({
     isFocused ? 'cell-focused' : '',
   ]
     .filter(Boolean)
-    .join(' ')
+    .join(' ');
 
   return (
     <button
@@ -71,5 +71,5 @@ export const Cell = ({
         </span>
       )}
     </button>
-  )
-}
+  );
+};

@@ -1,22 +1,22 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 
-import { App } from './App'
-import { useGameStore } from './stores/game.store'
-import { useLeaderboardStore } from './stores/leaderboard.store'
-import { useUIStore } from './stores/ui.store'
-import './styles/global.css'
+import { App } from './App';
+import { useGameStore } from './stores/game.store';
+import { useLeaderboardStore } from './stores/leaderboard.store';
+import { useUIStore } from './stores/ui.store';
+import './styles/global.css';
 
-const rootElement = document.getElementById('root')
+const rootElement = document.getElementById('root');
 if (!rootElement) {
-  throw new Error('Root element not found')
+  throw new Error('Root element not found');
 }
 
 createRoot(rootElement).render(
   <StrictMode>
     <App />
   </StrictMode>
-)
+);
 
 if (import.meta.env.MODE !== 'production') {
   // @ts-expect-error — e2e test bridge
@@ -34,5 +34,5 @@ if (import.meta.env.MODE !== 'production') {
     startNewGame: (config?: { rows: number; cols: number; mines: number }) =>
       useGameStore.getState().startNewGame(config),
     openNewGameModal: () => useUIStore.getState().openNewGameModal(),
-  }
+  };
 }

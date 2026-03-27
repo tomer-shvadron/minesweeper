@@ -1,13 +1,13 @@
-import { soundThemeForTheme } from '@/constants/theme.constants'
-import { useLongPress } from '@/hooks/useLongPress'
-import { haptic } from '@/services/haptic.service'
-import { playSound } from '@/services/sound.service'
-import { useGameStore } from '@/stores/game.store'
-import { useSettingsStore } from '@/stores/settings.store'
-import type { CellState } from '@/types/game.types'
+import { soundThemeForTheme } from '@/constants/theme.constants';
+import { useLongPress } from '@/hooks/useLongPress';
+import { haptic } from '@/services/haptic.service';
+import { playSound } from '@/services/sound.service';
+import { useGameStore } from '@/stores/game.store';
+import { useSettingsStore } from '@/stores/settings.store';
+import type { CellState } from '@/types/game.types';
 
 // Import getState so we can read lastRevealCount synchronously after dispatch
-const getGameState = () => useGameStore.getState()
+const getGameState = () => useGameStore.getState();
 
 const NUMBER_COLOR_CLASSES: Record<number, string> = {
   1: 'text-[var(--color-n1)]',
@@ -18,95 +18,95 @@ const NUMBER_COLOR_CLASSES: Record<number, string> = {
   6: 'text-[var(--color-n6)]',
   7: 'text-[var(--color-n7)]',
   8: 'text-[var(--color-n8)]',
-}
+};
 
 interface UseCellLogicProps {
-  row: number
-  col: number
-  cell: CellState
+  row: number;
+  col: number;
+  cell: CellState;
 }
 
 export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
-  const revealCell = useGameStore((s) => s.revealCell)
-  const flagCell = useGameStore((s) => s.flagCell)
-  const chordClick = useGameStore((s) => s.chordClick)
-  const setCellPressStart = useGameStore((s) => s.setCellPressStart)
-  const setCellPressEnd = useGameStore((s) => s.setCellPressEnd)
-  const status = useGameStore((s) => s.status)
-  const flagMode = useSettingsStore((s) => s.flagMode)
-  const soundEnabled = useSettingsStore((s) => s.soundEnabled)
-  const volume = useSettingsStore((s) => s.volume)
-  const theme = useSettingsStore((s) => s.theme)
-  const hapticEnabled = useSettingsStore((s) => s.hapticEnabled)
-  const soundTheme = soundThemeForTheme(theme)
+  const revealCell = useGameStore((s) => s.revealCell);
+  const flagCell = useGameStore((s) => s.flagCell);
+  const chordClick = useGameStore((s) => s.chordClick);
+  const setCellPressStart = useGameStore((s) => s.setCellPressStart);
+  const setCellPressEnd = useGameStore((s) => s.setCellPressEnd);
+  const status = useGameStore((s) => s.status);
+  const flagMode = useSettingsStore((s) => s.flagMode);
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
+  const volume = useSettingsStore((s) => s.volume);
+  const theme = useSettingsStore((s) => s.theme);
+  const hapticEnabled = useSettingsStore((s) => s.hapticEnabled);
+  const soundTheme = soundThemeForTheme(theme);
 
-  const isGameOver = status === 'won' || status === 'lost'
-  const allowQuestionMarks = flagMode === 'flags-and-questions'
+  const isGameOver = status === 'won' || status === 'lost';
+  const allowQuestionMarks = flagMode === 'flags-and-questions';
 
   const handleTap = () => {
     if (isGameOver) {
-      return
+      return;
     }
     if (cell.isRevealed) {
-      haptic('chord', hapticEnabled)
-      chordClick(row, col)
+      haptic('chord', hapticEnabled);
+      chordClick(row, col);
       if (soundEnabled) {
         // Use the chord-revealed cell count for cascade detection
-        const chordCells = getGameState().lastChordReveal?.cells.length ?? 1
-        playSound('reveal', volume, { soundTheme, mineCount: cell.value, cascadeSize: chordCells })
+        const chordCells = getGameState().lastChordReveal?.cells.length ?? 1;
+        playSound('reveal', volume, { soundTheme, mineCount: cell.value, cascadeSize: chordCells });
       }
     } else {
-      haptic('reveal', hapticEnabled)
-      revealCell(row, col)
+      haptic('reveal', hapticEnabled);
+      revealCell(row, col);
       if (soundEnabled) {
-        const cascadeSize = getGameState().lastRevealCount
-        playSound('reveal', volume, { soundTheme, mineCount: cell.value, cascadeSize })
+        const cascadeSize = getGameState().lastRevealCount;
+        playSound('reveal', volume, { soundTheme, mineCount: cell.value, cascadeSize });
       }
     }
-  }
+  };
 
   const handleLongPress = () => {
     if (isGameOver || cell.isRevealed) {
-      return
+      return;
     }
-    haptic(cell.isFlagged ? 'unflag' : 'flag', hapticEnabled)
-    flagCell(row, col, allowQuestionMarks)
+    haptic(cell.isFlagged ? 'unflag' : 'flag', hapticEnabled);
+    flagCell(row, col, allowQuestionMarks);
     if (soundEnabled) {
-      playSound('flag', volume, { soundTheme })
+      playSound('flag', volume, { soundTheme });
     }
-  }
+  };
 
   const longPressHandlers = useLongPress({
     onTap: handleTap,
     onLongPress: handleLongPress,
-  })
+  });
 
   const getContent = (): string => {
     if (!cell.isRevealed) {
       if (cell.isFlagged) {
-        return '🚩'
+        return '🚩';
       }
       if (cell.isQuestionMark) {
-        return '?'
+        return '?';
       }
-      return ''
+      return '';
     }
     if (cell.isExploded) {
-      return '💣'
+      return '💣';
     }
     if (cell.hasMine) {
-      return '💣'
+      return '💣';
     }
     if (cell.value === 0) {
-      return ''
+      return '';
     }
-    return String(cell.value)
-  }
+    return String(cell.value);
+  };
 
-  const isRaised = !cell.isRevealed
-  const isExploded = cell.isExploded
+  const isRaised = !cell.isRevealed;
+  const isExploded = cell.isExploded;
   // Cell was correctly flagged — show a green ✓ badge on game over
-  const isCorrectFlag = isGameOver && cell.isFlagged && cell.hasMine
+  const isCorrectFlag = isGameOver && cell.isFlagged && cell.hasMine;
 
   const containerClass = [
     'cell',
@@ -118,12 +118,12 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
     isGameOver ? 'cursor-default' : 'cursor-pointer',
   ]
     .filter(Boolean)
-    .join(' ')
+    .join(' ');
 
   const numberClass =
     cell.isRevealed && !cell.hasMine && cell.value > 0
       ? `font-bold ${NUMBER_COLOR_CLASSES[cell.value] ?? ''}`
-      : ''
+      : '';
 
   return {
     content: getContent(),
@@ -136,5 +136,5 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
       onMouseUp: () => setCellPressEnd(),
       onMouseLeave: () => setCellPressEnd(),
     },
-  }
-}
+  };
+};

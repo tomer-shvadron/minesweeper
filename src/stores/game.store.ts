@@ -1,7 +1,7 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-import { DIFFICULTY_PRESETS } from '@/constants/game.constants'
+import { DIFFICULTY_PRESETS } from '@/constants/game.constants';
 import {
   calculateAdjacentValues,
   checkLoss,
@@ -13,40 +13,40 @@ import {
   placeMines,
   revealCell as revealCellFn,
   toggleFlag,
-} from '@/services/board.service'
-import { useSettingsStore } from '@/stores/settings.store'
-import type { Board, BoardConfig, GameStatus } from '@/types/game.types'
+} from '@/services/board.service';
+import { useSettingsStore } from '@/stores/settings.store';
+import type { Board, BoardConfig, GameStatus } from '@/types/game.types';
 
 interface GameState {
-  board: Board
-  status: GameStatus
-  config: BoardConfig
-  elapsedSeconds: number
-  minesRemaining: number
-  isFirstClick: boolean
-  isPressingCell: boolean
-  gameKey: number
-  mineRevealOrder: [number, number][]
-  lastChordReveal: { origin: [number, number]; cells: [number, number][] } | null
-  lastRevealCount: number
-  firstClick: [number, number] | null
-  totalClicks: number
+  board: Board;
+  status: GameStatus;
+  config: BoardConfig;
+  elapsedSeconds: number;
+  minesRemaining: number;
+  isFirstClick: boolean;
+  isPressingCell: boolean;
+  gameKey: number;
+  mineRevealOrder: [number, number][];
+  lastChordReveal: { origin: [number, number]; cells: [number, number][] } | null;
+  lastRevealCount: number;
+  firstClick: [number, number] | null;
+  totalClicks: number;
 }
 
 interface GameActions {
-  startNewGame: (config?: BoardConfig) => void
-  revealCell: (row: number, col: number) => void
-  flagCell: (row: number, col: number, allowQuestionMarks: boolean) => void
-  chordClick: (row: number, col: number) => void
-  tick: () => void
-  setCellPressStart: () => void
-  setCellPressEnd: () => void
-  clearChordReveal: () => void
+  startNewGame: (config?: BoardConfig) => void;
+  revealCell: (row: number, col: number) => void;
+  flagCell: (row: number, col: number, allowQuestionMarks: boolean) => void;
+  chordClick: (row: number, col: number) => void;
+  tick: () => void;
+  setCellPressStart: () => void;
+  setCellPressEnd: () => void;
+  clearChordReveal: () => void;
 }
 
-type GameStore = GameState & GameActions
+type GameStore = GameState & GameActions;
 
-const DEFAULT_CONFIG = DIFFICULTY_PRESETS.beginner
+const DEFAULT_CONFIG = DIFFICULTY_PRESETS.beginner;
 
 export const useGameStore = create<GameStore>()(
   persist(
@@ -66,7 +66,7 @@ export const useGameStore = create<GameStore>()(
       totalClicks: 0,
 
       startNewGame: (config) => {
-        const newConfig = config ?? get().config
+        const newConfig = config ?? get().config;
         set({
           board: createEmptyBoard(newConfig),
           status: 'idle',
@@ -80,59 +80,59 @@ export const useGameStore = create<GameStore>()(
           lastChordReveal: null,
           firstClick: null,
           totalClicks: 0,
-        })
+        });
       },
 
       revealCell: (row, col) => {
-        const { board, config, isFirstClick, status, firstClick, totalClicks } = get()
+        const { board, config, isFirstClick, status, firstClick, totalClicks } = get();
         if (status === 'won' || status === 'lost') {
-          return
+          return;
         }
 
-        let currentBoard = board
+        let currentBoard = board;
 
         if (isFirstClick) {
-          const { noGuessMode } = useSettingsStore.getState()
+          const { noGuessMode } = useSettingsStore.getState();
 
           if (noGuessMode) {
-            const MAX_ATTEMPTS = 100
-            let found = false
+            const MAX_ATTEMPTS = 100;
+            let found = false;
             for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-              const mineBoard = placeMines(board, config, row, col)
-              const valuedBoard = calculateAdjacentValues(mineBoard)
+              const mineBoard = placeMines(board, config, row, col);
+              const valuedBoard = calculateAdjacentValues(mineBoard);
               if (isBoardSolvable(valuedBoard, [row, col])) {
-                currentBoard = valuedBoard
-                found = true
-                break
+                currentBoard = valuedBoard;
+                found = true;
+                break;
               }
             }
             if (!found) {
               // Fallback to standard board after 100 failed attempts
-              const mineBoard = placeMines(board, config, row, col)
-              currentBoard = calculateAdjacentValues(mineBoard)
+              const mineBoard = placeMines(board, config, row, col);
+              currentBoard = calculateAdjacentValues(mineBoard);
             }
           } else {
-            const boardWithMines = placeMines(currentBoard, config, row, col)
-            currentBoard = calculateAdjacentValues(boardWithMines)
+            const boardWithMines = placeMines(currentBoard, config, row, col);
+            currentBoard = calculateAdjacentValues(boardWithMines);
           }
         }
 
-        const newBoard = revealCellFn(currentBoard, row, col)
+        const newBoard = revealCellFn(currentBoard, row, col);
 
-        let newStatus: GameStatus = 'playing'
+        let newStatus: GameStatus = 'playing';
         if (checkLoss(newBoard)) {
-          newStatus = 'lost'
+          newStatus = 'lost';
         } else if (checkWin(newBoard)) {
-          newStatus = 'won'
+          newStatus = 'won';
         }
 
-        let mineRevealOrder: [number, number][] = []
+        let mineRevealOrder: [number, number][] = [];
         if (newStatus === 'lost') {
-          const mines: [number, number][] = []
+          const mines: [number, number][] = [];
           for (let r = 0; r < config.rows; r++) {
             for (let c = 0; c < config.cols; c++) {
               if (newBoard[r]?.[c]?.hasMine && !newBoard[r]?.[c]?.isExploded) {
-                mines.push([r, c])
+                mines.push([r, c]);
               }
             }
           }
@@ -140,14 +140,14 @@ export const useGameStore = create<GameStore>()(
             (a, b) =>
               Math.max(Math.abs(a[0] - row), Math.abs(a[1] - col)) -
               Math.max(Math.abs(b[0] - row), Math.abs(b[1] - col))
-          )
+          );
         }
 
-        let lastRevealCount = 0
+        let lastRevealCount = 0;
         for (let r = 0; r < config.rows; r++) {
           for (let c = 0; c < config.cols; c++) {
             if (!currentBoard[r]?.[c]?.isRevealed && newBoard[r]?.[c]?.isRevealed) {
-              lastRevealCount++
+              lastRevealCount++;
             }
           }
         }
@@ -161,47 +161,47 @@ export const useGameStore = create<GameStore>()(
           lastRevealCount,
           firstClick: firstClick ?? [row, col],
           totalClicks: totalClicks + 1,
-        })
+        });
       },
 
       flagCell: (row, col, allowQuestionMarks) => {
-        const { board, config, status } = get()
+        const { board, config, status } = get();
         if (status === 'won' || status === 'lost') {
-          return
+          return;
         }
-        const newBoard = toggleFlag(board, row, col, allowQuestionMarks)
+        const newBoard = toggleFlag(board, row, col, allowQuestionMarks);
         set({
           board: newBoard,
           minesRemaining: countRemainingFlags(newBoard, config.mines),
-        })
+        });
       },
 
       chordClick: (row, col) => {
-        const { board, config, status, totalClicks } = get()
+        const { board, config, status, totalClicks } = get();
         if (status !== 'playing') {
-          return
+          return;
         }
-        const newBoard = chordReveal(board, row, col)
+        const newBoard = chordReveal(board, row, col);
 
-        let newStatus: GameStatus = 'playing'
+        let newStatus: GameStatus = 'playing';
         if (checkLoss(newBoard)) {
-          newStatus = 'lost'
+          newStatus = 'lost';
         } else if (checkWin(newBoard)) {
-          newStatus = 'won'
+          newStatus = 'won';
         }
 
-        let lastChordReveal: GameState['lastChordReveal'] = null
+        let lastChordReveal: GameState['lastChordReveal'] = null;
         if (newStatus !== 'lost') {
-          const cells: [number, number][] = []
+          const cells: [number, number][] = [];
           for (let r = 0; r < config.rows; r++) {
             for (let c = 0; c < config.cols; c++) {
               if (!board[r]?.[c]?.isRevealed && newBoard[r]?.[c]?.isRevealed) {
-                cells.push([r, c])
+                cells.push([r, c]);
               }
             }
           }
           if (cells.length > 0) {
-            lastChordReveal = { origin: [row, col], cells }
+            lastChordReveal = { origin: [row, col], cells };
           }
         }
 
@@ -211,12 +211,12 @@ export const useGameStore = create<GameStore>()(
           minesRemaining: countRemainingFlags(newBoard, config.mines),
           lastChordReveal,
           totalClicks: totalClicks + 1,
-        })
+        });
       },
 
       tick: () => {
         if (get().status === 'playing') {
-          set((s) => ({ elapsedSeconds: s.elapsedSeconds + 1 }))
+          set((s) => ({ elapsedSeconds: s.elapsedSeconds + 1 }));
         }
       },
 
@@ -236,4 +236,4 @@ export const useGameStore = create<GameStore>()(
       }),
     }
   )
-)
+);

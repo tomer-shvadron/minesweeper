@@ -1,4 +1,4 @@
-import * as RadioGroupPrimitive from '@radix-ui/react-radio-group'
+import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 
-export const RadioGroup = RadioGroupPrimitive.Root
-export const RadioGroupItem = RadioGroupPrimitive.Item
+export const RadioGroup = RadioGroupPrimitive.Root;
+export const RadioGroupItem = RadioGroupPrimitive.Item;

@@ -1,5 +1,5 @@
-import { Cell } from './Cell'
-import { useGameBoardLogic } from './useGameBoardLogic'
+import { Cell } from './Cell';
+import { useGameBoardLogic } from './useGameBoardLogic';
 
 export const GameBoard = () => {
   const {
@@ -19,7 +19,7 @@ export const GameBoard = () => {
     handleKeyDown,
     handleBoardFocus,
     handleBoardBlur,
-  } = useGameBoardLogic()
+  } = useGameBoardLogic();
 
   return (
     <div
@@ -46,11 +46,11 @@ export const GameBoard = () => {
       >
         {board.map((row, rowIdx) =>
           row.map((cell, colIdx) => {
-            const key = `${rowIdx},${colIdx}`
-            const mineRevealIndex = mineRevealLookup.get(key)
-            const chordRippleDelay = chordRippleLookup.get(key)
+            const key = `${rowIdx},${colIdx}`;
+            const mineRevealIndex = mineRevealLookup.get(key);
+            const chordRippleDelay = chordRippleLookup.get(key);
             const isFocused =
-              focusedCell !== null && focusedCell[0] === rowIdx && focusedCell[1] === colIdx
+              focusedCell !== null && focusedCell[0] === rowIdx && focusedCell[1] === colIdx;
             return (
               <Cell
                 key={`${rowIdx}-${colIdx}`}
@@ -62,10 +62,10 @@ export const GameBoard = () => {
                 {...(mineRevealIndex !== undefined && { mineRevealIndex })}
                 {...(chordRippleDelay !== undefined && { chordRippleDelay })}
               />
-            )
+            );
           })
         )}
       </div>
     </div>
-  )
-}
+  );
+};

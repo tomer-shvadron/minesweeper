@@ -1,82 +1,82 @@
-import { test as base, type Page } from '@playwright/test'
+import { test as base, type Page } from '@playwright/test';
 
-import type { CellState, Board, BoardConfig } from '../../src/types/game.types'
+import type { CellState, Board, BoardConfig } from '../../src/types/game.types';
 
 interface GameState {
-  board: Board
-  status: 'idle' | 'playing' | 'won' | 'lost'
-  config: BoardConfig
-  elapsedSeconds: number
-  minesRemaining: number
-  isFirstClick: boolean
+  board: Board;
+  status: 'idle' | 'playing' | 'won' | 'lost';
+  config: BoardConfig;
+  elapsedSeconds: number;
+  minesRemaining: number;
+  isFirstClick: boolean;
 }
 
 interface LeaderboardEntry {
-  name: string
-  timeSeconds: number
-  date: string
+  name: string;
+  timeSeconds: number;
+  date: string;
 }
 
 interface LeaderboardState {
-  entries: Record<string, LeaderboardEntry[]>
-  gamesPlayed: Record<string, number>
-  lastPlayerName: string
+  entries: Record<string, LeaderboardEntry[]>;
+  gamesPlayed: Record<string, number>;
+  lastPlayerName: string;
 }
 
 interface MinesweeperTestBridge {
-  getGameState(): GameState
-  setGameState(partial: Partial<GameState>): void
-  getLeaderboardState(): LeaderboardState
-  setLeaderboardState(partial: Partial<LeaderboardState>): void
-  getUIState(): Record<string, unknown>
-  setUIState(partial: Record<string, unknown>): void
-  revealCell(row: number, col: number): void
-  startNewGame(config?: BoardConfig): void
-  openNewGameModal(): void
+  getGameState(): GameState;
+  setGameState(partial: Partial<GameState>): void;
+  getLeaderboardState(): LeaderboardState;
+  setLeaderboardState(partial: Partial<LeaderboardState>): void;
+  getUIState(): Record<string, unknown>;
+  setUIState(partial: Record<string, unknown>): void;
+  revealCell(row: number, col: number): void;
+  startNewGame(config?: BoardConfig): void;
+  openNewGameModal(): void;
 }
 
 declare global {
   interface Window {
-    __MINESWEEPER_TEST__: MinesweeperTestBridge
+    __MINESWEEPER_TEST__: MinesweeperTestBridge;
   }
 }
 
 // Re-export types for use in spec files
-export type { GameState, LeaderboardState, LeaderboardEntry, CellState, Board, BoardConfig }
+export type { GameState, LeaderboardState, LeaderboardEntry, CellState, Board, BoardConfig };
 
 export interface GamePageFixtures {
-  gamePage: GamePage
+  gamePage: GamePage;
 }
 
 export class GamePage {
   constructor(public readonly page: Page) {}
 
   async goto() {
-    await this.page.goto('/')
-    await this._dismissResumePrompt()
+    await this.page.goto('/');
+    await this._dismissResumePrompt();
   }
 
   private async _dismissResumePrompt() {
-    const resumeModal = this.page.getByRole('dialog', { name: 'Resume Game?' })
+    const resumeModal = this.page.getByRole('dialog', { name: 'Resume Game?' });
     if (await resumeModal.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await this.page.getByRole('button', { name: 'New Game' }).click()
+      await this.page.getByRole('button', { name: 'New Game' }).click();
     }
   }
 
   async getGameState(): Promise<GameState> {
-    return this.page.evaluate(() => window.__MINESWEEPER_TEST__.getGameState())
+    return this.page.evaluate(() => window.__MINESWEEPER_TEST__.getGameState());
   }
 
   async setGameState(partial: Partial<GameState>): Promise<void> {
-    await this.page.evaluate((p) => window.__MINESWEEPER_TEST__.setGameState(p), partial)
+    await this.page.evaluate((p) => window.__MINESWEEPER_TEST__.setGameState(p), partial);
   }
 
   async getLeaderboardState(): Promise<LeaderboardState> {
-    return this.page.evaluate(() => window.__MINESWEEPER_TEST__.getLeaderboardState())
+    return this.page.evaluate(() => window.__MINESWEEPER_TEST__.getLeaderboardState());
   }
 
   async setLeaderboardState(partial: Partial<LeaderboardState>): Promise<void> {
-    await this.page.evaluate((p) => window.__MINESWEEPER_TEST__.setLeaderboardState(p), partial)
+    await this.page.evaluate((p) => window.__MINESWEEPER_TEST__.setLeaderboardState(p), partial);
   }
 
   /**
@@ -91,57 +91,57 @@ export class GamePage {
     const payload = {
       state: { entries: {}, gamesPlayed: {}, lastPlayerName: '', ...data },
       version: 0,
-    }
+    };
     await this.page.addInitScript((p) => {
-      localStorage.setItem('minesweeper-leaderboard', JSON.stringify(p))
-    }, payload)
-    await this.page.reload()
-    await this._dismissResumePrompt()
+      localStorage.setItem('minesweeper-leaderboard', JSON.stringify(p));
+    }, payload);
+    await this.page.reload();
+    await this._dismissResumePrompt();
   }
 
   async revealCellViaStore(row: number, col: number): Promise<void> {
     await this.page.evaluate(([r, c]) => window.__MINESWEEPER_TEST__.revealCell(r, c), [
       row,
       col,
-    ] as [number, number])
+    ] as [number, number]);
   }
 
   async startNewGame(config?: BoardConfig): Promise<void> {
     await this.page.evaluate(
       (c) => window.__MINESWEEPER_TEST__.startNewGame(c ?? undefined),
       config ?? null
-    )
+    );
   }
 
   async startPreset(preset: 'Beginner' | 'Intermediate' | 'Expert') {
-    await this.smiley.click()
-    const modal = this.newGameModal()
-    await modal.waitFor()
-    await this.page.getByLabel(preset).check()
-    await this.page.getByRole('button', { name: 'Start' }).click()
-    await modal.waitFor({ state: 'hidden' })
+    await this.smiley.click();
+    const modal = this.newGameModal();
+    await modal.waitFor();
+    await this.page.getByLabel(preset).check();
+    await this.page.getByRole('button', { name: 'Start' }).click();
+    await modal.waitFor({ state: 'hidden' });
   }
 
   async firstClick(row = 0, col = 0): Promise<GameState> {
-    await this.page.getByRole('button', { name: `Cell ${row},${col}` }).click()
+    await this.page.getByRole('button', { name: `Cell ${row},${col}` }).click();
     await this.page.waitForFunction(() => {
-      const s = window.__MINESWEEPER_TEST__.getGameState()
-      return s.status === 'playing' || s.status === 'won' || s.status === 'lost'
-    })
-    return this.getGameState()
+      const s = window.__MINESWEEPER_TEST__.getGameState();
+      return s.status === 'playing' || s.status === 'won' || s.status === 'lost';
+    });
+    return this.getGameState();
   }
 
   async findUnrevealedSafeCell(): Promise<[number, number]> {
-    const state = await this.getGameState()
+    const state = await this.getGameState();
     for (let r = 0; r < state.config.rows; r++) {
       for (let c = 0; c < state.config.cols; c++) {
-        const cell = state.board[r]?.[c]
+        const cell = state.board[r]?.[c];
         if (cell && !cell.isRevealed && !cell.hasMine && !cell.isFlagged) {
-          return [r, c]
+          return [r, c];
         }
       }
     }
-    throw new Error('No unrevealed safe cell found')
+    throw new Error('No unrevealed safe cell found');
   }
 
   /**
@@ -156,95 +156,95 @@ export class GamePage {
    */
   async winGameFromCurrentState(): Promise<void> {
     await this.page.evaluate(() => {
-      const bridge = window.__MINESWEEPER_TEST__
-      const { board, config } = bridge.getGameState()
+      const bridge = window.__MINESWEEPER_TEST__;
+      const { board, config } = bridge.getGameState();
       for (let r = 0; r < config.rows; r++) {
         for (let c = 0; c < config.cols; c++) {
-          const cell = board[r]?.[c]
+          const cell = board[r]?.[c];
           if (cell && !cell.hasMine && !cell.isRevealed) {
-            bridge.revealCell(r, c)
+            bridge.revealCell(r, c);
           }
         }
       }
-    })
+    });
     await this.page.waitForFunction(
       () => window.__MINESWEEPER_TEST__.getGameState().status === 'won'
-    )
+    );
   }
 
   async winGame(): Promise<void> {
-    await this.firstClick(0, 0)
-    await this.winGameFromCurrentState()
+    await this.firstClick(0, 0);
+    await this.winGameFromCurrentState();
   }
 
   async loseGame(): Promise<void> {
-    const initial = await this.getGameState()
+    const initial = await this.getGameState();
     if (initial.status === 'idle') {
-      await this.firstClick(0, 0)
+      await this.firstClick(0, 0);
     }
-    const state = await this.getGameState()
-    const { board, config } = state
+    const state = await this.getGameState();
+    const { board, config } = state;
 
     for (let r = 0; r < config.rows; r++) {
       for (let c = 0; c < config.cols; c++) {
-        const cell = board[r]?.[c]
+        const cell = board[r]?.[c];
         if (cell?.hasMine && !cell.isFlagged) {
-          await this.page.getByRole('button', { name: `Cell ${r},${c}` }).click()
+          await this.page.getByRole('button', { name: `Cell ${r},${c}` }).click();
           await this.page.waitForFunction(
             () => window.__MINESWEEPER_TEST__.getGameState().status === 'lost'
-          )
-          return
+          );
+          return;
         }
       }
     }
-    throw new Error('No unflagged mine found on board')
+    throw new Error('No unflagged mine found on board');
   }
 
   async waitForStatus(status: 'idle' | 'playing' | 'won' | 'lost') {
     await this.page.waitForFunction(
       (s) => window.__MINESWEEPER_TEST__.getGameState().status === s,
       status
-    )
+    );
   }
 
   cell(row: number, col: number) {
-    return this.page.getByRole('button', { name: `Cell ${row},${col}` })
+    return this.page.getByRole('button', { name: `Cell ${row},${col}` });
   }
 
   get smiley() {
-    return this.page.getByRole('button', { name: 'New game' })
+    return this.page.getByRole('button', { name: 'New game' });
   }
 
   get mineCounter() {
-    return this.page.getByTestId('mine-counter')
+    return this.page.getByTestId('mine-counter');
   }
 
   get timer() {
-    return this.page.getByTestId('timer')
+    return this.page.getByTestId('timer');
   }
 
   get gameOverBanner() {
-    return this.page.getByTestId('game-over-banner')
+    return this.page.getByTestId('game-over-banner');
   }
 
   get board() {
-    return this.page.getByTestId('board')
+    return this.page.getByTestId('board');
   }
 
   newGameModal() {
-    return this.page.getByRole('dialog', { name: 'New Game' })
+    return this.page.getByRole('dialog', { name: 'New Game' });
   }
 
   settingsModal() {
-    return this.page.getByRole('dialog', { name: 'Settings' })
+    return this.page.getByRole('dialog', { name: 'Settings' });
   }
 
   leaderboardModal() {
-    return this.page.getByRole('dialog', { name: 'Best Times' })
+    return this.page.getByRole('dialog', { name: 'Best Times' });
   }
 
   highScorePrompt() {
-    return this.page.getByRole('dialog', { name: 'New High Score!' })
+    return this.page.getByRole('dialog', { name: 'New High Score!' });
   }
 }
 
@@ -254,12 +254,12 @@ export class GamePage {
  */
 export const test = base.extend<GamePageFixtures>({
   gamePage: async ({ page }, provide) => {
-    const gp = new GamePage(page)
-    await page.addInitScript(() => localStorage.clear())
-    await gp.goto()
-    await provide(gp)
+    const gp = new GamePage(page);
+    await page.addInitScript(() => localStorage.clear());
+    await gp.goto();
+    await provide(gp);
   },
-})
+});
 
 /**
  * Persistence test fixture — clears localStorage ONCE at test start via
@@ -268,18 +268,18 @@ export const test = base.extend<GamePageFixtures>({
  */
 export const persistenceTest = base.extend<GamePageFixtures>({
   gamePage: async ({ page }, provide) => {
-    const gp = new GamePage(page)
+    const gp = new GamePage(page);
     // Navigate first, then evaluate-clear (runs once, not on every reload)
-    await page.goto('/')
-    await page.evaluate(() => localStorage.clear())
-    await page.reload()
+    await page.goto('/');
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
     // Handle ResumePrompt after reload with empty state (shouldn't appear, but just in case)
-    const resumeModal = page.getByRole('dialog', { name: 'Resume Game?' })
+    const resumeModal = page.getByRole('dialog', { name: 'Resume Game?' });
     if (await resumeModal.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await page.getByRole('button', { name: 'New Game' }).click()
+      await page.getByRole('button', { name: 'New Game' }).click();
     }
-    await provide(gp)
+    await provide(gp);
   },
-})
+});
 
-export { expect } from '@playwright/test'
+export { expect } from '@playwright/test';

@@ -7,9 +7,9 @@ export type Theme =
   | 'neon'
   | 'aqua'
   | 'jedi'
-  | 'sith'
-export type FlagMode = 'flags-only' | 'flags-and-questions'
-export type SoundTheme = 'classic' | 'arcade' | 'minimal' | 'starwars'
+  | 'sith';
+export type FlagMode = 'flags-only' | 'flags-and-questions';
+export type SoundTheme = 'classic' | 'arcade' | 'minimal' | 'starwars';
 export type KeyboardAction =
   | 'moveUp'
   | 'moveDown'
@@ -18,15 +18,15 @@ export type KeyboardAction =
   | 'reveal'
   | 'flag'
   | 'chord'
-  | 'newGame'
+  | 'newGame';
 
 export interface Settings {
-  theme: Theme
-  flagMode: FlagMode
-  soundEnabled: boolean
-  volume: number // 0–1
-  animationsEnabled: boolean
-  hapticEnabled: boolean
-  noGuessMode: boolean
-  keyboardBindings: Record<KeyboardAction, string>
+  theme: Theme;
+  flagMode: FlagMode;
+  soundEnabled: boolean;
+  volume: number; // 0–1
+  animationsEnabled: boolean;
+  hapticEnabled: boolean;
+  noGuessMode: boolean;
+  keyboardBindings: Record<KeyboardAction, string>;
 }

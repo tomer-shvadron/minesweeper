@@ -1,5 +1,5 @@
-import { DIFFICULTY_PRESETS } from '@/constants/game.constants'
-import type { Board, BoardConfig, BoardKey, CellState, CellValue } from '@/types/game.types'
+import { DIFFICULTY_PRESETS } from '@/constants/game.constants';
+import type { Board, BoardConfig, BoardKey, CellState, CellValue } from '@/types/game.types';
 
 function createEmptyCell(): CellState {
   return {
@@ -9,36 +9,36 @@ function createEmptyCell(): CellState {
     isQuestionMark: false,
     value: 0,
     isExploded: false,
-  }
+  };
 }
 
 function getNeighborCoords(board: Board, row: number, col: number): [number, number][] {
-  const neighbors: [number, number][] = []
-  const rows = board.length
-  const cols = board[0]?.length ?? 0
+  const neighbors: [number, number][] = [];
+  const rows = board.length;
+  const cols = board[0]?.length ?? 0;
   for (let dr = -1; dr <= 1; dr++) {
     for (let dc = -1; dc <= 1; dc++) {
       if (dr === 0 && dc === 0) {
-        continue
+        continue;
       }
-      const r = row + dr
-      const c = col + dc
+      const r = row + dr;
+      const c = col + dc;
       if (r >= 0 && r < rows && c >= 0 && c < cols) {
-        neighbors.push([r, c])
+        neighbors.push([r, c]);
       }
     }
   }
-  return neighbors
+  return neighbors;
 }
 
 function deepCopyBoard(board: Board): Board {
-  return board.map((row) => row.map((cell) => ({ ...cell })))
+  return board.map((row) => row.map((cell) => ({ ...cell })));
 }
 
 export function createEmptyBoard(config: BoardConfig): Board {
   return Array.from({ length: config.rows }, () =>
     Array.from({ length: config.cols }, () => createEmptyCell())
-  )
+  );
 }
 
 export function createBoardKey(config: BoardConfig): BoardKey {
@@ -48,10 +48,10 @@ export function createBoardKey(config: BoardConfig): BoardKey {
       preset.cols === config.cols &&
       preset.mines === config.mines
     ) {
-      return key as BoardKey
+      return key as BoardKey;
     }
   }
-  return `${config.cols}x${config.rows}x${config.mines}`
+  return `${config.cols}x${config.rows}x${config.mines}`;
 }
 
 export function placeMines(
@@ -60,211 +60,211 @@ export function placeMines(
   safeRow: number,
   safeCol: number
 ): Board {
-  const newBoard = deepCopyBoard(board)
-  const { rows, cols, mines } = config
+  const newBoard = deepCopyBoard(board);
+  const { rows, cols, mines } = config;
 
-  const safeCells = new Set<number>()
-  safeCells.add(safeRow * cols + safeCol)
+  const safeCells = new Set<number>();
+  safeCells.add(safeRow * cols + safeCol);
   for (const [r, c] of getNeighborCoords(board, safeRow, safeCol)) {
-    safeCells.add(r * cols + c)
+    safeCells.add(r * cols + c);
   }
 
-  const eligible: number[] = []
+  const eligible: number[] = [];
   for (let i = 0; i < rows * cols; i++) {
     if (!safeCells.has(i)) {
-      eligible.push(i)
+      eligible.push(i);
     }
   }
 
   // Fisher-Yates shuffle and take first `mines` elements
   for (let i = eligible.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const a = eligible[i]
-    const b = eligible[j]
+    const j = Math.floor(Math.random() * (i + 1));
+    const a = eligible[i];
+    const b = eligible[j];
     if (a !== undefined && b !== undefined) {
-      eligible[i] = b
-      eligible[j] = a
+      eligible[i] = b;
+      eligible[j] = a;
     }
   }
 
-  const minesToPlace = Math.min(mines, eligible.length)
+  const minesToPlace = Math.min(mines, eligible.length);
   for (let i = 0; i < minesToPlace; i++) {
-    const idx = eligible[i]
+    const idx = eligible[i];
     if (idx === undefined) {
-      continue
+      continue;
     }
-    const r = Math.floor(idx / cols)
-    const c = idx % cols
-    const row = newBoard[r]
+    const r = Math.floor(idx / cols);
+    const c = idx % cols;
+    const row = newBoard[r];
     if (row) {
-      const cell = row[c]
+      const cell = row[c];
       if (cell) {
-        cell.hasMine = true
+        cell.hasMine = true;
       }
     }
   }
 
-  return newBoard
+  return newBoard;
 }
 
 export function calculateAdjacentValues(board: Board): Board {
-  const newBoard = deepCopyBoard(board)
-  const rows = newBoard.length
-  const cols = newBoard[0]?.length ?? 0
+  const newBoard = deepCopyBoard(board);
+  const rows = newBoard.length;
+  const cols = newBoard[0]?.length ?? 0;
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      const cell = newBoard[r]?.[c]
+      const cell = newBoard[r]?.[c];
       if (!cell || cell.hasMine) {
-        continue
+        continue;
       }
 
-      let count = 0
+      let count = 0;
       for (const [nr, nc] of getNeighborCoords(board, r, c)) {
         if (board[nr]?.[nc]?.hasMine) {
-          count++
+          count++;
         }
       }
-      cell.value = count as CellValue
+      cell.value = count as CellValue;
     }
   }
 
-  return newBoard
+  return newBoard;
 }
 
 export function revealAllMines(board: Board): Board {
-  const newBoard = deepCopyBoard(board)
+  const newBoard = deepCopyBoard(board);
   for (const row of newBoard) {
     for (const cell of row) {
       if (cell.hasMine) {
-        cell.isRevealed = true
+        cell.isRevealed = true;
       }
     }
   }
-  return newBoard
+  return newBoard;
 }
 
 // BFS flood-fill: stops at numbered cells (reveals them but doesn't continue through them)
 export function floodFill(board: Board, row: number, col: number): Board {
-  const newBoard = deepCopyBoard(board)
-  const rows = newBoard.length
-  const cols = newBoard[0]?.length ?? 0
+  const newBoard = deepCopyBoard(board);
+  const rows = newBoard.length;
+  const cols = newBoard[0]?.length ?? 0;
 
-  const queue: [number, number][] = [[row, col]]
-  const visited = new Set<number>()
-  visited.add(row * cols + col)
+  const queue: [number, number][] = [[row, col]];
+  const visited = new Set<number>();
+  visited.add(row * cols + col);
 
   while (queue.length > 0) {
-    const entry = queue.shift()
+    const entry = queue.shift();
     if (!entry) {
-      break
+      break;
     }
-    const [r, c] = entry
-    const cell = newBoard[r]?.[c]
+    const [r, c] = entry;
+    const cell = newBoard[r]?.[c];
     if (!cell) {
-      continue
+      continue;
     }
     if (cell.hasMine || cell.isFlagged || cell.isQuestionMark) {
-      continue
+      continue;
     }
 
-    cell.isRevealed = true
+    cell.isRevealed = true;
 
     if (cell.value === 0) {
       for (let dr = -1; dr <= 1; dr++) {
         for (let dc = -1; dc <= 1; dc++) {
           if (dr === 0 && dc === 0) {
-            continue
+            continue;
           }
-          const nr = r + dr
-          const nc = c + dc
+          const nr = r + dr;
+          const nc = c + dc;
           if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) {
-            continue
+            continue;
           }
-          const key = nr * cols + nc
+          const key = nr * cols + nc;
           if (visited.has(key)) {
-            continue
+            continue;
           }
-          const neighbor = newBoard[nr]?.[nc]
+          const neighbor = newBoard[nr]?.[nc];
           if (!neighbor) {
-            continue
+            continue;
           }
           if (neighbor.hasMine || neighbor.isFlagged || neighbor.isQuestionMark) {
-            continue
+            continue;
           }
           if (neighbor.isRevealed) {
-            continue
+            continue;
           }
-          visited.add(key)
-          queue.push([nr, nc])
+          visited.add(key);
+          queue.push([nr, nc]);
         }
       }
     }
   }
 
-  return newBoard
+  return newBoard;
 }
 
 export function revealCell(board: Board, row: number, col: number): Board {
-  const cell = board[row]?.[col]
+  const cell = board[row]?.[col];
   if (!cell) {
-    return board
+    return board;
   }
 
   if (cell.isRevealed) {
-    return board
+    return board;
   }
   if (cell.isFlagged || cell.isQuestionMark) {
-    return board
+    return board;
   }
 
   if (cell.hasMine) {
-    const newBoard = revealAllMines(board)
-    const explodedCell = newBoard[row]?.[col]
+    const newBoard = revealAllMines(board);
+    const explodedCell = newBoard[row]?.[col];
     if (explodedCell) {
-      explodedCell.isExploded = true
+      explodedCell.isExploded = true;
     }
-    return newBoard
+    return newBoard;
   }
 
   if (cell.value === 0) {
-    return floodFill(board, row, col)
+    return floodFill(board, row, col);
   }
 
-  const newBoard = deepCopyBoard(board)
-  const target = newBoard[row]?.[col]
+  const newBoard = deepCopyBoard(board);
+  const target = newBoard[row]?.[col];
   if (target) {
-    target.isRevealed = true
+    target.isRevealed = true;
   }
-  return newBoard
+  return newBoard;
 }
 
 export function chordReveal(board: Board, row: number, col: number): Board {
-  const cell = board[row]?.[col]
+  const cell = board[row]?.[col];
   if (!cell || !cell.isRevealed || cell.value === 0) {
-    return board
+    return board;
   }
 
-  const neighbors = getNeighborCoords(board, row, col)
-  const flagCount = neighbors.filter(([r, c]) => board[r]?.[c]?.isFlagged).length
+  const neighbors = getNeighborCoords(board, row, col);
+  const flagCount = neighbors.filter(([r, c]) => board[r]?.[c]?.isFlagged).length;
 
   if (flagCount !== cell.value) {
-    return board
+    return board;
   }
 
-  let newBoard = board
+  let newBoard = board;
   for (const [r, c] of neighbors) {
-    const neighbor = newBoard[r]?.[c]
+    const neighbor = newBoard[r]?.[c];
     if (!neighbor) {
-      continue
+      continue;
     }
     if (neighbor.isRevealed || neighbor.isFlagged || neighbor.isQuestionMark) {
-      continue
+      continue;
     }
-    newBoard = revealCell(newBoard, r, c)
+    newBoard = revealCell(newBoard, r, c);
   }
 
-  return newBoard
+  return newBoard;
 }
 
 export function toggleFlag(
@@ -273,178 +273,178 @@ export function toggleFlag(
   col: number,
   allowQuestionMarks: boolean
 ): Board {
-  const cell = board[row]?.[col]
+  const cell = board[row]?.[col];
   if (!cell) {
-    return board
+    return board;
   }
   if (cell.isRevealed) {
-    return board
+    return board;
   }
 
-  const newBoard = deepCopyBoard(board)
-  const target = newBoard[row]?.[col]
+  const newBoard = deepCopyBoard(board);
+  const target = newBoard[row]?.[col];
   if (!target) {
-    return board
+    return board;
   }
 
   if (!target.isFlagged && !target.isQuestionMark) {
-    target.isFlagged = true
+    target.isFlagged = true;
   } else if (target.isFlagged) {
-    target.isFlagged = false
+    target.isFlagged = false;
     if (allowQuestionMarks) {
-      target.isQuestionMark = true
+      target.isQuestionMark = true;
     }
   } else if (target.isQuestionMark) {
-    target.isQuestionMark = false
+    target.isQuestionMark = false;
   }
 
-  return newBoard
+  return newBoard;
 }
 
 export function checkWin(board: Board): boolean {
   for (const row of board) {
     for (const cell of row) {
       if (!cell.hasMine && !cell.isRevealed) {
-        return false
+        return false;
       }
     }
   }
-  return true
+  return true;
 }
 
 export function checkLoss(board: Board): boolean {
   for (const row of board) {
     for (const cell of row) {
       if (cell.hasMine && cell.isRevealed) {
-        return true
+        return true;
       }
     }
   }
-  return false
+  return false;
 }
 
 export function countRemainingFlags(board: Board, totalMines: number): number {
-  let flagged = 0
+  let flagged = 0;
   for (const row of board) {
     for (const cell of row) {
       if (cell.isFlagged) {
-        flagged++
+        flagged++;
       }
     }
   }
-  return totalMines - flagged
+  return totalMines - flagged;
 }
 
 export function isBoardSolvable(board: Board, firstClick: [number, number]): boolean {
-  const rows = board.length
-  const cols = board[0]?.length ?? 0
+  const rows = board.length;
+  const cols = board[0]?.length ?? 0;
 
   // Solver's knowledge state
   const revealed: boolean[][] = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => false)
-  )
+  );
   const solverFlagged: boolean[][] = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => false)
-  )
+  );
 
   // Flood-fill reveal from a cell (respects solver state, not hasMine)
   const floodReveal = (startRow: number, startCol: number): void => {
-    const q: [number, number][] = [[startRow, startCol]]
-    const visited = new Set<number>()
-    visited.add(startRow * cols + startCol)
+    const q: [number, number][] = [[startRow, startCol]];
+    const visited = new Set<number>();
+    visited.add(startRow * cols + startCol);
 
     while (q.length > 0) {
-      const entry = q.shift()
+      const entry = q.shift();
       if (!entry) {
-        break
+        break;
       }
-      const [r, c] = entry
-      const cell = board[r]?.[c]
+      const [r, c] = entry;
+      const cell = board[r]?.[c];
       if (!cell || cell.hasMine) {
-        continue
+        continue;
       }
       if (solverFlagged[r]?.[c]) {
-        continue
+        continue;
       }
-      const revRow = revealed[r]
+      const revRow = revealed[r];
       if (revRow !== undefined) {
-        revRow[c] = true
+        revRow[c] = true;
       }
 
       if (cell.value === 0) {
         for (let dr = -1; dr <= 1; dr++) {
           for (let dc = -1; dc <= 1; dc++) {
             if (dr === 0 && dc === 0) {
-              continue
+              continue;
             }
-            const nr = r + dr
-            const nc = c + dc
+            const nr = r + dr;
+            const nc = c + dc;
             if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) {
-              continue
+              continue;
             }
-            const key = nr * cols + nc
+            const key = nr * cols + nc;
             if (visited.has(key)) {
-              continue
+              continue;
             }
-            const neighbor = board[nr]?.[nc]
+            const neighbor = board[nr]?.[nc];
             if (!neighbor || neighbor.hasMine) {
-              continue
+              continue;
             }
             if (revealed[nr]?.[nc]) {
-              continue
+              continue;
             }
-            visited.add(key)
-            q.push([nr, nc])
+            visited.add(key);
+            q.push([nr, nc]);
           }
         }
       }
     }
-  }
+  };
 
-  floodReveal(firstClick[0], firstClick[1])
+  floodReveal(firstClick[0], firstClick[1]);
 
   // Constraint propagation loop
-  let progress = true
+  let progress = true;
   while (progress) {
-    progress = false
+    progress = false;
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         if (!revealed[r]?.[c]) {
-          continue
+          continue;
         }
-        const cell = board[r]?.[c]
+        const cell = board[r]?.[c];
         if (!cell || cell.hasMine || cell.value === 0) {
-          continue
+          continue;
         }
 
         // Gather neighbors
-        const neighbors: [number, number][] = []
+        const neighbors: [number, number][] = [];
         for (let dr = -1; dr <= 1; dr++) {
           for (let dc = -1; dc <= 1; dc++) {
             if (dr === 0 && dc === 0) {
-              continue
+              continue;
             }
-            const nr = r + dr
-            const nc = c + dc
+            const nr = r + dr;
+            const nc = c + dc;
             if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
-              neighbors.push([nr, nc])
+              neighbors.push([nr, nc]);
             }
           }
         }
 
         const unrevealedNonFlagged = neighbors.filter(
           ([nr, nc]) => !revealed[nr]?.[nc] && !solverFlagged[nr]?.[nc]
-        )
-        const flaggedCount = neighbors.filter(([nr, nc]) => solverFlagged[nr]?.[nc]).length
+        );
+        const flaggedCount = neighbors.filter(([nr, nc]) => solverFlagged[nr]?.[nc]).length;
 
         // Rule 1: value == unrevealed + flagged → all unrevealed are mines
         if (cell.value === unrevealedNonFlagged.length + flaggedCount) {
           for (const [nr, nc] of unrevealedNonFlagged) {
-            const sfRow = solverFlagged[nr]
+            const sfRow = solverFlagged[nr];
             if (sfRow !== undefined && !sfRow[nc]) {
-              sfRow[nc] = true
-              progress = true
+              sfRow[nc] = true;
+              progress = true;
             }
           }
         }
@@ -453,8 +453,8 @@ export function isBoardSolvable(board: Board, firstClick: [number, number]): boo
         if (cell.value === flaggedCount) {
           for (const [nr, nc] of unrevealedNonFlagged) {
             if (!revealed[nr]?.[nc]) {
-              floodReveal(nr, nc)
-              progress = true
+              floodReveal(nr, nc);
+              progress = true;
             }
           }
         }
@@ -465,14 +465,14 @@ export function isBoardSolvable(board: Board, firstClick: [number, number]): boo
   // Check all safe cells are revealed
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      const cell = board[r]?.[c]
+      const cell = board[r]?.[c];
       if (!cell || cell.hasMine) {
-        continue
+        continue;
       }
       if (!revealed[r]?.[c]) {
-        return false
+        return false;
       }
     }
   }
-  return true
+  return true;
 }

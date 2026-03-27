@@ -1,11 +1,11 @@
-import * as SwitchPrimitive from '@radix-ui/react-switch'
+import * as SwitchPrimitive from '@radix-ui/react-switch';
 
 interface ToggleProps {
-  id: string
-  label: string
-  checked: boolean
-  onChange: (checked: boolean) => void
-  disabled?: boolean
+  id: string;
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
 }
 
 export const Toggle = ({ id, label, checked, onChange, disabled = false }: ToggleProps) => (
@@ -23,4 +23,4 @@ export const Toggle = ({ id, label, checked, onChange, disabled = false }: Toggl
       <SwitchPrimitive.Thumb className="block h-[18px] w-[18px] translate-x-[3px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.3)] transition-transform duration-150 data-[state=checked]:translate-x-[21px]" />
     </SwitchPrimitive.Root>
   </div>
-)
+);

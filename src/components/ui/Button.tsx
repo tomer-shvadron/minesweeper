@@ -1,7 +1,7 @@
-import { cva, type VariantProps } from 'class-variance-authority'
-import { type ButtonHTMLAttributes, forwardRef } from 'react'
+import { cva, type VariantProps } from 'class-variance-authority';
+import { type ButtonHTMLAttributes, forwardRef } from 'react';
 
-import { cn } from '@/utils/cn'
+import { cn } from '@/utils/cn';
 
 const buttonVariants = cva('inline-flex cursor-pointer items-center justify-center select-none', {
   variants: {
@@ -16,7 +16,7 @@ const buttonVariants = cva('inline-flex cursor-pointer items-center justify-cent
     },
   },
   defaultVariants: { variant: 'raised' },
-})
+});
 
 export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
@@ -32,5 +32,5 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       {children}
     </button>
   )
-)
-Button.displayName = 'Button'
+);
+Button.displayName = 'Button';

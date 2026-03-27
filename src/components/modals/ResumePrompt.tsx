@@ -1,10 +1,10 @@
-import { useResumePromptLogic } from './useResumePromptLogic'
+import { useResumePromptLogic } from './useResumePromptLogic';
 
-import { Button } from '@/components/ui/Button'
-import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 
 export const ResumePrompt = () => {
-  const { isOpen, config, timeStr, handleResume, handleNewGame } = useResumePromptLogic()
+  const { isOpen, config, timeStr, handleResume, handleNewGame } = useResumePromptLogic();
 
   return (
     <Modal isOpen={isOpen} title="Resume Game?" onClose={handleResume}>
@@ -23,5 +23,5 @@ export const ResumePrompt = () => {
         </Button>
       </div>
     </Modal>
-  )
-}
+  );
+};

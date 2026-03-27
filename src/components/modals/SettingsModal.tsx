@@ -1,15 +1,15 @@
-import type React from 'react'
+import type React from 'react';
 
-import { useSettingsModalLogic } from './useSettingsModalLogic'
+import { useSettingsModalLogic } from './useSettingsModalLogic';
 
-import { Button } from '@/components/ui/Button'
-import { Modal } from '@/components/ui/Modal'
-import { Slider } from '@/components/ui/Slider'
-import { Toggle } from '@/components/ui/Toggle'
-import { THEME_LABELS, THEME_PREVIEW, THEMES } from '@/constants/theme.constants'
-import { useUIStore } from '@/stores/ui.store'
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { Slider } from '@/components/ui/Slider';
+import { Toggle } from '@/components/ui/Toggle';
+import { THEME_LABELS, THEME_PREVIEW, THEMES } from '@/constants/theme.constants';
+import { useUIStore } from '@/stores/ui.store';
 export const SettingsModal = () => {
-  const isOpen = useUIStore((s) => s.settingsModalOpen)
+  const isOpen = useUIStore((s) => s.settingsModalOpen);
   const {
     theme,
     flagMode,
@@ -28,7 +28,7 @@ export const SettingsModal = () => {
     setNoGuessMode,
     openKeyboardModal,
     closeModal,
-  } = useSettingsModalLogic()
+  } = useSettingsModalLogic();
 
   return (
     <Modal isOpen={isOpen} title="Settings" onClose={closeModal}>
@@ -130,5 +130,5 @@ export const SettingsModal = () => {
         </Button>
       </div>
     </Modal>
-  )
-}
+  );
+};

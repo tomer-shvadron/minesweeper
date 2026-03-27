@@ -23,10 +23,9 @@ interface UseCellLogicProps {
   row: number
   col: number
   cell: CellState
-  isZoomed: boolean
 }
 
-export const useCellLogic = ({ row, col, cell, isZoomed }: UseCellLogicProps) => {
+export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
   const revealCell = useGameStore((s) => s.revealCell)
   const flagCell = useGameStore((s) => s.flagCell)
   const chordClick = useGameStore((s) => s.chordClick)
@@ -78,7 +77,6 @@ export const useCellLogic = ({ row, col, cell, isZoomed }: UseCellLogicProps) =>
   const longPressHandlers = useLongPress({
     onTap: handleTap,
     onLongPress: handleLongPress,
-    disableSwipe: isZoomed,
   })
 
   const getContent = (): string => {

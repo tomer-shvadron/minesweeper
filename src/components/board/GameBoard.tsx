@@ -59,7 +59,6 @@ export const GameBoard = () => {
                 cell={cell}
                 cellSize={cellSize}
                 isFocused={isFocused}
-                isZoomed={scale > 1}
                 {...(mineRevealIndex !== undefined && { mineRevealIndex })}
                 {...(chordRippleDelay !== undefined && { chordRippleDelay })}
               />

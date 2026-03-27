@@ -4,17 +4,9 @@ interface UseLongPressOptions {
   onLongPress: () => void
   onTap: () => void
   delay?: number
-  /** When true, the quick-swipe-down shortcut is suppressed so pan gestures
-   *  while zoomed in are not mistaken for flag swipes. Long-press still works. */
-  disableSwipe?: boolean
 }
 
-export function useLongPress({
-  onLongPress,
-  onTap,
-  delay = 650,
-  disableSwipe = false,
-}: UseLongPressOptions) {
+export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOptions) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggeredRef = useRef(false)
   const movedRef = useRef(false)
@@ -26,9 +18,21 @@ export function useLongPress({
   // from firing during pinch-to-zoom gestures.
   const multiTouchRef = useRef(false)
 
+  // ── Swipe-to-flag gesture state machine ──────────────────────────────────
+  // Option A: tight 150 ms recognition window — fast flicks qualify, slow
+  //           pan ramp-ups don't reach the threshold in time.
+  // Option D: 80 ms commit delay — once the threshold is crossed we wait a
+  //           beat; if the finger keeps moving (pan) we cancel, if it slows
+  //           or lifts (flag flick) we commit.
+  const SWIPE_DOWN_THRESHOLD = 20 // px downward to start evaluation
+  const SWIPE_TIME_WINDOW = 150 // ms from touch-start within which threshold must be crossed
+  const SWIPE_COMMIT_DELAY = 80 // ms to wait before committing the flag
+  const SWIPE_CANCEL_MOVE = 12 // px of additional travel during commit window → cancel
   const TAP_MAX_DURATION = 200
-  const SWIPE_DOWN_THRESHOLD = 20 // px downward to trigger swipe-to-flag
-  const SWIPE_TIME_WINDOW = 350 // ms — generous window accounts for iOS touch event coalescing
+
+  const swipePendingRef = useRef(false) // threshold crossed, commit timer running
+  const swipeThresholdPosRef = useRef<{ x: number; y: number } | null>(null)
+  const swipeCommitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -37,12 +41,30 @@ export function useLongPress({
     }
   }, [])
 
+  const clearSwipeCommitTimer = useCallback(() => {
+    if (swipeCommitTimerRef.current) {
+      clearTimeout(swipeCommitTimerRef.current)
+      swipeCommitTimerRef.current = null
+    }
+  }, [])
+
+  const commitFlag = useCallback(() => {
+    swipePendingRef.current = false
+    swipeThresholdPosRef.current = null
+    swipeFlaggedRef.current = true
+    onLongPress()
+  }, [onLongPress])
+
+  const resetSwipeState = useCallback(() => {
+    clearSwipeCommitTimer()
+    swipePendingRef.current = false
+    swipeThresholdPosRef.current = null
+  }, [clearSwipeCommitTimer])
+
   const onTouchStart = useCallback(
     (e: React.TouchEvent) => {
       // Prevent iOS from holding off touchmove events while it decides
       // whether the gesture is a tap, scroll, or custom action.
-      // With touch-action: none on .cell, this ensures all move events
-      // are delivered to our handler immediately.
       e.preventDefault()
       isTouchRef.current = true
 
@@ -52,6 +74,7 @@ export function useLongPress({
       if (e.touches.length > 1) {
         multiTouchRef.current = true
         clearTimer()
+        resetSwipeState()
         movedRef.current = true // prevent tap on subsequent touchend
         return
       }
@@ -61,6 +84,7 @@ export function useLongPress({
       longPressTriggeredRef.current = false
       movedRef.current = false
       swipeFlaggedRef.current = false
+      resetSwipeState()
       pressStartTimeRef.current = Date.now()
       const touch = e.touches[0]
       startPosRef.current = touch ? { x: touch.clientX, y: touch.clientY } : null
@@ -69,7 +93,7 @@ export function useLongPress({
         onLongPress()
       }, delay)
     },
-    [delay, onLongPress, clearTimer]
+    [delay, onLongPress, clearTimer, resetSwipeState]
   )
 
   const onTouchMove = useCallback(
@@ -78,6 +102,7 @@ export function useLongPress({
       if (multiTouchRef.current || e.touches.length > 1) {
         multiTouchRef.current = true
         clearTimer()
+        resetSwipeState()
         movedRef.current = true
         return
       }
@@ -88,29 +113,50 @@ export function useLongPress({
       if (!touch) {
         return
       }
+
+      // ── Commit-window monitoring (Option D) ─────────────────────────────
+      // Once the threshold is crossed we watch for additional travel. If the
+      // finger moves SWIPE_CANCEL_MOVE px more in any direction the gesture
+      // is re-classified as a pan and the pending flag is cancelled.
+      // We let these events propagate so the pan handler can take over
+      // seamlessly.
+      if (swipePendingRef.current && swipeThresholdPosRef.current) {
+        const addlDx = Math.abs(touch.clientX - swipeThresholdPosRef.current.x)
+        const addlDy = Math.abs(touch.clientY - swipeThresholdPosRef.current.y)
+        if (addlDx > SWIPE_CANCEL_MOVE || addlDy > SWIPE_CANCEL_MOVE) {
+          // Finger kept moving → pan intent, cancel the pending flag
+          resetSwipeState()
+          // movedRef is already true; fall through so general movement is tracked
+        } else {
+          return // still within commit window, nothing else to do
+        }
+      }
+
       const dx = Math.abs(touch.clientX - startPosRef.current.x)
       const dy = touch.clientY - startPosRef.current.y // signed: positive = downward
 
-      // A quick downward swipe within the time window fires flag immediately,
-      // without waiting for the long-press timer.
-      // Skipped when zoomed in (disableSwipe=true) so pan gestures are not
-      // mistaken for flag swipes — long-press still flags in that case.
+      // ── Swipe detection (Options A + D) ─────────────────────────────────
       const elapsed = Date.now() - (pressStartTimeRef.current ?? 0)
       if (
-        !disableSwipe &&
+        !swipeFlaggedRef.current &&
+        !swipePendingRef.current &&
         dy >= SWIPE_DOWN_THRESHOLD &&
-        elapsed < SWIPE_TIME_WINDOW &&
-        !swipeFlaggedRef.current
+        elapsed < SWIPE_TIME_WINDOW
       ) {
         clearTimer()
-        swipeFlaggedRef.current = true
         movedRef.current = true
-        onLongPress()
-        // Stop propagation ONLY on this one event so the board's pinch-zoom
-        // handler doesn't receive the same impulse and start panning.
-        // We do NOT suppress subsequent events — those must reach the pan
-        // handler so the user can still pan the board after flagging.
+        swipePendingRef.current = true
+        swipeThresholdPosRef.current = { x: touch.clientX, y: touch.clientY }
+        // Stop propagation on this one event so the board's pan handler
+        // doesn't receive the same impulse and jolt the viewport.
         e.stopPropagation()
+        // Start the commit delay — if the finger stays still long enough
+        // we treat it as a deliberate flag flick.
+        swipeCommitTimerRef.current = setTimeout(() => {
+          if (swipePendingRef.current) {
+            commitFlag()
+          }
+        }, SWIPE_COMMIT_DELAY)
         return
       }
 
@@ -119,32 +165,44 @@ export function useLongPress({
         movedRef.current = true
       }
     },
-    [clearTimer, disableSwipe, onLongPress]
+    [clearTimer, resetSwipeState, commitFlag]
   )
 
   const onTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       clearTimer()
+      clearSwipeCommitTimer()
+
       // All fingers lifted — reset multi-touch lock so the next tap works.
       if (e.touches.length === 0) {
         multiTouchRef.current = false
       }
+
       const pressDuration = Date.now() - (pressStartTimeRef.current ?? 0)
 
-      // Fallback swipe-to-flag: if touchmove didn't fire reliably (iOS coalescing),
-      // check total displacement at lift. If the finger moved ≥ SWIPE_DOWN_THRESHOLD
-      // downward and long-press hasn't already fired, treat it as a swipe flag.
-      // Also skipped when zoomed in (disableSwipe=true).
-      if (
-        !disableSwipe &&
-        !swipeFlaggedRef.current &&
-        !longPressTriggeredRef.current &&
-        startPosRef.current
-      ) {
+      // If the commit window was open when the finger lifted, confirm the flag.
+      // Lifting quickly after the threshold is itself strong evidence of a
+      // deliberate flag flick rather than an ongoing pan.
+      if (swipePendingRef.current && !longPressTriggeredRef.current) {
+        swipePendingRef.current = false
+        swipeThresholdPosRef.current = null
+        swipeFlaggedRef.current = true
+        onLongPress()
+        longPressTriggeredRef.current = false
+        movedRef.current = false
+        swipeFlaggedRef.current = false
+        pressStartTimeRef.current = null
+        startPosRef.current = null
+        return
+      }
+
+      // Fallback swipe-to-flag: if touchmove didn't fire reliably (iOS
+      // coalescing), check total displacement + time at lift.
+      if (!swipeFlaggedRef.current && !longPressTriggeredRef.current && startPosRef.current) {
         const changedTouch = e.changedTouches?.[0]
         if (changedTouch) {
           const totalDy = changedTouch.clientY - startPosRef.current.y
-          if (totalDy >= SWIPE_DOWN_THRESHOLD) {
+          if (totalDy >= SWIPE_DOWN_THRESHOLD && pressDuration < SWIPE_TIME_WINDOW) {
             onLongPress()
             longPressTriggeredRef.current = false
             movedRef.current = false
@@ -171,7 +229,7 @@ export function useLongPress({
       pressStartTimeRef.current = null
       startPosRef.current = null
     },
-    [clearTimer, disableSwipe, onLongPress, onTap]
+    [clearTimer, clearSwipeCommitTimer, onLongPress, onTap]
   )
 
   const onClick = useCallback(

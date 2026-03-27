@@ -1,10 +1,10 @@
-import js from '@eslint/js'
-import importX from 'eslint-plugin-import-x'
-import jsxA11y from 'eslint-plugin-jsx-a11y'
-import reactPlugin from 'eslint-plugin-react'
-import reactCompiler from 'eslint-plugin-react-compiler'
-import reactHooks from 'eslint-plugin-react-hooks'
-import tseslint from 'typescript-eslint'
+import js from '@eslint/js';
+import importX from 'eslint-plugin-import-x';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import reactPlugin from 'eslint-plugin-react';
+import reactCompiler from 'eslint-plugin-react-compiler';
+import reactHooks from 'eslint-plugin-react-hooks';
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   { ignores: ['dist/**', 'node_modules/**', 'dev-dist/**'] },
@@ -38,6 +38,9 @@ export default tseslint.config(
         { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
       ],
 
+      // Semicolons required at end of every statement
+      semi: ['error', 'always'],
+
       // Require curly braces for all control flow — no one-liners
       curly: ['error', 'all'],
 
@@ -59,4 +62,4 @@ export default tseslint.config(
       'import-x/no-duplicates': 'error',
     },
   }
-)
+);

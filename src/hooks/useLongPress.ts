@@ -50,13 +50,6 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
 
   const onTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      // Once a swipe-flag is in progress, eat all subsequent touch moves so the
-      // board's pan handler doesn't also pan the viewport when zoomed in.
-      if (swipeFlaggedRef.current) {
-        e.stopPropagation()
-        return
-      }
-
       if (!startPosRef.current) {
         return
       }
@@ -75,8 +68,10 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
         swipeFlaggedRef.current = true
         movedRef.current = true
         onLongPress()
-        // Stop propagation so the board's pinch-zoom handler doesn't interpret
-        // the same downward swipe as a pan gesture when zoomed in.
+        // Stop propagation ONLY on this one event so the board's pinch-zoom
+        // handler doesn't receive the same impulse and start panning.
+        // We do NOT suppress subsequent events — those must reach the pan
+        // handler so the user can still pan the board after flagging.
         e.stopPropagation()
         return
       }

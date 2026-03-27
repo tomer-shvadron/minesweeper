@@ -67,6 +67,11 @@ export function usePinchZoom(minScale = 1, maxScale = 5, boardWidth = 0, boardHe
         }
         const dx = touch.clientX - lastPanPosRef.current.x
         const dy = touch.clientY - lastPanPosRef.current.y
+        // Always advance the reference point, even before panning is confirmed.
+        // This means if one touchmove is swallowed by a child's stopPropagation
+        // (e.g. the swipe-to-flag event), the NEXT event's delta is still
+        // accurate — avoiding a position jump from the stale start position.
+        lastPanPosRef.current = { x: touch.clientX, y: touch.clientY }
         if (
           !isPanningRef.current &&
           (Math.abs(dx) > PAN_THRESHOLD || Math.abs(dy) > PAN_THRESHOLD)
@@ -79,7 +84,6 @@ export function usePinchZoom(minScale = 1, maxScale = 5, boardWidth = 0, boardHe
           panYRef.current = clamped.y
           setPanX(clamped.x)
           setPanY(clamped.y)
-          lastPanPosRef.current = { x: touch.clientX, y: touch.clientY }
         }
       }
     },

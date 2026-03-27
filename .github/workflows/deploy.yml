@@ -57,6 +57,10 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          # Keeps the window.__MINESWEEPER_TEST__ bridge in the production bundle
+          # so Playwright e2e tests can drive game state via the store.
+          VITE_E2E: 'true'
 
       # Share the production bundle with downstream e2e and deploy jobs
       - name: Upload dist artifact

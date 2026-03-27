@@ -6,21 +6,23 @@ test.describe('Canvas board (large boards)', () => {
       gamePage,
     }) => {
       await gamePage.startPreset('Expert');
-      await expect(gamePage.page.locator('canvas')).toBeVisible();
+      // Scope to the board — the Confetti component always renders a second canvas globally.
+      await expect(gamePage.board.locator('canvas')).toBeVisible();
       // No individual cell buttons
       await expect(gamePage.page.getByRole('button', { name: /^Cell / })).toHaveCount(0);
     });
 
     test('Beginner board renders cell buttons (DOM, not canvas)', async ({ gamePage }) => {
       await gamePage.startPreset('Beginner');
-      await expect(gamePage.page.locator('canvas')).toHaveCount(0);
+      // The board itself has no canvas for small grids; Confetti canvas is outside the board.
+      await expect(gamePage.board.locator('canvas')).toHaveCount(0);
       const cells = gamePage.page.getByRole('button', { name: /^Cell / });
       await expect(cells).toHaveCount(81); // 9x9
     });
 
     test('Intermediate board renders a <canvas> element', async ({ gamePage }) => {
       await gamePage.startPreset('Intermediate');
-      await expect(gamePage.page.locator('canvas')).toBeVisible();
+      await expect(gamePage.board.locator('canvas')).toBeVisible();
       await expect(gamePage.page.getByRole('button', { name: /^Cell / })).toHaveCount(0);
     });
   });
@@ -170,9 +172,10 @@ test.describe('Canvas board (large boards)', () => {
 
     test('switching from Expert to Beginner removes the canvas', async ({ gamePage }) => {
       await gamePage.startPreset('Expert');
-      await expect(gamePage.page.locator('canvas')).toBeVisible();
+      await expect(gamePage.board.locator('canvas')).toBeVisible();
       await gamePage.startPreset('Beginner');
-      await expect(gamePage.page.locator('canvas')).toHaveCount(0);
+      // Board canvas gone; Confetti canvas (outside board) is unaffected.
+      await expect(gamePage.board.locator('canvas')).toHaveCount(0);
       await expect(gamePage.page.getByRole('button', { name: /^Cell / })).toHaveCount(81);
     });
   });

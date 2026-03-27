@@ -18,7 +18,7 @@ createRoot(rootElement).render(
   </StrictMode>
 );
 
-if (import.meta.env.MODE !== 'production') {
+if (import.meta.env.MODE !== 'production' || import.meta.env.VITE_E2E === 'true') {
   // @ts-expect-error — e2e test bridge
   window.__MINESWEEPER_TEST__ = {
     getGameState: () => useGameStore.getState(),

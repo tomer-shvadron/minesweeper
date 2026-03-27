@@ -209,7 +209,8 @@ export class GamePage {
 
   /** Click a cell on a canvas board by computing pixel coordinates from the canvas bounding box. */
   async canvasClick(row: number, col: number): Promise<void> {
-    const canvas = this.page.locator('canvas');
+    // Scope to the board element to avoid matching the always-present Confetti canvas.
+    const canvas = this.board.locator('canvas');
     const box = await canvas.boundingBox();
     if (!box) {
       throw new Error('Canvas element not found — is this a canvas board?');
@@ -224,7 +225,8 @@ export class GamePage {
 
   /** Right-click a cell on a canvas board (long-press/flag equivalent for desktop). */
   async canvasRightClick(row: number, col: number): Promise<void> {
-    const canvas = this.page.locator('canvas');
+    // Scope to the board element to avoid matching the always-present Confetti canvas.
+    const canvas = this.board.locator('canvas');
     const box = await canvas.boundingBox();
     if (!box) {
       throw new Error('Canvas element not found — is this a canvas board?');

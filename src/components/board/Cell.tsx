@@ -8,6 +8,7 @@ interface CellProps {
   cell: CellState
   cellSize: number
   isFocused?: boolean
+  isZoomed?: boolean
   mineRevealIndex?: number
   chordRippleDelay?: number
 }
@@ -18,6 +19,7 @@ export const Cell = ({
   cell,
   cellSize,
   isFocused,
+  isZoomed = false,
   mineRevealIndex,
   chordRippleDelay,
 }: CellProps) => {
@@ -25,6 +27,7 @@ export const Cell = ({
     row,
     col,
     cell,
+    isZoomed,
   })
 
   const fontSize =

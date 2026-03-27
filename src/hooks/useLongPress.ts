@@ -4,9 +4,17 @@ interface UseLongPressOptions {
   onLongPress: () => void
   onTap: () => void
   delay?: number
+  /** When true, the quick-swipe-down shortcut is suppressed so pan gestures
+   *  while zoomed in are not mistaken for flag swipes. Long-press still works. */
+  disableSwipe?: boolean
 }
 
-export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOptions) {
+export function useLongPress({
+  onLongPress,
+  onTap,
+  delay = 650,
+  disableSwipe = false,
+}: UseLongPressOptions) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggeredRef = useRef(false)
   const movedRef = useRef(false)
@@ -85,8 +93,15 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
 
       // A quick downward swipe within the time window fires flag immediately,
       // without waiting for the long-press timer.
+      // Skipped when zoomed in (disableSwipe=true) so pan gestures are not
+      // mistaken for flag swipes — long-press still flags in that case.
       const elapsed = Date.now() - (pressStartTimeRef.current ?? 0)
-      if (dy >= SWIPE_DOWN_THRESHOLD && elapsed < SWIPE_TIME_WINDOW && !swipeFlaggedRef.current) {
+      if (
+        !disableSwipe &&
+        dy >= SWIPE_DOWN_THRESHOLD &&
+        elapsed < SWIPE_TIME_WINDOW &&
+        !swipeFlaggedRef.current
+      ) {
         clearTimer()
         swipeFlaggedRef.current = true
         movedRef.current = true
@@ -104,7 +119,7 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
         movedRef.current = true
       }
     },
-    [clearTimer, onLongPress]
+    [clearTimer, disableSwipe, onLongPress]
   )
 
   const onTouchEnd = useCallback(
@@ -119,7 +134,13 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
       // Fallback swipe-to-flag: if touchmove didn't fire reliably (iOS coalescing),
       // check total displacement at lift. If the finger moved ≥ SWIPE_DOWN_THRESHOLD
       // downward and long-press hasn't already fired, treat it as a swipe flag.
-      if (!swipeFlaggedRef.current && !longPressTriggeredRef.current && startPosRef.current) {
+      // Also skipped when zoomed in (disableSwipe=true).
+      if (
+        !disableSwipe &&
+        !swipeFlaggedRef.current &&
+        !longPressTriggeredRef.current &&
+        startPosRef.current
+      ) {
         const changedTouch = e.changedTouches?.[0]
         if (changedTouch) {
           const totalDy = changedTouch.clientY - startPosRef.current.y
@@ -150,7 +171,7 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
       pressStartTimeRef.current = null
       startPosRef.current = null
     },
-    [clearTimer, onLongPress, onTap]
+    [clearTimer, disableSwipe, onLongPress, onTap]
   )
 
   const onClick = useCallback(

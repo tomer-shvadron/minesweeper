@@ -101,12 +101,20 @@ export const useGameBoardLogic = () => {
     setFocusedCell(null)
   }, [gameKey, setFocusedCell])
 
-  const handleBoardFocus = useCallback(() => {
-    setBoardFocused(true)
-    if (!focusedCell) {
-      setFocusedCell([0, 0])
-    }
-  }, [focusedCell, setFocusedCell])
+  const handleBoardFocus = useCallback(
+    (e: React.FocusEvent<HTMLDivElement>) => {
+      setBoardFocused(true)
+      // Only place the keyboard cursor when the board div itself gains focus
+      // (e.g. via Tab key). When a child cell <button> is clicked its native
+      // focus event bubbles up here; e.target !== e.currentTarget in that case,
+      // so we must NOT jump the cursor to [0,0] — otherwise the top-left cell
+      // lights up visually every time the player taps any cell.
+      if (!focusedCell && e.target === e.currentTarget) {
+        setFocusedCell([0, 0])
+      }
+    },
+    [focusedCell, setFocusedCell]
+  )
 
   const handleBoardBlur = useCallback(() => {
     setBoardFocused(false)

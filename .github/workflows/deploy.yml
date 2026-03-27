@@ -13,9 +13,8 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
-# Opt all actions into Node.js 24 runtime now, ahead of the June 2026 forced migration.
-# This silences "Node.js 20 actions are deprecated" warnings from checkout, setup-node,
-# upload-artifact, pnpm/action-setup, cache, etc.
+# configure-pages@v5 and upload-pages-artifact@v3 don't have Node 24 releases yet;
+# this env var forces their runtime to Node 24 so they stop emitting deprecation warnings.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -25,13 +24,13 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           version: 10
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
@@ -47,13 +46,13 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           version: 10
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
@@ -70,7 +69,7 @@ jobs:
 
       # Share the production bundle with downstream e2e and deploy jobs
       - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: dist
           path: dist/
@@ -94,13 +93,13 @@ jobs:
           - project: mobile-safari
             browser: webkit     # reuses webkit cache
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           version: 10
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
@@ -109,7 +108,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Download dist artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: dist
           path: dist/
@@ -117,7 +116,7 @@ jobs:
       # Cache keyed per browser + lockfile so chromium/mobile-chrome share one entry
       # and webkit/mobile-safari share another.
       - name: Cache Playwright ${{ matrix.browser }}
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
@@ -140,7 +139,7 @@ jobs:
 
       - name: Upload Playwright report on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: playwright-report-${{ matrix.project }}
           path: playwright-report/
@@ -157,7 +156,7 @@ jobs:
     steps:
       # No checkout, no Node/pnpm needed — just the pre-built artifact
       - name: Download dist artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: dist
           path: dist/
@@ -170,4 +169,4 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

@@ -8,6 +8,7 @@ import type { GameStatus } from '@/types/game.types';
 const EMOJI: Record<GameStatus | 'nervous', string> = {
   idle: '🙂',
   playing: '🙂',
+  generating: '🙂',
   won: '😎',
   lost: '😵',
   nervous: '😮',

@@ -1,0 +1,182 @@
+[data-theme='jedi'] {
+  --color-bg: #c8dff0;
+  --color-surface: #deeef8;
+  --color-surface-2: #cce0f0;
+
+  --color-border: #8ab4d8;
+  --color-border-light: #f0f8ff;
+  --color-border-dark: #5a8cb4;
+  --color-border-darker: #2a5a84;
+
+  --color-text: #0a1e38;
+  --color-text-muted: #3a6890;
+
+  --color-accent: #0066cc;
+  --color-accent-hover: #2288ee;
+
+  --color-header-bg: #deeef8;
+  --color-header-text: #0a1e38;
+  --color-header-border-light: #f0f8ff;
+  --color-header-border-dark: #5a8cb4;
+
+  --color-titlebar-bg: #003e7e;
+  --color-titlebar-text: #b8d8f8;
+
+  --color-digit: #00ccff;
+  --color-digit-bg: #001830;
+
+  --color-n1: #0066cc;
+  --color-n2: #006622;
+  --color-n3: #bb2200;
+  --color-n4: #440088;
+  --color-n5: #883300;
+  --color-n6: #006688;
+  --color-n7: #0a1e38;
+  --color-n8: #446688;
+}
+
+[data-theme='jedi'] body {
+  color: var(--color-text);
+}
+
+[data-theme='jedi'] .game-window {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 2px rgba(0, 102, 204, 0.35),
+    0 0 0 1px rgba(0, 200, 255, 0.15),
+    0 8px 32px rgba(0, 30, 80, 0.3),
+    0 0 60px rgba(0, 102, 204, 0.08);
+}
+
+[data-theme='jedi'] .cell {
+  background-color: var(--color-surface-2);
+  transition: background-color 0.08s ease;
+}
+
+[data-theme='jedi'] .cell-raised {
+  box-shadow:
+    inset 2px 2px 0 var(--color-border-light),
+    inset -2px -2px 0 var(--color-border-dark);
+}
+
+[data-theme='jedi'] .cell-raised:hover {
+  background-color: #d8eeff;
+}
+
+[data-theme='jedi'] .cell-revealed {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-dark);
+}
+
+[data-theme='jedi'] .cell-exploded {
+  background-color: rgba(180, 30, 30, 0.2);
+  border: 1px solid rgba(180, 30, 30, 0.5);
+}
+
+[data-theme='jedi'] .game-header {
+  background-color: var(--color-surface);
+  box-shadow:
+    inset -2px -2px 0 var(--color-border-light),
+    inset 2px 2px 0 var(--color-border-dark);
+}
+
+[data-theme='jedi'] .game-header__inner {
+  background-color: var(--color-surface-2);
+  box-shadow:
+    inset 2px 2px 0 var(--color-border-dark),
+    inset -2px -2px 0 var(--color-border-light);
+}
+
+[data-theme='jedi'] .lcd-display {
+  box-shadow:
+    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
+    inset -1px -1px 0 rgba(0, 200, 255, 0.15),
+    0 0 8px rgba(0, 200, 255, 0.15);
+  border-radius: 3px;
+  border: 1px solid rgba(0, 100, 180, 0.4);
+  text-shadow: 0 0 6px rgba(0, 204, 255, 0.6);
+}
+
+[data-theme='jedi'] .smiley-button {
+  box-shadow:
+    inset 2px 2px 0 var(--color-border-light),
+    inset -2px -2px 0 var(--color-border-dark);
+}
+
+[data-theme='jedi'] .btn-raised {
+  background-color: var(--color-surface);
+  box-shadow:
+    inset 2px 2px 0 var(--color-border-light),
+    inset -2px -2px 0 var(--color-border-dark);
+  color: var(--color-text);
+}
+
+[data-theme='jedi'] .btn-primary {
+  background-color: var(--color-accent);
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.4);
+}
+
+[data-theme='jedi'] .btn-primary:active {
+  background-color: var(--color-accent-hover);
+}
+
+[data-theme='jedi'] .btn-secondary {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-dark);
+  border-radius: 4px;
+  color: var(--color-text);
+  box-shadow:
+    inset 1px 1px 0 var(--color-border-light),
+    inset -1px -1px 0 var(--color-border-dark);
+}
+
+[data-theme='jedi'] .xp-input {
+  background-color: #f0f8ff;
+  color: var(--color-text);
+  border: 1px solid var(--color-border-dark);
+  box-shadow:
+    inset 2px 2px 0 var(--color-border-dark),
+    inset -1px -1px 0 var(--color-border-light);
+}
+
+[data-theme='jedi'] .xp-input:focus {
+  border-color: var(--color-accent);
+  outline: 2px solid rgba(0, 102, 204, 0.25);
+}
+
+[data-theme='jedi'] .switch-root {
+  background-color: var(--color-border-dark);
+}
+
+[data-theme='jedi'] .switch-root[data-state='checked'] {
+  background-color: var(--color-accent);
+}
+
+[data-theme='jedi'] .preset-radio {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-dark);
+}
+
+[data-theme='jedi'] .preset-radio[data-state='checked'] {
+  border-color: var(--color-accent);
+}
+
+[data-theme='jedi'] .preset-radio[data-state='checked']::after {
+  background-color: var(--color-accent);
+}
+
+[data-theme='jedi'] .slider-track {
+  background-color: var(--color-border-dark);
+}
+
+[data-theme='jedi'] .slider-range {
+  background-color: var(--color-accent);
+}
+
+[data-theme='jedi'] .slider-thumb {
+  border-color: var(--color-accent);
+}

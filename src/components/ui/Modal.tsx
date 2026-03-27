@@ -28,14 +28,16 @@ export const Modal = ({ isOpen, title, onClose, children }: ModalProps) => (
           <span>{title}</span>
           <DialogPrimitive.Close asChild>
             <button
-              className="flex h-[18px] w-5 cursor-pointer items-center justify-center border-none bg-[var(--color-surface)] text-xs leading-none text-black shadow-[inset_1px_1px_0_var(--color-border-light),inset_-1px_-1px_0_var(--color-border-dark)] outline-none active:shadow-[inset_-1px_-1px_0_var(--color-border-light),inset_1px_1px_0_var(--color-border-dark)]"
+              className="flex h-[18px] w-5 cursor-pointer items-center justify-center border-none bg-[var(--color-surface)] text-xs leading-none text-[var(--color-text)] shadow-[inset_1px_1px_0_var(--color-border-light),inset_-1px_-1px_0_var(--color-border-dark)] outline-none active:shadow-[inset_-1px_-1px_0_var(--color-border-light),inset_1px_1px_0_var(--color-border-dark)]"
               aria-label="Close"
             >
               <X size={10} strokeWidth={2.5} />
             </button>
           </DialogPrimitive.Close>
         </DialogPrimitive.Title>
-        <div className="flex min-h-0 flex-col gap-[18px] overflow-y-auto p-[18px]">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto p-[18px]">
+          {children}
+        </div>
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   </DialogPrimitive.Root>

@@ -3,16 +3,20 @@ import { useState } from 'react'
 import { createBoardKey } from '@/services/board.service'
 import { useGameStore } from '@/stores/game.store'
 import { useLeaderboardStore } from '@/stores/leaderboard.store'
+import { useStatsStore } from '@/stores/stats.store'
 import { useUIStore } from '@/stores/ui.store'
 import type { BoardKey } from '@/types/game.types'
 
 const PRESET_KEYS: BoardKey[] = ['beginner', 'intermediate', 'expert']
+
+export const RECENT_TAB = '__recent__' as BoardKey
 
 export const useLeaderboardModalLogic = () => {
   const closeModal = useUIStore((s) => s.closeLeaderboardModal)
   const allEntries = useLeaderboardStore((s) => s.entries)
   const allGamesPlayed = useLeaderboardStore((s) => s.gamesPlayed)
   const config = useGameStore((s) => s.config)
+  const recentRecords = useStatsStore((s) => s.records)
 
   const currentBoardKey = createBoardKey(config)
 
@@ -21,7 +25,7 @@ export const useLeaderboardModalLogic = () => {
       !PRESET_KEYS.includes(k as BoardKey) && (allEntries[k as BoardKey]?.length ?? 0) > 0
   )
 
-  const allTabs: BoardKey[] = [...PRESET_KEYS, ...customKeysWithScores]
+  const allTabs: BoardKey[] = [...PRESET_KEYS, ...customKeysWithScores, RECENT_TAB]
 
   const [selectedTab, setSelectedTab] = useState<BoardKey>(() =>
     allTabs.includes(currentBoardKey) ? currentBoardKey : 'beginner'
@@ -29,6 +33,7 @@ export const useLeaderboardModalLogic = () => {
 
   const entries = allEntries[selectedTab] ?? []
   const gamesPlayedCount = allGamesPlayed[selectedTab] ?? 0
+  const recentGames = recentRecords.slice(0, 20)
 
   return {
     allTabs,
@@ -36,6 +41,7 @@ export const useLeaderboardModalLogic = () => {
     setSelectedTab,
     entries,
     gamesPlayedCount,
+    recentGames,
     closeModal,
   }
 }

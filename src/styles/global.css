@@ -6,6 +6,8 @@
 @import './themes/pastel.css';
 @import './themes/neon.css';
 @import './themes/aqua.css';
+@import './themes/jedi.css';
+@import './themes/sith.css';
 
 @layer base {
   *,
@@ -146,6 +148,16 @@
 
   body[data-animations='false'] .game-over-banner {
     animation: none;
+  }
+
+  /* In landscape the header becomes a left sidebar — offset banner so it
+     doesn't cover sidebar buttons. 72px = HEADER_SIDEBAR_WIDTH constant. */
+  @media (orientation: landscape) {
+    .game-over-banner {
+      left: 72px;
+      padding-top: calc(12px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    }
   }
 }
 

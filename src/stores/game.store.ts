@@ -26,6 +26,9 @@ interface GameState {
   gameKey: number
   mineRevealOrder: [number, number][]
   lastChordReveal: { origin: [number, number]; cells: [number, number][] } | null
+  lastRevealCount: number
+  firstClick: [number, number] | null
+  totalClicks: number
 }
 
 interface GameActions {
@@ -56,6 +59,9 @@ export const useGameStore = create<GameStore>()(
       gameKey: 0,
       mineRevealOrder: [],
       lastChordReveal: null,
+      lastRevealCount: 0,
+      firstClick: null,
+      totalClicks: 0,
 
       startNewGame: (config) => {
         const newConfig = config ?? get().config
@@ -70,11 +76,13 @@ export const useGameStore = create<GameStore>()(
           gameKey: get().gameKey + 1,
           mineRevealOrder: [],
           lastChordReveal: null,
+          firstClick: null,
+          totalClicks: 0,
         })
       },
 
       revealCell: (row, col) => {
-        const { board, config, isFirstClick, status } = get()
+        const { board, config, isFirstClick, status, firstClick, totalClicks } = get()
         if (status === 'won' || status === 'lost') {
           return
         }
@@ -112,12 +120,24 @@ export const useGameStore = create<GameStore>()(
           )
         }
 
+        let lastRevealCount = 0
+        for (let r = 0; r < config.rows; r++) {
+          for (let c = 0; c < config.cols; c++) {
+            if (!currentBoard[r]?.[c]?.isRevealed && newBoard[r]?.[c]?.isRevealed) {
+              lastRevealCount++
+            }
+          }
+        }
+
         set({
           board: newBoard,
           status: newStatus,
           minesRemaining: countRemainingFlags(newBoard, config.mines),
           isFirstClick: false,
           mineRevealOrder,
+          lastRevealCount,
+          firstClick: firstClick ?? [row, col],
+          totalClicks: totalClicks + 1,
         })
       },
 
@@ -134,7 +154,7 @@ export const useGameStore = create<GameStore>()(
       },
 
       chordClick: (row, col) => {
-        const { board, config, status } = get()
+        const { board, config, status, totalClicks } = get()
         if (status !== 'playing') {
           return
         }
@@ -167,6 +187,7 @@ export const useGameStore = create<GameStore>()(
           status: newStatus,
           minesRemaining: countRemainingFlags(newBoard, config.mines),
           lastChordReveal,
+          totalClicks: totalClicks + 1,
         })
       },
 

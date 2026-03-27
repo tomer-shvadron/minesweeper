@@ -8,6 +8,7 @@ import { LeaderboardModal } from '@/components/modals/LeaderboardModal'
 import { NewGameModal } from '@/components/modals/NewGameModal'
 import { ResumePrompt } from '@/components/modals/ResumePrompt'
 import { SettingsModal } from '@/components/modals/SettingsModal'
+import { StatisticsModal } from '@/components/modals/StatisticsModal'
 import { Confetti } from '@/components/ui/Confetti'
 import { createBoardKey } from '@/services/board.service'
 import { haptic } from '@/services/haptic.service'
@@ -15,6 +16,7 @@ import { playSound } from '@/services/sound.service'
 import { useGameStore } from '@/stores/game.store'
 import { useLeaderboardStore } from '@/stores/leaderboard.store'
 import { useSettingsStore } from '@/stores/settings.store'
+import { useStatsStore } from '@/stores/stats.store'
 import { useUIStore } from '@/stores/ui.store'
 
 export const App = () => {
@@ -24,10 +26,15 @@ export const App = () => {
   const config = useGameStore((s) => s.config)
   const soundEnabled = useSettingsStore((s) => s.soundEnabled)
   const volume = useSettingsStore((s) => s.volume)
+  const soundTheme = useSettingsStore((s) => s.soundTheme)
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled)
   const hapticEnabled = useSettingsStore((s) => s.hapticEnabled)
+  const board = useGameStore((s) => s.board)
+  const totalClicks = useGameStore((s) => s.totalClicks)
+  const firstClick = useGameStore((s) => s.firstClick)
   const isHighScore = useLeaderboardStore((s) => s.isHighScore)
   const incrementGamesPlayed = useLeaderboardStore((s) => s.incrementGamesPlayed)
+  const recordGame = useStatsStore((s) => s.recordGame)
   const showHighScorePrompt = useUIStore((s) => s.showHighScorePrompt)
   const openResumePrompt = useUIStore((s) => s.openResumePrompt)
 
@@ -55,9 +62,28 @@ export const App = () => {
       return
     }
 
+    if (status === 'won' || status === 'lost') {
+      const boardKey = createBoardKey(config)
+      const cellsRevealed = board.flat().filter((c) => c.isRevealed && !c.hasMine).length
+      const minesFlagged = board.flat().filter((c) => c.isFlagged && c.hasMine).length
+      const safeFirstClick = firstClick ?? [0, 0]
+      recordGame({
+        id: crypto.randomUUID(),
+        boardKey,
+        result: status,
+        timeSeconds: elapsedSeconds,
+        date: new Date().toISOString(),
+        firstClick: safeFirstClick,
+        totalClicks,
+        cellsRevealed,
+        minesFlagged,
+        efficiency: totalClicks > 0 ? cellsRevealed / totalClicks : 0,
+      })
+    }
+
     if (status === 'won') {
       if (soundEnabled) {
-        playSound('win', volume)
+        playSound('win', volume, { soundTheme })
       }
       haptic('win', hapticEnabled)
       const boardKey = createBoardKey(config)
@@ -67,7 +93,7 @@ export const App = () => {
       }
     } else if (status === 'lost') {
       if (soundEnabled) {
-        playSound('explode', volume)
+        playSound('explode', volume, { soundTheme })
       }
       haptic('loss', hapticEnabled)
       const boardKey = createBoardKey(config)
@@ -88,6 +114,7 @@ export const App = () => {
       <NewGameModal />
       <SettingsModal />
       <LeaderboardModal />
+      <StatisticsModal />
       <HighScorePrompt />
     </div>
   )

@@ -1,6 +1,16 @@
 import type { Theme } from '@/types/settings.types'
 
-export const THEMES: readonly Theme[] = ['xp', 'dark', 'material', 'aero', 'pastel', 'neon', 'aqua']
+export const THEMES: readonly Theme[] = [
+  'xp',
+  'dark',
+  'material',
+  'aero',
+  'pastel',
+  'neon',
+  'aqua',
+  'jedi',
+  'sith',
+]
 
 export const THEME_LABELS: Record<Theme, string> = {
   xp: 'Classic XP',
@@ -10,6 +20,8 @@ export const THEME_LABELS: Record<Theme, string> = {
   pastel: 'Pastel',
   neon: 'Neon',
   aqua: 'Aqua',
+  jedi: 'Jedi',
+  sith: 'Sith',
 }
 
 export const THEME_PREVIEW: Record<Theme, { surface: string; accent: string }> = {
@@ -20,4 +32,6 @@ export const THEME_PREVIEW: Record<Theme, { surface: string; accent: string }> =
   pastel: { surface: '#fef5e4', accent: '#7c3ca0' },
   neon: { surface: '#220040', accent: '#ff00ff' },
   aqua: { surface: '#ebebeb', accent: '#007aff' },
+  jedi: { surface: '#cce0f0', accent: '#0066cc' },
+  sith: { surface: '#1e000e', accent: '#cc0000' },
 }

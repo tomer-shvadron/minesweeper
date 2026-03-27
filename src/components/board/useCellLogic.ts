@@ -5,6 +5,9 @@ import { useGameStore } from '@/stores/game.store'
 import { useSettingsStore } from '@/stores/settings.store'
 import type { CellState } from '@/types/game.types'
 
+// Import getState so we can read lastRevealCount synchronously after dispatch
+const getGameState = () => useGameStore.getState()
+
 const NUMBER_COLOR_CLASSES: Record<number, string> = {
   1: 'text-[var(--color-n1)]',
   2: 'text-[var(--color-n2)]',
@@ -32,16 +35,11 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
   const flagMode = useSettingsStore((s) => s.flagMode)
   const soundEnabled = useSettingsStore((s) => s.soundEnabled)
   const volume = useSettingsStore((s) => s.volume)
+  const soundTheme = useSettingsStore((s) => s.soundTheme)
   const hapticEnabled = useSettingsStore((s) => s.hapticEnabled)
 
   const isGameOver = status === 'won' || status === 'lost'
   const allowQuestionMarks = flagMode === 'flags-and-questions'
-
-  const sound = (name: Parameters<typeof playSound>[0]) => {
-    if (soundEnabled) {
-      playSound(name, volume)
-    }
-  }
 
   const handleTap = () => {
     if (isGameOver) {
@@ -50,11 +48,18 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
     if (cell.isRevealed) {
       haptic('chord', hapticEnabled)
       chordClick(row, col)
-      sound('reveal')
+      if (soundEnabled) {
+        // Use the chord-revealed cell count for cascade detection
+        const chordCells = getGameState().lastChordReveal?.cells.length ?? 1
+        playSound('reveal', volume, { soundTheme, mineCount: cell.value, cascadeSize: chordCells })
+      }
     } else {
       haptic('reveal', hapticEnabled)
       revealCell(row, col)
-      sound('reveal')
+      if (soundEnabled) {
+        const cascadeSize = getGameState().lastRevealCount
+        playSound('reveal', volume, { soundTheme, mineCount: cell.value, cascadeSize })
+      }
     }
   }
 
@@ -64,7 +69,9 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
     }
     haptic(cell.isFlagged ? 'unflag' : 'flag', hapticEnabled)
     flagCell(row, col, allowQuestionMarks)
-    sound('flag')
+    if (soundEnabled) {
+      playSound('flag', volume, { soundTheme })
+    }
   }
 
   const longPressHandlers = useLongPress({

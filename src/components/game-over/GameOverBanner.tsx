@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { formatTime } from '@/utils/time.utils'
 
 export const GameOverBanner = () => {
-  const { isVisible, isWon, elapsedSeconds, handlePlayAgain, handleChangeLevel } =
+  const { isVisible, isWon, elapsedSeconds, efficiency, handlePlayAgain, handleChangeLevel } =
     useGameOverBannerLogic()
 
   if (!isVisible) {
@@ -19,6 +19,7 @@ export const GameOverBanner = () => {
           <span className="font-normal text-[var(--color-text-muted)]">
             {' '}
             · {formatTime(elapsedSeconds)}
+            {efficiency !== null && <> · ×{efficiency.toFixed(1)} per click</>}
           </span>
         )}
       </span>

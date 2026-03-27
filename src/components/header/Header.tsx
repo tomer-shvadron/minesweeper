@@ -1,4 +1,4 @@
-import { Settings, Trophy } from 'lucide-react'
+import { BarChart2, Settings, Trophy } from 'lucide-react'
 
 import { MineCounter } from './MineCounter'
 import { SmileyButton } from './SmileyButton'
@@ -13,6 +13,7 @@ export const Header = () => {
     headerSidebarWidth,
     openSettingsModal,
     openLeaderboardModal,
+    openStatisticsModal,
   } = useHeaderLogic()
 
   const headerStyle = isLandscape
@@ -25,7 +26,10 @@ export const Header = () => {
       style={headerStyle}
     >
       <div className="game-header__inner">
-        <div className="flex items-center gap-1">
+        {/* Top/left group: leaderboard icon + mine counter */}
+        <div
+          className={isLandscape ? 'flex flex-col items-center gap-1' : 'flex items-center gap-1'}
+        >
           <button
             type="button"
             className="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded border-none bg-transparent leading-none outline-none active:opacity-70"
@@ -39,8 +43,21 @@ export const Header = () => {
 
         <SmileyButton />
 
-        <div className="flex items-center justify-end gap-1">
+        {/* Bottom/right group: timer + statistics + settings */}
+        <div
+          className={
+            isLandscape ? 'flex flex-col items-center gap-1' : 'flex items-center justify-end gap-1'
+          }
+        >
           <Timer />
+          <button
+            type="button"
+            className="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded border-none bg-transparent leading-none outline-none active:opacity-70"
+            aria-label="Statistics"
+            onClick={openStatisticsModal}
+          >
+            <BarChart2 size={26} strokeWidth={1.75} />
+          </button>
           <button
             type="button"
             className="flex h-[42px] w-[42px] cursor-pointer items-center justify-center rounded border-none bg-transparent leading-none outline-none active:opacity-70"

@@ -11,8 +11,12 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'html',
+  // Each browser runs on its own dedicated CI runner (matrix job), so 2 workers
+  // matches the 2 vCPUs available on ubuntu-latest and roughly halves run time.
+  workers: process.env.CI ? 2 : undefined,
+  reporter: process.env.CI
+    ? [['github'], ['list'], ['html', { open: 'never' }]]
+    : [['list'], ['html']],
   timeout: 30_000,
   expect: { timeout: 8_000 },
 

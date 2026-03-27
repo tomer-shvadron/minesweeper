@@ -45,6 +45,8 @@ function oscType(soundTheme: SoundTheme): OscType {
   return 'sine'
 }
 
+// ─── Classic / Arcade / Minimal ──────────────────────────────────────────────
+
 function playWhoosh(volume: number, soundTheme: SoundTheme): void {
   const ac = getCtx()
   const volMult = soundTheme === 'minimal' ? 0.2 : 0.35
@@ -216,6 +218,205 @@ function playWin(volume: number, soundTheme: SoundTheme): void {
   })
 }
 
+// ─── Star Wars ───────────────────────────────────────────────────────────────
+// All sounds synthesized via Web Audio API — no audio files needed.
+//
+// Lightsaber pings map mine count → pitch (higher count = higher tension).
+const SW_MINE_FREQ: Record<number, number> = {
+  0: 196, // G3 – safe empty cell, low hum
+  1: 246, // B3
+  2: 294, // D4
+  3: 349, // F4
+  4: 392, // G4
+  5: 466, // Bb4
+  6: 554, // Db5
+  7: 659, // E5
+  8: 784, // G5 – maximum tension
+}
+
+/**
+ * Lightsaber swing: a sawtooth sweep up then back down, like a blade whooshing
+ * past. Used for cascade reveals (≥6 cells at once).
+ */
+function playStarWarsWhoosh(volume: number): void {
+  const ac = getCtx()
+  const out = master(ac, volume * 0.38)
+  const t = ac.currentTime
+  const dur = 0.28
+
+  const osc = ac.createOscillator()
+  const env = ac.createGain()
+  osc.type = 'sawtooth'
+  osc.frequency.setValueAtTime(180, t)
+  osc.frequency.exponentialRampToValueAtTime(750, t + dur * 0.35)
+  osc.frequency.exponentialRampToValueAtTime(220, t + dur)
+
+  env.gain.setValueAtTime(0, t)
+  env.gain.linearRampToValueAtTime(0.7, t + 0.018)
+  env.gain.exponentialRampToValueAtTime(0.001, t + dur)
+
+  osc.connect(env)
+  env.connect(out)
+  osc.start(t)
+  osc.stop(t + dur + 0.02)
+}
+
+/**
+ * Lightsaber ping: a quick sawtooth burst + sub-octave hum that settles to a
+ * pitch matching the adjacent mine count.
+ */
+function playStarWarsReveal(mineCount: number, cascadeSize: number, volume: number): void {
+  if (cascadeSize >= 6) {
+    playStarWarsWhoosh(volume)
+    return
+  }
+
+  const ac = getCtx()
+  const out = master(ac, volume * 0.38)
+  const t = ac.currentTime
+  const freq = SW_MINE_FREQ[mineCount] ?? 392
+  const dur = 0.09
+
+  // Main oscillator: sawtooth gives the electric "buzz" of an active blade
+  const osc = ac.createOscillator()
+  const env = ac.createGain()
+  osc.type = 'sawtooth'
+  osc.frequency.setValueAtTime(freq * 1.6, t)
+  osc.frequency.exponentialRampToValueAtTime(freq, t + dur)
+  env.gain.setValueAtTime(0.65, t)
+  env.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.05)
+  osc.connect(env)
+  env.connect(out)
+  osc.start(t)
+  osc.stop(t + dur + 0.06)
+
+  // Sub-octave hum for body/richness
+  const sub = ac.createOscillator()
+  const subEnv = ac.createGain()
+  sub.type = 'sine'
+  sub.frequency.value = freq * 0.5
+  subEnv.gain.setValueAtTime(0.28, t)
+  subEnv.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.08)
+  sub.connect(subEnv)
+  subEnv.connect(out)
+  sub.start(t)
+  sub.stop(t + dur + 0.09)
+}
+
+/**
+ * R2-D2 chirps: two quick ascending sine sweeps, the classic droid "beep boop"
+ * used when placing a flag.
+ */
+function playStarWarsFlag(volume: number): void {
+  const ac = getCtx()
+  const out = master(ac, volume * 0.42)
+  const t = ac.currentTime
+
+  const chirps = [
+    { delay: 0.0, f0: 900, f1: 1400, dur: 0.065 },
+    { delay: 0.1, f0: 1200, f1: 1800, dur: 0.055 },
+  ]
+
+  chirps.forEach(({ delay, f0, f1, dur }) => {
+    const osc = ac.createOscillator()
+    const env = ac.createGain()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(f0, t + delay)
+    osc.frequency.exponentialRampToValueAtTime(f1, t + delay + dur)
+    env.gain.setValueAtTime(0, t + delay)
+    env.gain.linearRampToValueAtTime(0.55, t + delay + 0.006)
+    env.gain.exponentialRampToValueAtTime(0.001, t + delay + dur + 0.025)
+    osc.connect(env)
+    env.connect(out)
+    osc.start(t + delay)
+    osc.stop(t + delay + dur + 0.03)
+  })
+}
+
+/**
+ * TIE fighter scream + explosion: a sharp sawtooth sweep from ~2 kHz down to
+ * ~70 Hz (the iconic TIE engine wail) layered with a white-noise burst for the
+ * mine detonation.
+ */
+function playStarWarsExplode(volume: number): void {
+  const ac = getCtx()
+  const out = master(ac, volume * 0.65)
+  const t = ac.currentTime
+  const dur = 0.6
+
+  // TIE fighter scream: high → low sawtooth sweep
+  const tie = ac.createOscillator()
+  const tieEnv = ac.createGain()
+  tie.type = 'sawtooth'
+  tie.frequency.setValueAtTime(2200, t)
+  tie.frequency.exponentialRampToValueAtTime(70, t + dur * 0.55)
+  tieEnv.gain.setValueAtTime(0.85, t)
+  tieEnv.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.6)
+  tie.connect(tieEnv)
+  tieEnv.connect(out)
+  tie.start(t)
+  tie.stop(t + dur * 0.65)
+
+  // Explosion noise burst
+  const bufLen = Math.ceil(ac.sampleRate * dur)
+  const buf = ac.createBuffer(1, bufLen, ac.sampleRate)
+  const data = buf.getChannelData(0)
+  for (let i = 0; i < bufLen; i++) {
+    data[i] = Math.random() * 2 - 1
+  }
+  const noise = ac.createBufferSource()
+  noise.buffer = buf
+  const noiseEnv = ac.createGain()
+  noiseEnv.gain.setValueAtTime(0.7, t)
+  noiseEnv.gain.exponentialRampToValueAtTime(0.001, t + dur)
+  const filter = ac.createBiquadFilter()
+  filter.type = 'lowpass'
+  filter.frequency.value = 1400
+  noise.connect(filter)
+  filter.connect(noiseEnv)
+  noiseEnv.connect(out)
+  noise.start(t)
+  noise.stop(t + dur)
+}
+
+/**
+ * Imperial March opening sting — G4 G4 G4 Eb4 Bb3 G4 — played on a sawtooth
+ * oscillator to suggest the brass section of the London Symphony Orchestra.
+ */
+function playStarWarsWin(volume: number): void {
+  const ac = getCtx()
+  const out = master(ac, volume * 0.48)
+  const t = ac.currentTime
+
+  // G4=392, Eb4=311.13, Bb3=233.08
+  const notes = [
+    { freq: 392.0, start: 0.0, dur: 0.18 }, // G4 (quarter)
+    { freq: 392.0, start: 0.22, dur: 0.18 }, // G4 (quarter)
+    { freq: 392.0, start: 0.44, dur: 0.18 }, // G4 (quarter)
+    { freq: 311.13, start: 0.66, dur: 0.14 }, // Eb4 (dotted eighth)
+    { freq: 233.08, start: 0.82, dur: 0.05 }, // Bb3 (sixteenth)
+    { freq: 392.0, start: 0.9, dur: 0.38 }, // G4 (half — let it ring)
+  ]
+
+  notes.forEach(({ freq, start, dur }) => {
+    const osc = ac.createOscillator()
+    const env = ac.createGain()
+    osc.type = 'sawtooth' // brass-like timbre
+    osc.frequency.value = freq
+    const ns = t + start
+    env.gain.setValueAtTime(0, ns)
+    env.gain.linearRampToValueAtTime(0.72, ns + 0.012)
+    env.gain.setValueAtTime(0.72, ns + dur * 0.65)
+    env.gain.exponentialRampToValueAtTime(0.001, ns + dur + 0.06)
+    osc.connect(env)
+    env.connect(out)
+    osc.start(ns)
+    osc.stop(ns + dur + 0.08)
+  })
+}
+
+// ─── Public API ──────────────────────────────────────────────────────────────
+
 export type SoundName = 'reveal' | 'flag' | 'explode' | 'win'
 
 export interface SoundOptions {
@@ -227,6 +428,24 @@ export interface SoundOptions {
 export function playSound(name: SoundName, volume: number, options: SoundOptions = {}): void {
   const { soundTheme = 'classic', mineCount = 1, cascadeSize = 1 } = options
   try {
+    if (soundTheme === 'starwars') {
+      switch (name) {
+        case 'reveal':
+          playStarWarsReveal(mineCount, cascadeSize, volume)
+          break
+        case 'flag':
+          playStarWarsFlag(volume)
+          break
+        case 'explode':
+          playStarWarsExplode(volume)
+          break
+        case 'win':
+          playStarWarsWin(volume)
+          break
+      }
+      return
+    }
+
     switch (name) {
       case 'reveal':
         playReveal(mineCount, cascadeSize, volume, soundTheme)

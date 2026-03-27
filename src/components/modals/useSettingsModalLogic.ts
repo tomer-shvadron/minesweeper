@@ -9,7 +9,6 @@ export const useSettingsModalLogic = () => {
   const flagMode = useSettingsStore((s) => s.flagMode)
   const soundEnabled = useSettingsStore((s) => s.soundEnabled)
   const volume = useSettingsStore((s) => s.volume)
-  const soundTheme = useSettingsStore((s) => s.soundTheme)
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled)
   const hapticEnabled = useSettingsStore((s) => s.hapticEnabled)
   const noGuessMode = useSettingsStore((s) => s.noGuessMode)
@@ -18,7 +17,6 @@ export const useSettingsModalLogic = () => {
   const setFlagMode = useSettingsStore((s) => s.setFlagMode)
   const setSoundEnabled = useSettingsStore((s) => s.setSoundEnabled)
   const setVolume = useSettingsStore((s) => s.setVolume)
-  const setSoundTheme = useSettingsStore((s) => s.setSoundTheme)
   const setAnimationsEnabled = useSettingsStore((s) => s.setAnimationsEnabled)
   const setHapticEnabled = useSettingsStore((s) => s.setHapticEnabled)
   const setNoGuessMode = useSettingsStore((s) => s.setNoGuessMode)
@@ -31,7 +29,6 @@ export const useSettingsModalLogic = () => {
     flagMode,
     soundEnabled,
     volume,
-    soundTheme,
     animationsEnabled,
     hapticEnabled,
     noGuessMode,
@@ -40,7 +37,6 @@ export const useSettingsModalLogic = () => {
     setFlagMode,
     setSoundEnabled,
     setVolume,
-    setSoundTheme,
     setAnimationsEnabled,
     setHapticEnabled,
     setNoGuessMode,

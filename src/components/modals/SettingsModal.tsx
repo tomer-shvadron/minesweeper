@@ -8,14 +8,6 @@ import { Slider } from '@/components/ui/Slider'
 import { Toggle } from '@/components/ui/Toggle'
 import { THEME_LABELS, THEME_PREVIEW, THEMES } from '@/constants/theme.constants'
 import { useUIStore } from '@/stores/ui.store'
-import type { SoundTheme } from '@/types/settings.types'
-
-const SOUND_THEMES: { value: SoundTheme; label: string }[] = [
-  { value: 'classic', label: 'Classic' },
-  { value: 'arcade', label: 'Arcade' },
-  { value: 'minimal', label: 'Minimal' },
-]
-
 export const SettingsModal = () => {
   const isOpen = useUIStore((s) => s.settingsModalOpen)
   const {
@@ -23,7 +15,6 @@ export const SettingsModal = () => {
     flagMode,
     soundEnabled,
     volume,
-    soundTheme,
     animationsEnabled,
     hapticEnabled,
     noGuessMode,
@@ -32,7 +23,6 @@ export const SettingsModal = () => {
     setFlagMode,
     setSoundEnabled,
     setVolume,
-    setSoundTheme,
     setAnimationsEnabled,
     setHapticEnabled,
     setNoGuessMode,
@@ -90,23 +80,6 @@ export const SettingsModal = () => {
           onChange={setVolume}
           disabled={!soundEnabled}
         />
-        {soundEnabled && (
-          <div className="flex items-center justify-between gap-3 text-base">
-            <span className="flex-1">Sound style</span>
-            <div className="flex gap-1">
-              {SOUND_THEMES.map(({ value, label }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setSoundTheme(value)}
-                  className={`cursor-pointer border px-2.5 py-0.5 text-sm ${soundTheme === value ? 'bg-[var(--color-surface)] font-bold shadow-[inset_-1px_-1px_0_var(--color-border-light),inset_1px_1px_0_var(--color-border-dark)]' : 'bg-[var(--color-surface)] shadow-[inset_1px_1px_0_var(--color-border-light),inset_-1px_-1px_0_var(--color-border-dark)]'} border-[var(--color-border-dark)]`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       <div className="flex flex-col gap-[10px]">

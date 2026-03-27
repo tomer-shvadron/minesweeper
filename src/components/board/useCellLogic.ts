@@ -1,3 +1,4 @@
+import { soundThemeForTheme } from '@/constants/theme.constants'
 import { useLongPress } from '@/hooks/useLongPress'
 import { haptic } from '@/services/haptic.service'
 import { playSound } from '@/services/sound.service'
@@ -35,8 +36,9 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
   const flagMode = useSettingsStore((s) => s.flagMode)
   const soundEnabled = useSettingsStore((s) => s.soundEnabled)
   const volume = useSettingsStore((s) => s.volume)
-  const soundTheme = useSettingsStore((s) => s.soundTheme)
+  const theme = useSettingsStore((s) => s.theme)
   const hapticEnabled = useSettingsStore((s) => s.hapticEnabled)
+  const soundTheme = soundThemeForTheme(theme)
 
   const isGameOver = status === 'won' || status === 'lost'
   const allowQuestionMarks = flagMode === 'flags-and-questions'

@@ -9,7 +9,7 @@ export type Theme =
   | 'jedi'
   | 'sith'
 export type FlagMode = 'flags-only' | 'flags-and-questions'
-export type SoundTheme = 'classic' | 'arcade' | 'minimal'
+export type SoundTheme = 'classic' | 'arcade' | 'minimal' | 'starwars'
 export type KeyboardAction =
   | 'moveUp'
   | 'moveDown'
@@ -25,7 +25,6 @@ export interface Settings {
   flagMode: FlagMode
   soundEnabled: boolean
   volume: number // 0–1
-  soundTheme: SoundTheme
   animationsEnabled: boolean
   hapticEnabled: boolean
   noGuessMode: boolean

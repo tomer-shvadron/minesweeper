@@ -11,6 +11,7 @@ import { ResumePrompt } from '@/components/modals/ResumePrompt'
 import { SettingsModal } from '@/components/modals/SettingsModal'
 import { StatisticsModal } from '@/components/modals/StatisticsModal'
 import { Confetti } from '@/components/ui/Confetti'
+import { soundThemeForTheme } from '@/constants/theme.constants'
 import { createBoardKey } from '@/services/board.service'
 import { haptic } from '@/services/haptic.service'
 import { playSound } from '@/services/sound.service'
@@ -27,8 +28,8 @@ export const App = () => {
   const config = useGameStore((s) => s.config)
   const soundEnabled = useSettingsStore((s) => s.soundEnabled)
   const volume = useSettingsStore((s) => s.volume)
-  const soundTheme = useSettingsStore((s) => s.soundTheme)
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled)
+  const soundTheme = soundThemeForTheme(theme)
   const hapticEnabled = useSettingsStore((s) => s.hapticEnabled)
   const board = useGameStore((s) => s.board)
   const totalClicks = useGameStore((s) => s.totalClicks)

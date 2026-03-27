@@ -1,4 +1,4 @@
-import type { Theme } from '@/types/settings.types'
+import type { SoundTheme, Theme } from '@/types/settings.types'
 
 export const THEMES: readonly Theme[] = [
   'xp',
@@ -22,6 +22,14 @@ export const THEME_LABELS: Record<Theme, string> = {
   aqua: 'Aqua',
   jedi: 'Jedi',
   sith: 'Sith',
+}
+
+/** Maps each visual theme to its sound theme. Star Wars themes get Star Wars sounds; everything else gets classic. */
+export function soundThemeForTheme(theme: Theme): SoundTheme {
+  if (theme === 'jedi' || theme === 'sith') {
+    return 'starwars'
+  }
+  return 'classic'
 }
 
 export const THEME_PREVIEW: Record<Theme, { surface: string; accent: string }> = {

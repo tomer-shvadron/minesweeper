@@ -17,6 +17,12 @@ test.describe('Cell reveal mechanics', () => {
 
   test('clicking unrevealed cell reveals it', async ({ gamePage }) => {
     await gamePage.cell(0, 0).click();
+    // Wait for board generation (Web Worker) to complete before reading cell state.
+    // Without this, 'generating' status means _applyGeneratedBoard hasn't run yet
+    // and isRevealed is still false.
+    await gamePage.page.waitForFunction(() =>
+      ['playing', 'won', 'lost'].includes(window.__MINESWEEPER_TEST__.getGameState().status)
+    );
     const state = await gamePage.getGameState();
     expect(state.board[0]?.[0]?.isRevealed).toBe(true);
   });

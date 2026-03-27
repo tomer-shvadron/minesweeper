@@ -67,13 +67,16 @@ test.describe('Responsive layout', () => {
     await page.setViewportSize({ width: 393, height: 852 });
     await gamePage.startPreset('Beginner');
     await gamePage.loseGame();
+    // Wait for the banner's entrance animation to settle fully into the viewport
+    // before measuring. Without this, bounding box y can equal the viewport height
+    // (852) on the first frame of the animation, making LessThan(852) fail.
+    await expect(gamePage.gameOverBanner).toBeInViewport();
     const bannerBox = await gamePage.gameOverBanner.boundingBox();
     expect(bannerBox).not.toBeNull();
     if (!bannerBox) {
       return;
     }
     expect(bannerBox.y).toBeGreaterThan(0);
-    // Banner top must be within the viewport (bottom may extend into safe-area padding)
     expect(bannerBox.y).toBeLessThan(852);
   });
 });

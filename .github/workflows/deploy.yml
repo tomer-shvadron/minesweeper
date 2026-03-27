@@ -69,7 +69,7 @@ jobs:
 
       # Share the production bundle with downstream e2e and deploy jobs
       - name: Upload dist artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: dist
           path: dist/
@@ -108,7 +108,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Download dist artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: dist
           path: dist/
@@ -139,7 +139,7 @@ jobs:
 
       - name: Upload Playwright report on failure
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report-${{ matrix.project }}
           path: playwright-report/
@@ -156,7 +156,7 @@ jobs:
     steps:
       # No checkout, no Node/pnpm needed — just the pre-built artifact
       - name: Download dist artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: dist
           path: dist/

@@ -101,20 +101,16 @@ export const useGameBoardLogic = () => {
     setFocusedCell(null)
   }, [gameKey, setFocusedCell])
 
-  const handleBoardFocus = useCallback(
-    (e: React.FocusEvent<HTMLDivElement>) => {
-      setBoardFocused(true)
-      // Only place the keyboard cursor when the board div itself gains focus
-      // (e.g. via Tab key). When a child cell <button> is clicked its native
-      // focus event bubbles up here; e.target !== e.currentTarget in that case,
-      // so we must NOT jump the cursor to [0,0] — otherwise the top-left cell
-      // lights up visually every time the player taps any cell.
-      if (!focusedCell && e.target === e.currentTarget) {
-        setFocusedCell([0, 0])
-      }
-    },
-    [focusedCell, setFocusedCell]
-  )
+  const handleBoardFocus = useCallback((_e: React.FocusEvent<HTMLDivElement>) => {
+    setBoardFocused(true)
+    // Do NOT auto-place the cursor here. useLongPress calls e.preventDefault()
+    // on every touchstart, which suppresses native focus on the cell <button>
+    // and redirects it to the board div — making e.target === e.currentTarget
+    // true even for touch gestures. Any guard based on that check is therefore
+    // unreliable. The keyboard cursor is instead materialised lazily on the
+    // first actual key press in handleKeyDown, so touch gestures (taps, zooms)
+    // never cause the top-left cell to light up.
+  }, [])
 
   const handleBoardBlur = useCallback(() => {
     setBoardFocused(false)
@@ -132,7 +128,14 @@ export const useGameBoardLogic = () => {
         return
       }
 
+      // Lazily activate the keyboard cursor on the first navigation/action key.
+      // This ensures the cursor only appears when the user genuinely starts
+      // keyboard navigation — never from touch gestures that incidentally focus
+      // the board div.
       const current = focusedCell ?? [0, 0]
+      if (!focusedCell) {
+        setFocusedCell(current)
+      }
       const [r, c] = current
 
       if (key === bindings.moveUp) {

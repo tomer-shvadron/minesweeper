@@ -1,7 +1,11 @@
+import { CanvasBoard } from './CanvasBoard';
 import { Cell } from './Cell';
 import { useGameBoardLogic } from './useGameBoardLogic';
 
-export const GameBoard = () => {
+import { CANVAS_THRESHOLD } from '@/constants/game.constants';
+import { useGameStore } from '@/stores/game.store';
+
+const DOMBoard = () => {
   const {
     board,
     config,
@@ -68,4 +72,10 @@ export const GameBoard = () => {
       </div>
     </div>
   );
+};
+
+export const GameBoard = () => {
+  const config = useGameStore((s) => s.config);
+  const useCanvas = config.rows * config.cols > CANVAS_THRESHOLD;
+  return useCanvas ? <CanvasBoard /> : <DOMBoard />;
 };

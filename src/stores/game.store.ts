@@ -42,11 +42,16 @@ interface GameActions {
   setCellPressStart: () => void;
   setCellPressEnd: () => void;
   clearChordReveal: () => void;
+  _applyGeneratedBoard: (board: Board) => void;
 }
 
 type GameStore = GameState & GameActions;
 
 const DEFAULT_CONFIG = DIFFICULTY_PRESETS.beginner;
+
+let workerRef: Worker | null = null;
+let pendingRevealRow = 0;
+let pendingRevealCol = 0;
 
 export const useGameStore = create<GameStore>()(
   persist(
@@ -66,6 +71,8 @@ export const useGameStore = create<GameStore>()(
       totalClicks: 0,
 
       startNewGame: (config) => {
+        workerRef?.terminate();
+        workerRef = null;
         const newConfig = config ?? get().config;
         set({
           board: createEmptyBoard(newConfig),
@@ -85,7 +92,7 @@ export const useGameStore = create<GameStore>()(
 
       revealCell: (row, col) => {
         const { board, config, isFirstClick, status, firstClick, totalClicks } = get();
-        if (status === 'won' || status === 'lost') {
+        if (status === 'won' || status === 'lost' || status === 'generating') {
           return;
         }
 
@@ -94,11 +101,43 @@ export const useGameStore = create<GameStore>()(
         if (isFirstClick) {
           const { noGuessMode } = useSettingsStore.getState();
 
+          if (typeof Worker !== 'undefined') {
+            pendingRevealRow = row;
+            pendingRevealCol = col;
+            workerRef?.terminate();
+            workerRef = new Worker(new URL('../workers/board.worker.ts', import.meta.url), {
+              type: 'module',
+            });
+            workerRef.onmessage = (e: MessageEvent<{ board: Board; minesRemaining: number }>) => {
+              workerRef = null;
+              get()._applyGeneratedBoard(e.data.board);
+            };
+            workerRef.onerror = () => {
+              workerRef = null;
+              const { board: b, config: cfg } = get();
+              const r = pendingRevealRow;
+              const c = pendingRevealCol;
+              const mb = placeMines(b, cfg, r, c);
+              const vb = calculateAdjacentValues(mb);
+              get()._applyGeneratedBoard(vb);
+            };
+            set({ status: 'generating' });
+            workerRef.postMessage({
+              board: currentBoard,
+              config,
+              firstClickRow: row,
+              firstClickCol: col,
+              noGuess: noGuessMode,
+            });
+            return;
+          }
+
+          // Synchronous fallback (test environments / no Worker support)
           if (noGuessMode) {
             const MAX_ATTEMPTS = 100;
             let found = false;
             for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-              const mineBoard = placeMines(board, config, row, col);
+              const mineBoard = placeMines(currentBoard, config, row, col);
               const valuedBoard = calculateAdjacentValues(mineBoard);
               if (isBoardSolvable(valuedBoard, [row, col])) {
                 currentBoard = valuedBoard;
@@ -107,8 +146,7 @@ export const useGameStore = create<GameStore>()(
               }
             }
             if (!found) {
-              // Fallback to standard board after 100 failed attempts
-              const mineBoard = placeMines(board, config, row, col);
+              const mineBoard = placeMines(currentBoard, config, row, col);
               currentBoard = calculateAdjacentValues(mineBoard);
             }
           } else {
@@ -147,6 +185,58 @@ export const useGameStore = create<GameStore>()(
         for (let r = 0; r < config.rows; r++) {
           for (let c = 0; c < config.cols; c++) {
             if (!currentBoard[r]?.[c]?.isRevealed && newBoard[r]?.[c]?.isRevealed) {
+              lastRevealCount++;
+            }
+          }
+        }
+
+        set({
+          board: newBoard,
+          status: newStatus,
+          minesRemaining: countRemainingFlags(newBoard, config.mines),
+          isFirstClick: false,
+          mineRevealOrder,
+          lastRevealCount,
+          firstClick: firstClick ?? [row, col],
+          totalClicks: totalClicks + 1,
+        });
+      },
+
+      _applyGeneratedBoard: (generatedBoard) => {
+        const { config, firstClick, totalClicks } = get();
+        const row = pendingRevealRow;
+        const col = pendingRevealCol;
+
+        const newBoard = revealCellFn(generatedBoard, row, col);
+
+        let newStatus: GameStatus = 'playing';
+        if (checkLoss(newBoard)) {
+          newStatus = 'lost';
+        } else if (checkWin(newBoard)) {
+          newStatus = 'won';
+        }
+
+        let mineRevealOrder: [number, number][] = [];
+        if (newStatus === 'lost') {
+          const mines: [number, number][] = [];
+          for (let r = 0; r < config.rows; r++) {
+            for (let c = 0; c < config.cols; c++) {
+              if (newBoard[r]?.[c]?.hasMine && !newBoard[r]?.[c]?.isExploded) {
+                mines.push([r, c]);
+              }
+            }
+          }
+          mineRevealOrder = mines.sort(
+            (a, b) =>
+              Math.max(Math.abs(a[0] - row), Math.abs(a[1] - col)) -
+              Math.max(Math.abs(b[0] - row), Math.abs(b[1] - col))
+          );
+        }
+
+        let lastRevealCount = 0;
+        for (let r = 0; r < config.rows; r++) {
+          for (let c = 0; c < config.cols; c++) {
+            if (!generatedBoard[r]?.[c]?.isRevealed && newBoard[r]?.[c]?.isRevealed) {
               lastRevealCount++;
             }
           }
@@ -228,7 +318,7 @@ export const useGameStore = create<GameStore>()(
       name: 'minesweeper-game',
       partialize: (s) => ({
         board: s.board,
-        status: s.status,
+        status: s.status === 'generating' ? 'idle' : s.status,
         config: s.config,
         elapsedSeconds: s.elapsedSeconds,
         minesRemaining: s.minesRemaining,

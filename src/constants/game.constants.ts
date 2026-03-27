@@ -12,3 +12,4 @@ export const MIN_COLS = 5;
 export const MAX_COLS = 50;
 export const MIN_MINES = 1;
 // max mines = (rows * cols) - 9  (always leave at least 9 safe cells for first click safety)
+export const CANVAS_THRESHOLD = 250;

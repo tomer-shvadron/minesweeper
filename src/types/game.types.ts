@@ -11,7 +11,7 @@ export interface CellState {
 
 export type Board = CellState[][];
 
-export type GameStatus = 'idle' | 'playing' | 'won' | 'lost';
+export type GameStatus = 'idle' | 'playing' | 'won' | 'lost' | 'generating';
 
 export interface BoardConfig {
   rows: number;

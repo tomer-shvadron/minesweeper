@@ -21,7 +21,11 @@ export const Cell = ({
   mineRevealIndex,
   chordRippleDelay,
 }: CellProps) => {
-  const { content, containerClass, numberClass, handlers } = useCellLogic({ row, col, cell })
+  const { content, containerClass, numberClass, isCorrectFlag, handlers } = useCellLogic({
+    row,
+    col,
+    cell,
+  })
 
   const fontSize =
     cell.isRevealed && !cell.hasMine && cell.value > 0
@@ -50,13 +54,22 @@ export const Cell = ({
           ...(chordRippleDelay !== undefined && { '--chord-delay': `${chordRippleDelay}ms` }),
         } as React.CSSProperties
       }
-      className={animClass ? `${containerClass} ${animClass}` : containerClass}
+      className={`relative ${animClass ? `${containerClass} ${animClass}` : containerClass}`}
       aria-label={`Cell ${row},${col}`}
       data-row={row}
       data-col={col}
       {...handlers}
     >
       <span className={numberClass}>{content}</span>
+      {isCorrectFlag && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute right-0 bottom-0 leading-none font-bold text-green-500"
+          style={{ fontSize: Math.max(8, Math.floor(cellSize * 0.35)) }}
+        >
+          ✓
+        </span>
+      )}
     </button>
   )
 }

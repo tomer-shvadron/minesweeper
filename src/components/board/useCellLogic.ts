@@ -103,6 +103,8 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
 
   const isRaised = !cell.isRevealed
   const isExploded = cell.isExploded
+  // Cell was correctly flagged — show a green ✓ badge on game over
+  const isCorrectFlag = isGameOver && cell.isFlagged && cell.hasMine
 
   const containerClass = [
     'cell',
@@ -125,6 +127,7 @@ export const useCellLogic = ({ row, col, cell }: UseCellLogicProps) => {
     content: getContent(),
     containerClass,
     numberClass,
+    isCorrectFlag,
     handlers: {
       ...longPressHandlers,
       onMouseDown: () => setCellPressStart(),

@@ -14,6 +14,9 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
   const startPosRef = useRef<{ x: number; y: number } | null>(null)
   const pressStartTimeRef = useRef<number | null>(null)
   const isTouchRef = useRef(false)
+  // Set whenever 2+ fingers are active; prevents swipe-to-flag and long-press
+  // from firing during pinch-to-zoom gestures.
+  const multiTouchRef = useRef(false)
 
   const TAP_MAX_DURATION = 200
   const SWIPE_DOWN_THRESHOLD = 20 // px downward to trigger swipe-to-flag
@@ -34,6 +37,19 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
       // are delivered to our handler immediately.
       e.preventDefault()
       isTouchRef.current = true
+
+      // A second finger landed — this is a pinch-to-zoom, not a cell gesture.
+      // Abort any pending long-press or swipe and lock out further processing
+      // until the gesture fully ends and a fresh single-touch starts.
+      if (e.touches.length > 1) {
+        multiTouchRef.current = true
+        clearTimer()
+        movedRef.current = true // prevent tap on subsequent touchend
+        return
+      }
+
+      // Fresh single-touch: clear multi-touch lock and start tracking.
+      multiTouchRef.current = false
       longPressTriggeredRef.current = false
       movedRef.current = false
       swipeFlaggedRef.current = false
@@ -45,11 +61,18 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
         onLongPress()
       }, delay)
     },
-    [delay, onLongPress]
+    [delay, onLongPress, clearTimer]
   )
 
   const onTouchMove = useCallback(
     (e: React.TouchEvent) => {
+      // Multi-touch (pinch) in progress — ignore all single-touch gesture logic.
+      if (multiTouchRef.current || e.touches.length > 1) {
+        multiTouchRef.current = true
+        clearTimer()
+        movedRef.current = true
+        return
+      }
       if (!startPosRef.current) {
         return
       }
@@ -87,6 +110,10 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
   const onTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       clearTimer()
+      // All fingers lifted — reset multi-touch lock so the next tap works.
+      if (e.touches.length === 0) {
+        multiTouchRef.current = false
+      }
       const pressDuration = Date.now() - (pressStartTimeRef.current ?? 0)
 
       // Fallback swipe-to-flag: if touchmove didn't fire reliably (iOS coalescing),

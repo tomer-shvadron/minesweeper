@@ -30,6 +30,7 @@ const resetStore = () =>
     minesRemaining: beginner.mines,
     isFirstClick: true,
     isPressingCell: false,
+    unrevealedSafeCount: beginner.rows * beginner.cols - beginner.mines,
   });
 
 describe('game.store', () => {
@@ -147,6 +148,7 @@ describe('game.store', () => {
         status: 'playing',
         config: { rows: 2, cols: 2, mines: 1 },
         isFirstClick: false,
+        unrevealedSafeCount: 1, // only [1,1] is left
       });
       useGameStore.getState().revealCell(1, 1);
       expect(useGameStore.getState().status).toBe('won');
@@ -264,6 +266,7 @@ describe('game.store', () => {
         status: 'playing',
         config: { rows: 2, cols: 2, mines: 1 },
         isFirstClick: false,
+        unrevealedSafeCount: 1, // only [1,0] is left
       });
       useGameStore.getState().chordClick(0, 0);
       expect(useGameStore.getState().status).toBe('won');

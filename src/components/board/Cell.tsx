@@ -21,11 +21,7 @@ export const Cell = ({
   mineRevealIndex,
   chordRippleDelay,
 }: CellProps) => {
-  const { content, containerClass, numberClass, isCorrectFlag, handlers } = useCellLogic({
-    row,
-    col,
-    cell,
-  });
+  const { content, containerClass, numberClass, isCorrectFlag } = useCellLogic({ cell });
 
   const fontSize =
     cell.isRevealed && !cell.hasMine && cell.value > 0
@@ -58,7 +54,6 @@ export const Cell = ({
       aria-label={`Cell ${row},${col}`}
       data-row={row}
       data-col={col}
-      {...handlers}
     >
       <span className={numberClass}>{content}</span>
       {isCorrectFlag && (

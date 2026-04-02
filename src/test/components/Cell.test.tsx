@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Cell } from '@/components/board/Cell';
@@ -7,22 +7,11 @@ import type { CellState } from '@/types/game.types';
 // ---------------------------------------------------------------------------
 // Store mocks — isolate Cell rendering from Zustand state
 // ---------------------------------------------------------------------------
-const mockRevealCell = vi.fn();
-const mockFlagCell = vi.fn();
-const mockChordClick = vi.fn();
-const mockSetCellPressStart = vi.fn();
-const mockSetCellPressEnd = vi.fn();
-
 let mockGameStatus = 'playing';
 
 vi.mock('@/stores/game.store', () => ({
   useGameStore: (selector: (s: object) => unknown) =>
     selector({
-      revealCell: mockRevealCell,
-      flagCell: mockFlagCell,
-      chordClick: mockChordClick,
-      setCellPressStart: mockSetCellPressStart,
-      setCellPressEnd: mockSetCellPressEnd,
       status: mockGameStatus,
     }),
 }));
@@ -101,64 +90,19 @@ describe('Cell — visual states', () => {
     expect(btn).toHaveClass('cell-exploded');
     expect(btn.textContent).toContain('💣');
   });
-});
 
-describe('Cell — interactions', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockGameStatus = 'playing';
-    mockFlagMode = 'flags-only';
+  it('includes data-row and data-col attributes for event delegation', () => {
+    render(<Cell row={3} col={7} cell={unrevealed()} cellSize={32} />);
+    const btn = screen.getByRole('button');
+    expect(btn).toHaveAttribute('data-row', '3');
+    expect(btn).toHaveAttribute('data-col', '7');
   });
 
-  it('calls revealCell on desktop click for an unrevealed cell', () => {
-    renderCell(unrevealed());
-    fireEvent.click(screen.getByRole('button'));
-    expect(mockRevealCell).toHaveBeenCalledWith(0, 0);
-  });
-
-  it('calls chordClick on desktop click for a revealed numbered cell', () => {
-    renderCell({ ...unrevealed(), isRevealed: true, value: 3 });
-    fireEvent.click(screen.getByRole('button'));
-    expect(mockChordClick).toHaveBeenCalledWith(0, 0);
-  });
-
-  it('calls flagCell on right-click (context menu) for an unrevealed cell', () => {
-    renderCell(unrevealed());
-    fireEvent.contextMenu(screen.getByRole('button'));
-    expect(mockFlagCell).toHaveBeenCalledWith(0, 0, false);
-  });
-
-  it('does not call revealCell when clicking a flagged cell', () => {
-    renderCell({ ...unrevealed(), isFlagged: true });
-    fireEvent.click(screen.getByRole('button'));
-    // Click goes through onClick → tap → revealCell, but revealCell guards against flagged cells in the service
-    // The store action is still called; the service is what prevents the reveal
-    // Here we just verify the handler fires without error
-    expect(mockRevealCell).toHaveBeenCalled();
-  });
-
-  it('sets and clears the pressed state on mousedown/mouseup', () => {
+  it('has no event handlers (pure display component)', () => {
     renderCell(unrevealed());
     const btn = screen.getByRole('button');
-    fireEvent.mouseDown(btn);
-    expect(mockSetCellPressStart).toHaveBeenCalled();
-    fireEvent.mouseUp(btn);
-    expect(mockSetCellPressEnd).toHaveBeenCalled();
-  });
-
-  it('clears pressed state on mouseLeave', () => {
-    renderCell(unrevealed());
-    const btn = screen.getByRole('button');
-    fireEvent.mouseDown(btn);
-    fireEvent.mouseLeave(btn);
-    expect(mockSetCellPressEnd).toHaveBeenCalled();
-  });
-
-  it('passes allowQuestionMarks=true to flagCell when flagMode is flags-and-questions', () => {
-    mockFlagMode = 'flags-and-questions';
-    renderCell(unrevealed());
-    fireEvent.contextMenu(screen.getByRole('button'));
-    expect(mockFlagCell).toHaveBeenCalledWith(0, 0, true);
+    // Cell should render without onclick/onmousedown/etc — handlers are on the board grid
+    expect(btn.getAttribute('aria-label')).toBe('Cell 0,0');
   });
 });
 
@@ -168,31 +112,24 @@ describe('Cell — game-over state', () => {
     mockFlagMode = 'flags-only';
   });
 
-  it('does not call revealCell when game is won', () => {
+  it('shows correct flag checkmark when game is won and cell is correctly flagged', () => {
     mockGameStatus = 'won';
-    renderCell(unrevealed());
-    fireEvent.click(screen.getByRole('button'));
-    expect(mockRevealCell).not.toHaveBeenCalled();
+    renderCell({ ...unrevealed(), isFlagged: true, hasMine: true });
+    const btn = screen.getByRole('button');
+    expect(btn.textContent).toContain('✓');
   });
 
-  it('does not call revealCell when game is lost', () => {
-    mockGameStatus = 'lost';
-    renderCell(unrevealed());
-    fireEvent.click(screen.getByRole('button'));
-    expect(mockRevealCell).not.toHaveBeenCalled();
-  });
-
-  it('does not call flagCell via right-click when game is won', () => {
+  it('does not show checkmark for incorrectly flagged cells', () => {
     mockGameStatus = 'won';
-    renderCell(unrevealed());
-    fireEvent.contextMenu(screen.getByRole('button'));
-    expect(mockFlagCell).not.toHaveBeenCalled();
+    renderCell({ ...unrevealed(), isFlagged: true, hasMine: false });
+    const btn = screen.getByRole('button');
+    expect(btn.textContent).not.toContain('✓');
   });
 
-  it('does not call flagCell via right-click when game is lost', () => {
-    mockGameStatus = 'lost';
-    renderCell(unrevealed());
-    fireEvent.contextMenu(screen.getByRole('button'));
-    expect(mockFlagCell).not.toHaveBeenCalled();
+  it('does not show checkmark during active game', () => {
+    mockGameStatus = 'playing';
+    renderCell({ ...unrevealed(), isFlagged: true, hasMine: true });
+    const btn = screen.getByRole('button');
+    expect(btn.textContent).not.toContain('✓');
   });
 });

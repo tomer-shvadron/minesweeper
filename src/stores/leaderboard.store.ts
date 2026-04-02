@@ -6,6 +6,47 @@ import type { Leaderboard, LeaderboardEntry } from '@/types/leaderboard.types';
 
 const MAX_ENTRIES = 10;
 
+function isValidEntry(e: unknown): e is LeaderboardEntry {
+  if (!e || typeof e !== 'object') {
+    return false;
+  }
+  const entry = e as Record<string, unknown>;
+  return (
+    typeof entry.name === 'string' &&
+    typeof entry.timeSeconds === 'number' &&
+    Number.isFinite(entry.timeSeconds) &&
+    entry.timeSeconds > 0 &&
+    typeof entry.date === 'string'
+  );
+}
+
+function isValidPersistedLeaderboard(persisted: unknown): boolean {
+  if (!persisted || typeof persisted !== 'object') {
+    return false;
+  }
+  const s = persisted as Record<string, unknown>;
+
+  if (s.entries !== undefined && typeof s.entries !== 'object') {
+    return false;
+  }
+
+  // Validate that entries contain valid data
+  if (s.entries && typeof s.entries === 'object') {
+    for (const entries of Object.values(s.entries as Record<string, unknown>)) {
+      if (!Array.isArray(entries)) {
+        return false;
+      }
+      for (const entry of entries) {
+        if (!isValidEntry(entry)) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
 interface LeaderboardStore {
   entries: Partial<Leaderboard>;
   gamesPlayed: Partial<Record<BoardKey, number>>;
@@ -54,6 +95,19 @@ export const useLeaderboardStore = create<LeaderboardStore>()(
         }));
       },
     }),
-    { name: 'minesweeper-leaderboard' }
+    {
+      name: 'minesweeper-leaderboard',
+      partialize: (s) => ({
+        entries: s.entries,
+        gamesPlayed: s.gamesPlayed,
+        lastPlayerName: s.lastPlayerName,
+      }),
+      merge: (persisted, current) => {
+        if (!isValidPersistedLeaderboard(persisted)) {
+          return current;
+        }
+        return { ...current, ...(persisted as object) };
+      },
+    }
   )
 );

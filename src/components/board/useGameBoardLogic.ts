@@ -1,10 +1,30 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
+import { soundThemeForTheme } from '@/constants/theme.constants';
 import { useGameLayout } from '@/hooks/useGameLayout';
+import { useLongPress } from '@/hooks/useLongPress';
 import { usePinchZoom } from '@/hooks/usePinchZoom';
+import { haptic } from '@/services/haptic.service';
+import { playSound } from '@/services/sound.service';
 import { useGameStore } from '@/stores/game.store';
 import { useSettingsStore } from '@/stores/settings.store';
 import { useUIStore } from '@/stores/ui.store';
+
+// Read store state synchronously after dispatch for cascade detection
+const getGameState = () => useGameStore.getState();
+
+function getCellFromTarget(target: EventTarget | null): { row: number; col: number } | null {
+  const el = (target as HTMLElement | null)?.closest?.('[data-row]') as HTMLElement | null;
+  if (!el) {
+    return null;
+  }
+  const row = Number(el.dataset.row);
+  const col = Number(el.dataset.col);
+  if (Number.isNaN(row) || Number.isNaN(col)) {
+    return null;
+  }
+  return { row, col };
+}
 
 export const useGameBoardLogic = () => {
   const board = useGameStore((s) => s.board);
@@ -16,12 +36,20 @@ export const useGameBoardLogic = () => {
   const revealCell = useGameStore((s) => s.revealCell);
   const flagCell = useGameStore((s) => s.flagCell);
   const chordClick = useGameStore((s) => s.chordClick);
+  const setCellPressStart = useGameStore((s) => s.setCellPressStart);
+  const setCellPressEnd = useGameStore((s) => s.setCellPressEnd);
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
   const flagMode = useSettingsStore((s) => s.flagMode);
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
+  const volume = useSettingsStore((s) => s.volume);
+  const theme = useSettingsStore((s) => s.theme);
+  const hapticEnabled = useSettingsStore((s) => s.hapticEnabled);
   const keyboardBindings = useSettingsStore((s) => s.keyboardBindings);
   const focusedCell = useUIStore((s) => s.focusedCell);
   const setFocusedCell = useUIStore((s) => s.setFocusedCell);
   const openNewGameModal = useUIStore((s) => s.openNewGameModal);
+
+  const soundTheme = soundThemeForTheme(theme);
   const { cellSize, boardWidth, boardHeight, config } = useGameLayout();
   const {
     scale,
@@ -30,6 +58,100 @@ export const useGameBoardLogic = () => {
     handlers: pinchHandlers,
     resetZoom,
   } = usePinchZoom(1, 5, boardWidth, boardHeight);
+
+  // ── Event delegation: single set of handlers on the grid ──────────────────
+  const activeCellRef = useRef<{ row: number; col: number } | null>(null);
+
+  const isGameOver = status === 'won' || status === 'lost';
+  const allowQuestionMarks = flagMode === 'flags-and-questions';
+
+  const handleCellTap = useCallback(() => {
+    const target = activeCellRef.current;
+    if (!target || isGameOver) {
+      return;
+    }
+    const { row, col } = target;
+    const cell = board[row]?.[col];
+    if (!cell) {
+      return;
+    }
+
+    if (cell.isRevealed) {
+      haptic('chord', hapticEnabled);
+      chordClick(row, col);
+      if (soundEnabled) {
+        const chordCells = getGameState().lastChordReveal?.cells.length ?? 1;
+        playSound('reveal', volume, { soundTheme, mineCount: cell.value, cascadeSize: chordCells });
+      }
+    } else {
+      haptic('reveal', hapticEnabled);
+      revealCell(row, col);
+      if (soundEnabled) {
+        const cascadeSize = getGameState().lastRevealCount;
+        playSound('reveal', volume, { soundTheme, mineCount: cell.value, cascadeSize });
+      }
+    }
+  }, [board, isGameOver, hapticEnabled, soundEnabled, volume, soundTheme, chordClick, revealCell]);
+
+  const handleCellLongPress = useCallback(() => {
+    const target = activeCellRef.current;
+    if (!target || isGameOver) {
+      return;
+    }
+    const { row, col } = target;
+    const cell = board[row]?.[col];
+    if (!cell || cell.isRevealed) {
+      return;
+    }
+
+    haptic(cell.isFlagged ? 'unflag' : 'flag', hapticEnabled);
+    flagCell(row, col, allowQuestionMarks);
+    if (soundEnabled) {
+      playSound('flag', volume, { soundTheme });
+    }
+  }, [
+    board,
+    isGameOver,
+    hapticEnabled,
+    allowQuestionMarks,
+    flagCell,
+    soundEnabled,
+    volume,
+    soundTheme,
+  ]);
+
+  const longPressHandlers = useLongPress({
+    onTap: handleCellTap,
+    onLongPress: handleCellLongPress,
+  });
+
+  // Wrap long press handlers to extract target cell from event delegation
+  const gridInteractionHandlers = useMemo(
+    () => ({
+      onTouchStart: (e: React.TouchEvent) => {
+        activeCellRef.current = getCellFromTarget(e.target);
+        longPressHandlers.onTouchStart(e);
+      },
+      onTouchMove: (e: React.TouchEvent) => {
+        longPressHandlers.onTouchMove(e);
+      },
+      onTouchEnd: (e: React.TouchEvent) => {
+        longPressHandlers.onTouchEnd(e);
+      },
+      onClick: (e: React.MouseEvent) => {
+        activeCellRef.current = getCellFromTarget(e.target);
+        longPressHandlers.onClick(e);
+      },
+      onContextMenu: (e: React.MouseEvent) => {
+        activeCellRef.current = getCellFromTarget(e.target);
+        longPressHandlers.onContextMenu(e);
+      },
+      onMouseDown: () => setCellPressStart(),
+      onMouseUp: () => setCellPressEnd(),
+      onMouseLeave: () => setCellPressEnd(),
+    }),
+    [longPressHandlers, setCellPressStart, setCellPressEnd]
+  );
 
   const [boardEntering, setBoardEntering] = useState(false);
   const [boardFocused, setBoardFocused] = useState(false);
@@ -223,6 +345,7 @@ export const useGameBoardLogic = () => {
     panX,
     panY,
     pinchHandlers,
+    gridInteractionHandlers,
     boardEntering: animationsEnabled && boardEntering,
     mineRevealLookup: animationsEnabled ? mineRevealLookup : new Map<string, number>(),
     chordRippleLookup: animationsEnabled ? chordRippleLookup : new Map<string, number>(),

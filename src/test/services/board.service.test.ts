@@ -170,9 +170,16 @@ describe('placeMines', () => {
     expect(board.flat().every((c) => !c.hasMine)).toBe(true);
   });
 
-  it('places 0 mines when all cells are within the safe zone (tiny board)', () => {
-    // 3x3 board, center click — all 9 cells are safe zone
+  it('throws when mine count exceeds available cells', () => {
+    // 3x3 board, center click — all 9 cells are safe zone, no room for 10 mines
     const tiny: BoardConfig = { rows: 3, cols: 3, mines: 10 };
+    const board = createEmptyBoard(tiny);
+    expect(() => placeMines(board, tiny, 1, 1)).toThrow('Too many mines');
+  });
+
+  it('places 0 mines when mine count is 0 after safe zone exclusion', () => {
+    // 3x3 board with 0 mines — valid, just nothing to place
+    const tiny: BoardConfig = { rows: 3, cols: 3, mines: 0 };
     const board = createEmptyBoard(tiny);
     const result = placeMines(board, tiny, 1, 1);
     expect(result.flat().filter((c) => c.hasMine)).toHaveLength(0);

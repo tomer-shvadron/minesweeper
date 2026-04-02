@@ -16,6 +16,7 @@ const DOMBoard = () => {
     panX,
     panY,
     pinchHandlers,
+    gridInteractionHandlers,
     boardEntering,
     mineRevealLookup,
     chordRippleLookup,
@@ -37,6 +38,7 @@ const DOMBoard = () => {
       onFocus={handleBoardFocus}
       onBlur={handleBoardBlur}
       {...pinchHandlers}
+      {...gridInteractionHandlers}
     >
       <div
         style={{

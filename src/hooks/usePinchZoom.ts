@@ -11,10 +11,14 @@ function getTouchDistance(touches: React.TouchList): number {
 
 const PAN_THRESHOLD = 10;
 
+interface ZoomState {
+  scale: number;
+  panX: number;
+  panY: number;
+}
+
 export function usePinchZoom(minScale = 1, maxScale = 5, boardWidth = 0, boardHeight = 0) {
-  const [scale, setScale] = useState(1);
-  const [panX, setPanX] = useState(0);
-  const [panY, setPanY] = useState(0);
+  const [state, setState] = useState<ZoomState>({ scale: 1, panX: 0, panY: 0 });
 
   const scaleRef = useRef(1);
   const panXRef = useRef(0);
@@ -54,12 +58,11 @@ export function usePinchZoom(minScale = 1, maxScale = 5, boardWidth = 0, boardHe
         const ratio = newDist / lastDistanceRef.current;
         const newScale = Math.min(maxScale, Math.max(minScale, baseScaleRef.current * ratio));
         scaleRef.current = newScale;
-        setScale(newScale);
         const clamped = clampPan(panXRef.current, panYRef.current, newScale);
         panXRef.current = clamped.x;
         panYRef.current = clamped.y;
-        setPanX(clamped.x);
-        setPanY(clamped.y);
+        // Single batched state update instead of 3 separate calls
+        setState({ scale: newScale, panX: clamped.x, panY: clamped.y });
       } else if (e.touches.length === 1 && scaleRef.current > 1 && lastPanPosRef.current) {
         const touch = e.touches[0];
         if (!touch) {
@@ -82,8 +85,8 @@ export function usePinchZoom(minScale = 1, maxScale = 5, boardWidth = 0, boardHe
           const clamped = clampPan(panXRef.current + dx, panYRef.current + dy, scaleRef.current);
           panXRef.current = clamped.x;
           panYRef.current = clamped.y;
-          setPanX(clamped.x);
-          setPanY(clamped.y);
+          // Single batched state update instead of 2 separate calls
+          setState((prev) => ({ ...prev, panX: clamped.x, panY: clamped.y }));
         }
       }
     },
@@ -102,12 +105,16 @@ export function usePinchZoom(minScale = 1, maxScale = 5, boardWidth = 0, boardHe
 
   const resetZoom = useCallback(() => {
     scaleRef.current = 1;
-    setScale(1);
     panXRef.current = 0;
     panYRef.current = 0;
-    setPanX(0);
-    setPanY(0);
+    setState({ scale: 1, panX: 0, panY: 0 });
   }, []);
 
-  return { scale, panX, panY, handlers: { onTouchStart, onTouchMove, onTouchEnd }, resetZoom };
+  return {
+    scale: state.scale,
+    panX: state.panX,
+    panY: state.panY,
+    handlers: { onTouchStart, onTouchMove, onTouchEnd },
+    resetZoom,
+  };
 }

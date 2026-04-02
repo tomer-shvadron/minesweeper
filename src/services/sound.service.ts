@@ -3,7 +3,8 @@ import type { SoundTheme } from '@/types/settings.types';
 let ctx: AudioContext | null = null;
 
 function getCtx(): AudioContext {
-  if (!ctx) {
+  // Mobile Safari can close the context when the tab is backgrounded
+  if (!ctx || ctx.state === 'closed') {
     ctx = new AudioContext();
   }
   // Safari may suspend context until user gesture

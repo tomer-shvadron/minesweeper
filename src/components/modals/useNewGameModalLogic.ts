@@ -14,13 +14,10 @@ import { useUIStore } from '@/stores/ui.store';
 
 type Preset = 'beginner' | 'intermediate' | 'expert' | 'custom';
 
-function clamp(value: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, value));
-}
-
-function parseIntSafe(raw: string, fallback: number): number {
-  const n = parseInt(raw, 10);
-  return isNaN(n) ? fallback : n;
+/** Parse a string to a clamped integer, handling NaN, Infinity, floats, and empty strings. */
+function sanitizeInt(raw: string, fallback: number, min: number, max: number): number {
+  const n = Math.floor(Number(raw));
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
 }
 
 export const useNewGameModalLogic = () => {
@@ -52,10 +49,10 @@ export const useNewGameModalLogic = () => {
   const [customMines, setCustomMines] = useState(String(currentConfig.mines));
 
   // Derived clamped numbers, used for maxMines computation and on Start.
-  const parsedRows = clamp(parseIntSafe(customRows, MIN_ROWS), MIN_ROWS, MAX_ROWS);
-  const parsedCols = clamp(parseIntSafe(customCols, MIN_COLS), MIN_COLS, MAX_COLS);
+  const parsedRows = sanitizeInt(customRows, MIN_ROWS, MIN_ROWS, MAX_ROWS);
+  const parsedCols = sanitizeInt(customCols, MIN_COLS, MIN_COLS, MAX_COLS);
   const maxMines = parsedRows * parsedCols - 9;
-  const parsedMines = clamp(parseIntSafe(customMines, MIN_MINES), MIN_MINES, maxMines);
+  const parsedMines = sanitizeInt(customMines, MIN_MINES, MIN_MINES, maxMines);
 
   const handleCustomRows = (v: string) => {
     setCustomRows(v);
@@ -70,7 +67,7 @@ export const useNewGameModalLogic = () => {
   };
 
   const handleCustomRowsBlur = () => {
-    const rows = clamp(parseIntSafe(customRows, MIN_ROWS), MIN_ROWS, MAX_ROWS);
+    const rows = sanitizeInt(customRows, MIN_ROWS, MIN_ROWS, MAX_ROWS);
     setCustomRows(String(rows));
     const newMax = rows * parsedCols - 9;
     if (parsedMines > newMax) {
@@ -79,7 +76,7 @@ export const useNewGameModalLogic = () => {
   };
 
   const handleCustomColsBlur = () => {
-    const cols = clamp(parseIntSafe(customCols, MIN_COLS), MIN_COLS, MAX_COLS);
+    const cols = sanitizeInt(customCols, MIN_COLS, MIN_COLS, MAX_COLS);
     setCustomCols(String(cols));
     const newMax = parsedRows * cols - 9;
     if (parsedMines > newMax) {
@@ -88,7 +85,7 @@ export const useNewGameModalLogic = () => {
   };
 
   const handleCustomMinesBlur = () => {
-    setCustomMines(String(clamp(parseIntSafe(customMines, MIN_MINES), MIN_MINES, maxMines)));
+    setCustomMines(String(sanitizeInt(customMines, MIN_MINES, MIN_MINES, maxMines)));
   };
 
   const handleStart = () => {

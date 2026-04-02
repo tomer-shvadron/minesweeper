@@ -36,6 +36,9 @@ function deepCopyBoard(board: Board): Board {
 }
 
 export function createEmptyBoard(config: BoardConfig): Board {
+  if (config.rows <= 0 || config.cols <= 0) {
+    throw new Error(`Invalid board dimensions: ${config.rows}×${config.cols}`);
+  }
   return Array.from({ length: config.rows }, () =>
     Array.from({ length: config.cols }, () => createEmptyCell())
   );
@@ -60,8 +63,12 @@ export function placeMines(
   safeRow: number,
   safeCol: number
 ): Board {
-  const newBoard = deepCopyBoard(board);
   const { rows, cols, mines } = config;
+  const maxMines = rows * cols - 9; // safe zone = first click + 8 neighbors
+  if (mines > maxMines) {
+    throw new Error(`Too many mines (${mines}) for ${rows}×${cols} board (max: ${maxMines})`);
+  }
+  const newBoard = deepCopyBoard(board);
 
   const safeCells = new Set<number>();
   safeCells.add(safeRow * cols + safeCol);
@@ -154,8 +161,9 @@ export function floodFill(board: Board, row: number, col: number): Board {
   const visited = new Set<number>();
   visited.add(row * cols + col);
 
-  while (queue.length > 0) {
-    const entry = queue.shift();
+  let queueIdx = 0;
+  while (queueIdx < queue.length) {
+    const entry = queue[queueIdx++];
     if (!entry) {
       break;
     }
@@ -231,12 +239,10 @@ export function revealCell(board: Board, row: number, col: number): Board {
     return floodFill(board, row, col);
   }
 
-  const newBoard = deepCopyBoard(board);
-  const target = newBoard[row]?.[col];
-  if (target) {
-    target.isRevealed = true;
-  }
-  return newBoard;
+  // Sparse row copy for single numbered cell reveal
+  return board.map((r, i) =>
+    i === row ? r.map((c, j) => (j === col ? { ...c, isRevealed: true } : c)) : r
+  );
 }
 
 export function chordReveal(board: Board, row: number, col: number): Board {
@@ -281,24 +287,28 @@ export function toggleFlag(
     return board;
   }
 
-  const newBoard = deepCopyBoard(board);
-  const target = newBoard[row]?.[col];
-  if (!target) {
-    return board;
-  }
+  let newIsFlagged = cell.isFlagged;
+  let newIsQuestionMark = cell.isQuestionMark;
 
-  if (!target.isFlagged && !target.isQuestionMark) {
-    target.isFlagged = true;
-  } else if (target.isFlagged) {
-    target.isFlagged = false;
+  if (!cell.isFlagged && !cell.isQuestionMark) {
+    newIsFlagged = true;
+  } else if (cell.isFlagged) {
+    newIsFlagged = false;
     if (allowQuestionMarks) {
-      target.isQuestionMark = true;
+      newIsQuestionMark = true;
     }
-  } else if (target.isQuestionMark) {
-    target.isQuestionMark = false;
+  } else if (cell.isQuestionMark) {
+    newIsQuestionMark = false;
   }
 
-  return newBoard;
+  // Sparse row copy: only copy the affected row, not the entire board
+  return board.map((r, i) =>
+    i === row
+      ? r.map((c, j) =>
+          j === col ? { ...c, isFlagged: newIsFlagged, isQuestionMark: newIsQuestionMark } : c
+        )
+      : r
+  );
 }
 
 export function checkWin(board: Board): boolean {
@@ -321,6 +331,37 @@ export function checkLoss(board: Board): boolean {
     }
   }
   return false;
+}
+
+/** Count unrevealed safe cells on a board (for incremental win tracking). */
+export function countUnrevealedSafe(board: Board): number {
+  let count = 0;
+  for (const row of board) {
+    for (const cell of row) {
+      if (!cell.hasMine && !cell.isRevealed) {
+        count++;
+      }
+    }
+  }
+  return count;
+}
+
+/** Count how many cells were newly revealed between oldBoard and newBoard. */
+export function countNewlyRevealed(oldBoard: Board, newBoard: Board): number {
+  let count = 0;
+  for (let r = 0; r < oldBoard.length; r++) {
+    const oldRow = oldBoard[r];
+    const newRow = newBoard[r];
+    if (!oldRow || !newRow) {
+      continue;
+    }
+    for (let c = 0; c < oldRow.length; c++) {
+      if (!oldRow[c]?.isRevealed && newRow[c]?.isRevealed) {
+        count++;
+      }
+    }
+  }
+  return count;
 }
 
 export function countRemainingFlags(board: Board, totalMines: number): number {
@@ -353,8 +394,9 @@ export function isBoardSolvable(board: Board, firstClick: [number, number]): boo
     const visited = new Set<number>();
     visited.add(startRow * cols + startCol);
 
-    while (q.length > 0) {
-      const entry = q.shift();
+    let qi = 0;
+    while (qi < q.length) {
+      const entry = q[qi++];
       if (!entry) {
         break;
       }

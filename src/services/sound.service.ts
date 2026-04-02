@@ -461,7 +461,14 @@ export function playSound(name: SoundName, volume: number, options: SoundOptions
         playWin(volume, soundTheme);
         break;
     }
-  } catch {
-    // AudioContext may not be available (e.g. in tests) — fail silently
+  } catch (err: unknown) {
+    // AudioContext unavailable (e.g. test env, restrictive browser policy) — expected
+    if (err instanceof DOMException) {
+      return;
+    }
+    // Unexpected error — log in dev to aid debugging
+    if (import.meta.env.DEV) {
+      console.warn('[sound.service] Unexpected error:', err);
+    }
   }
 }

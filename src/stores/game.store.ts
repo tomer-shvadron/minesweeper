@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import {
   DIFFICULTY_PRESETS,
@@ -23,6 +23,7 @@ import {
   revealCell as revealCellFn,
   toggleFlag,
 } from '@/services/board.service';
+import { safeStorage } from '@/stores/safe-storage';
 import type { Board, BoardConfig, GameStatus } from '@/types/game.types';
 
 interface GameState {
@@ -425,6 +426,7 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: STORAGE_KEYS.game,
+      storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({
         board: s.board,
         status: s.status === 'generating' ? 'idle' : s.status,

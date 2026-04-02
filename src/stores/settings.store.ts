@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_KEY_BINDINGS } from '@/constants/keyboard.constants';
 import { STORAGE_KEYS } from '@/constants/storage.constants';
+import { safeStorage } from '@/stores/safe-storage';
 import type { FlagMode, KeyboardAction, Settings, Theme } from '@/types/settings.types';
 
 const VALID_THEMES = new Set<Theme>([
@@ -81,6 +82,7 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: STORAGE_KEYS.settings,
+      storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({
         theme: s.theme,
         flagMode: s.flagMode,

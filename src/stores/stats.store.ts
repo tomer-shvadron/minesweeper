@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DIFFICULTY_PRESETS } from '@/constants/game.constants';
 import { STORAGE_KEYS } from '@/constants/storage.constants';
+import { safeStorage } from '@/stores/safe-storage';
 import type { BoardKey } from '@/types/game.types';
 import type { GameRecord } from '@/types/stats.types';
 
@@ -158,6 +159,6 @@ export const useStatsStore = create<StatsStore>()(
         return counts.map((row) => row.map((v) => v / max));
       },
     }),
-    { name: STORAGE_KEYS.stats }
+    { name: STORAGE_KEYS.stats, storage: createJSONStorage(() => safeStorage) }
   )
 );

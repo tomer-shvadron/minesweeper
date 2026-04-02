@@ -45,11 +45,14 @@ export const App = () => {
     document.body.setAttribute('data-animations', String(animationsEnabled));
   }, [animationsEnabled]);
 
+  // Show resume prompt on mount if a game was in progress (uses refs to avoid deps)
+  const mountStatusRef = useRef(status);
+  const mountResumeRef = useRef(openResumePrompt);
   useEffect(() => {
-    if (status === 'playing') {
-      openResumePrompt();
+    if (mountStatusRef.current === 'playing') {
+      mountResumeRef.current();
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const prevStatusRef = useRef(status);
   useEffect(() => {
@@ -94,7 +97,20 @@ export const App = () => {
       const boardKey = createBoardKey(config);
       incrementGamesPlayed(boardKey);
     }
-  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    status,
+    config,
+    board,
+    elapsedSeconds,
+    firstClick,
+    totalClicks,
+    play,
+    vibrate,
+    isHighScore,
+    incrementGamesPlayed,
+    recordGame,
+    showHighScorePrompt,
+  ]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg)]">

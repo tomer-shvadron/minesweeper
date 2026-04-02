@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants/storage.constants';
+import { safeStorage } from '@/stores/safe-storage';
 import type { BoardKey } from '@/types/game.types';
 import type { Leaderboard, LeaderboardEntry } from '@/types/leaderboard.types';
 
@@ -98,6 +99,7 @@ export const useLeaderboardStore = create<LeaderboardStore>()(
     }),
     {
       name: STORAGE_KEYS.leaderboard,
+      storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({
         entries: s.entries,
         gamesPlayed: s.gamesPlayed,

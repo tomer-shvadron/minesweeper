@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { App } from './App';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useGameStore } from './stores/game.store';
 import { useLeaderboardStore } from './stores/leaderboard.store';
 import { useUIStore } from './stores/ui.store';
@@ -14,7 +15,9 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>
 );
 

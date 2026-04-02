@@ -28,9 +28,9 @@ test.describe('Leaderboard modal', () => {
 
   test('shows difficulty tabs', async ({ gamePage }) => {
     await gamePage.page.getByRole('button', { name: 'Leaderboard' }).click();
-    await expect(gamePage.page.getByRole('button', { name: 'Beginner' })).toBeVisible();
-    await expect(gamePage.page.getByRole('button', { name: 'Inter.' })).toBeVisible();
-    await expect(gamePage.page.getByRole('button', { name: 'Expert' })).toBeVisible();
+    await expect(gamePage.page.getByRole('tab', { name: 'Beginner' })).toBeVisible();
+    await expect(gamePage.page.getByRole('tab', { name: 'Inter.' })).toBeVisible();
+    await expect(gamePage.page.getByRole('tab', { name: 'Expert' })).toBeVisible();
   });
 
   test('shows scores after winning', async ({ gamePage }) => {
@@ -80,7 +80,7 @@ test.describe('Leaderboard modal', () => {
     });
     await gamePage.page.getByRole('button', { name: 'Leaderboard' }).click();
     await expect(gamePage.page.getByText('AliceB')).toBeVisible();
-    await gamePage.page.getByRole('button', { name: 'Inter.' }).click();
+    await gamePage.page.getByRole('tab', { name: 'Inter.' }).click();
     await expect(gamePage.page.getByText('BobI')).toBeVisible();
     await expect(gamePage.page.getByText('AliceB')).not.toBeVisible();
   });

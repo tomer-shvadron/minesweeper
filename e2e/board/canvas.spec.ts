@@ -9,21 +9,21 @@ test.describe('Canvas board (large boards)', () => {
       // Scope to the board — the Confetti component always renders a second canvas globally.
       await expect(gamePage.board.locator('canvas')).toBeVisible();
       // No individual cell buttons
-      await expect(gamePage.page.getByRole('button', { name: /^Cell / })).toHaveCount(0);
+      await expect(gamePage.allCells).toHaveCount(0);
     });
 
     test('Beginner board renders cell buttons (DOM, not canvas)', async ({ gamePage }) => {
       await gamePage.startPreset('Beginner');
       // The board itself has no canvas for small grids; Confetti canvas is outside the board.
       await expect(gamePage.board.locator('canvas')).toHaveCount(0);
-      const cells = gamePage.page.getByRole('button', { name: /^Cell / });
+      const cells = gamePage.allCells;
       await expect(cells).toHaveCount(81); // 9x9
     });
 
     test('Intermediate board renders a <canvas> element', async ({ gamePage }) => {
       await gamePage.startPreset('Intermediate');
       await expect(gamePage.board.locator('canvas')).toBeVisible();
-      await expect(gamePage.page.getByRole('button', { name: /^Cell / })).toHaveCount(0);
+      await expect(gamePage.allCells).toHaveCount(0);
     });
   });
 
@@ -178,7 +178,7 @@ test.describe('Canvas board (large boards)', () => {
       await gamePage.startPreset('Beginner');
       // Board canvas gone; Confetti canvas (outside board) is unaffected.
       await expect(gamePage.board.locator('canvas')).toHaveCount(0);
-      await expect(gamePage.page.getByRole('button', { name: /^Cell / })).toHaveCount(81);
+      await expect(gamePage.allCells).toHaveCount(81);
     });
   });
 });

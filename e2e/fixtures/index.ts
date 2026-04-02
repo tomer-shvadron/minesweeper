@@ -123,7 +123,7 @@ export class GamePage {
   }
 
   async firstClick(row = 0, col = 0): Promise<GameState> {
-    await this.page.getByRole('button', { name: `Cell ${row},${col}` }).click();
+    await this.cell(row, col).click();
     await this.page.waitForFunction(() => {
       const s = window.__MINESWEEPER_TEST__.getGameState();
       return s.status === 'playing' || s.status === 'won' || s.status === 'lost';
@@ -189,7 +189,7 @@ export class GamePage {
       for (let c = 0; c < config.cols; c++) {
         const cell = board[r]?.[c];
         if (cell?.hasMine && !cell.isFlagged) {
-          await this.page.getByRole('button', { name: `Cell ${r},${c}` }).click();
+          await this.cell(r, c).click();
           await this.page.waitForFunction(
             () => window.__MINESWEEPER_TEST__.getGameState().status === 'lost'
           );
@@ -240,7 +240,12 @@ export class GamePage {
   }
 
   cell(row: number, col: number) {
-    return this.page.getByRole('button', { name: `Cell ${row},${col}` });
+    return this.page.getByRole('gridcell', { name: `Row ${row + 1}, Column ${col + 1}` });
+  }
+
+  /** Locator that matches ALL gridcells (for counting DOM cells vs canvas). */
+  get allCells() {
+    return this.page.getByRole('gridcell', { name: /^Row \d+, Column \d+/ });
   }
 
   get smiley() {

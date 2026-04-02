@@ -17,7 +17,7 @@ function isValidEntry(e: unknown): e is LeaderboardEntry {
     typeof entry.name === 'string' &&
     typeof entry.timeSeconds === 'number' &&
     Number.isFinite(entry.timeSeconds) &&
-    entry.timeSeconds > 0 &&
+    entry.timeSeconds >= 0 &&
     typeof entry.date === 'string'
   );
 }

@@ -254,7 +254,7 @@ describe('corrupted localStorage hydration', () => {
       expect(result).toBe(current);
     });
 
-    it('rejects persisted leaderboard with zero timeSeconds', async () => {
+    it('accepts persisted leaderboard with zero timeSeconds (instant win)', async () => {
       const { useLeaderboardStore } = await import('@/stores/leaderboard.store');
       const options = (
         useLeaderboardStore as unknown as {
@@ -262,13 +262,13 @@ describe('corrupted localStorage hydration', () => {
         }
       ).persist.getOptions();
       const current = { entries: {} };
-      const corrupted = {
+      const valid = {
         entries: {
           beginner: [{ name: 'Alice', timeSeconds: 0, date: '2026-01-01' }],
         },
       };
-      const result = options.merge?.(corrupted, current);
-      expect(result).toBe(current);
+      const result = options.merge?.(valid, current);
+      expect(result).not.toBe(current);
     });
 
     it('rejects persisted leaderboard with negative timeSeconds', async () => {

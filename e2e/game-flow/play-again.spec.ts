@@ -10,7 +10,7 @@ test.describe('Play Again & Change Level', () => {
     await expect(gamePage.timer).toContainText('0');
     await expect(gamePage.gameOverBanner).not.toBeVisible();
     await expect(gamePage.smiley).toContainText('🙂');
-    const cells = gamePage.page.getByRole('button', { name: /^Cell \d+,\d+$/ });
+    const cells = gamePage.allCells;
     await expect(cells).toHaveCount(81);
   });
 

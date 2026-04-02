@@ -6,11 +6,17 @@ test.describe('localStorage persistence', () => {
   test('leaderboard entries survive page reload', async ({ gamePage, page }) => {
     await gamePage.startPreset('Beginner');
     await gamePage.winGame();
+    // Wait for the game-end React effect to set highScoreEntry in the UI store
+    await page.waitForFunction(
+      () => window.__MINESWEEPER_TEST__.getUIState().highScoreEntry !== null,
+      { timeout: 5000 }
+    );
     const prompt = gamePage.highScorePrompt();
-    if (await prompt.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await page.getByPlaceholder('Your name').fill('IrisP');
-      await page.getByRole('button', { name: 'Save' }).click();
-    }
+    await prompt.waitFor({ timeout: 5000 });
+    await page.getByPlaceholder('Your name').fill('IrisP');
+    await page.getByRole('button', { name: 'Save' }).click();
+    // Ensure the leaderboard modal (auto-opened after save) is visible before reloading
+    await gamePage.leaderboardModal().waitFor({ timeout: 3000 });
     await page.reload();
     const lb = await gamePage.getLeaderboardState();
     const allEntries = Object.values(lb.entries).flat();
@@ -20,11 +26,15 @@ test.describe('localStorage persistence', () => {
   test('lastPlayerName persists across page reload', async ({ gamePage, page }) => {
     await gamePage.startPreset('Beginner');
     await gamePage.winGame();
+    await page.waitForFunction(
+      () => window.__MINESWEEPER_TEST__.getUIState().highScoreEntry !== null,
+      { timeout: 5000 }
+    );
     const prompt = gamePage.highScorePrompt();
-    if (await prompt.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await page.getByPlaceholder('Your name').fill('JackPR');
-      await page.getByRole('button', { name: 'Save' }).click();
-    }
+    await prompt.waitFor({ timeout: 5000 });
+    await page.getByPlaceholder('Your name').fill('JackPR');
+    await page.getByRole('button', { name: 'Save' }).click();
+    await gamePage.leaderboardModal().waitFor({ timeout: 3000 });
     await page.reload();
     const lb = await gamePage.getLeaderboardState();
     expect(lb.lastPlayerName).toBe('JackPR');

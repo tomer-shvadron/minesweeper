@@ -114,10 +114,16 @@ export const App = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg)]">
-      <div className="inline-flex flex-col shadow-[inset_2px_2px_0_var(--color-border-light),inset_-2px_-2px_0_var(--color-border-darker)] landscape:flex-row">
+      <a
+        href="#game-board"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-[var(--color-accent)] focus:px-3 focus:py-1 focus:text-white"
+      >
+        Skip to game board
+      </a>
+      <main className="inline-flex flex-col shadow-[inset_2px_2px_0_var(--color-border-light),inset_-2px_-2px_0_var(--color-border-darker)] landscape:flex-row">
         <Header />
         <GameBoard />
-      </div>
+      </main>
 
       <GameOverBanner />
       <Confetti />

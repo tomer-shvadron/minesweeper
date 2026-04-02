@@ -3,6 +3,29 @@ import { useCellLogic } from './useCellLogic';
 import { CELL_FONT_SCALE_ICON, CELL_FONT_SCALE_NUMBER } from '@/constants/ui.constants';
 import type { CellState } from '@/types/game.types';
 
+function cellAriaLabel(row: number, col: number, cell: CellState): string {
+  const pos = `Row ${row + 1}, Column ${col + 1}`;
+  if (!cell.isRevealed) {
+    if (cell.isFlagged) {
+      return `${pos}: flagged`;
+    }
+    if (cell.isQuestionMark) {
+      return `${pos}: question mark`;
+    }
+    return `${pos}: unrevealed`;
+  }
+  if (cell.isExploded) {
+    return `${pos}: mine, exploded`;
+  }
+  if (cell.hasMine) {
+    return `${pos}: mine`;
+  }
+  if (cell.value === 0) {
+    return `${pos}: empty`;
+  }
+  return `${pos}: ${cell.value} adjacent mine${cell.value > 1 ? 's' : ''}`;
+}
+
 interface CellProps {
   row: number;
   col: number;
@@ -51,8 +74,9 @@ export const Cell = ({
           ...(chordRippleDelay !== undefined && { '--chord-delay': `${chordRippleDelay}ms` }),
         } as React.CSSProperties
       }
+      role="gridcell"
       className={`relative ${animClass ? `${containerClass} ${animClass}` : containerClass}`}
-      aria-label={`Cell ${row},${col}`}
+      aria-label={cellAriaLabel(row, col, cell)}
       data-row={row}
       data-col={col}
     >

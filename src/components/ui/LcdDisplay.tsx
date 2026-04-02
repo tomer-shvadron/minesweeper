@@ -19,7 +19,7 @@ export const LcdDisplay = ({ value, digits = 3 }: LcdDisplayProps) => {
   }
 
   return (
-    <div className="lcd-display" aria-label={`${value}`}>
+    <div className="lcd-display" aria-live="polite" aria-atomic="true" aria-label={`${value}`}>
       {display}
     </div>
   );

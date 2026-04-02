@@ -28,6 +28,7 @@ const DOMBoard = () => {
 
   return (
     <div
+      id="game-board"
       role="grid"
       className={boardEntering ? 'board--entering overflow-hidden' : 'overflow-hidden'}
       data-testid="board"

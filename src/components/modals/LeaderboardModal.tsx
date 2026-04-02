@@ -44,11 +44,17 @@ export const LeaderboardModal = () => {
   return (
     <Modal isOpen={isOpen} title="Best Times" onClose={closeModal}>
       {/* Board selector tabs */}
-      <div className="flex flex-wrap gap-0.5 border-b-2 border-[var(--color-border-dark)]">
+      <div
+        role="tablist"
+        aria-label="Difficulty levels"
+        className="flex flex-wrap gap-0.5 border-b-2 border-[var(--color-border-dark)]"
+      >
         {allTabs.map((key) => (
           <button
             key={key}
             type="button"
+            role="tab"
+            aria-selected={selectedTab === key}
             className={`cursor-pointer border border-b-0 border-[var(--color-border-dark)] bg-[var(--color-surface)] px-[14px] py-[5px] text-[0.9375rem] shadow-[inset_1px_1px_0_var(--color-border-light),inset_-1px_0_0_var(--color-border-dark)] ${selectedTab === key ? 'bg-[var(--color-border-light)] font-bold' : ''}`}
             onClick={() => setSelectedTab(key)}
           >
@@ -59,13 +65,14 @@ export const LeaderboardModal = () => {
 
       {isRecent ? (
         /* Recent games tab */
-        <div className="min-h-[180px] w-full">
+        <div role="tabpanel" aria-label="Recent games" className="min-h-[180px] w-full">
           {recentGames.length === 0 ? (
             <p className="py-6 text-center text-[0.9375rem] text-[var(--color-text-muted)]">
               Play a game to see recent history!
             </p>
           ) : (
             <table className="w-full border-collapse text-[0.9375rem]">
+              <caption className="sr-only">Recent games history</caption>
               <thead>
                 <tr>
                   <th className="border-b border-[var(--color-border-dark)] px-[10px] py-[5px] text-left font-bold">
@@ -98,7 +105,7 @@ export const LeaderboardModal = () => {
           )}
         </div>
       ) : (
-        <>
+        <div role="tabpanel" aria-label={`${tabLabel(selectedTab)} high scores`}>
           {/* Games played stat */}
           <p className="m-0 text-[0.8125rem] text-[var(--color-text-muted)]">
             {gamesPlayedCount > 0
@@ -116,6 +123,7 @@ export const LeaderboardModal = () => {
               </p>
             ) : (
               <table className="w-full border-collapse text-[0.9375rem]">
+                <caption className="sr-only">{tabLabel(selectedTab)} high scores</caption>
                 <thead>
                   <tr>
                     <th className="border-b border-[var(--color-border-dark)] px-[10px] py-[5px] text-left font-bold">
@@ -141,7 +149,7 @@ export const LeaderboardModal = () => {
               </table>
             )}
           </div>
-        </>
+        </div>
       )}
     </Modal>
   );

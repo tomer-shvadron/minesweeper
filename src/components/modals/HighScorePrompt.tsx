@@ -15,8 +15,11 @@ export const HighScorePrompt = () => {
         <p className="text-base">
           Your time: <strong>{formatTime(timeSeconds)}</strong>
         </p>
-        <p className="text-[0.9375rem]">Enter your name:</p>
+        <label htmlFor="high-score-name" className="text-[0.9375rem]">
+          Enter your name:
+        </label>
         <input
+          id="high-score-name"
           type="text"
           className="xp-input w-full"
           value={name}

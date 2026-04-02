@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-import { soundThemeForTheme } from '@/constants/theme.constants';
 import { useGameLayout } from '@/hooks/useGameLayout';
+import { useHaptic } from '@/hooks/useHaptic';
 import { useLongPress } from '@/hooks/useLongPress';
 import { usePinchZoom } from '@/hooks/usePinchZoom';
+import { useSound } from '@/hooks/useSound';
 import { drawBoard, hitTestCell } from '@/services/canvas.service';
-import { haptic } from '@/services/haptic.service';
-import { playSound } from '@/services/sound.service';
 import { useGameStore } from '@/stores/game.store';
+import { selectAllowQuestionMarks, selectIsGameOver } from '@/stores/selectors';
 import { useSettingsStore } from '@/stores/settings.store';
 import { useUIStore } from '@/stores/ui.store';
+import { cellKey } from '@/utils/cell.utils';
 
 export const useCanvasBoardLogic = () => {
   const board = useGameStore((s) => s.board);
-  const status = useGameStore((s) => s.status);
   const gameKey = useGameStore((s) => s.gameKey);
   const mineRevealOrder = useGameStore((s) => s.mineRevealOrder);
   const lastChordReveal = useGameStore((s) => s.lastChordReveal);
@@ -24,19 +24,15 @@ export const useCanvasBoardLogic = () => {
   const setCellPressStart = useGameStore((s) => s.setCellPressStart);
   const setCellPressEnd = useGameStore((s) => s.setCellPressEnd);
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
-  const flagMode = useSettingsStore((s) => s.flagMode);
   const keyboardBindings = useSettingsStore((s) => s.keyboardBindings);
-  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
-  const volume = useSettingsStore((s) => s.volume);
-  const theme = useSettingsStore((s) => s.theme);
-  const hapticEnabled = useSettingsStore((s) => s.hapticEnabled);
+  const noGuessMode = useSettingsStore((s) => s.noGuessMode);
   const focusedCell = useUIStore((s) => s.focusedCell);
   const setFocusedCell = useUIStore((s) => s.setFocusedCell);
   const openNewGameModal = useUIStore((s) => s.openNewGameModal);
-
-  const soundTheme = soundThemeForTheme(theme);
-  const allowQuestionMarks = flagMode === 'flags-and-questions';
-  const isGameOver = status === 'won' || status === 'lost';
+  const play = useSound();
+  const vibrate = useHaptic();
+  const isGameOver = useGameStore(selectIsGameOver);
+  const allowQuestionMarks = useSettingsStore(selectAllowQuestionMarks);
 
   const { cellSize, boardWidth, boardHeight, config } = useGameLayout();
   const {
@@ -102,10 +98,10 @@ export const useCanvasBoardLogic = () => {
   }, [boardWidth, boardHeight, resetZoom]);
 
   useEffect(() => {
-    if (status === 'won' || status === 'lost') {
+    if (isGameOver) {
       resetZoom();
     }
-  }, [status, resetZoom]);
+  }, [isGameOver, resetZoom]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -134,7 +130,7 @@ export const useCanvasBoardLogic = () => {
 
   // Lookup maps for animations
   const mineRevealLookup = useMemo(
-    () => new Map(mineRevealOrder.map(([r, c], i) => [`${r},${c}`, i])),
+    () => new Map(mineRevealOrder.map(([r, c], i) => [cellKey(r, c), i])),
     [mineRevealOrder]
   );
 
@@ -145,7 +141,7 @@ export const useCanvasBoardLogic = () => {
     const [or, oc] = lastChordReveal.origin;
     return new Map(
       lastChordReveal.cells.map(([r, c]) => [
-        `${r},${c}`,
+        cellKey(r, c),
         Math.max(Math.abs(r - or), Math.abs(c - oc)) * 30,
       ])
     );
@@ -230,35 +226,17 @@ export const useCanvasBoardLogic = () => {
     }
 
     if (boardCell.isRevealed) {
-      haptic('chord', hapticEnabled);
+      vibrate('chord');
       chordClick(r, c);
-      if (soundEnabled) {
-        const chordCells = useGameStore.getState().lastChordReveal?.cells.length ?? 1;
-        playSound('reveal', volume, {
-          soundTheme,
-          mineCount: boardCell.value,
-          cascadeSize: chordCells,
-        });
-      }
+      const chordCells = useGameStore.getState().lastChordReveal?.cells.length ?? 1;
+      play('reveal', { mineCount: boardCell.value, cascadeSize: chordCells });
     } else {
-      haptic('reveal', hapticEnabled);
-      revealCell(r, c);
-      if (soundEnabled) {
-        const cascadeSize = useGameStore.getState().lastRevealCount;
-        playSound('reveal', volume, { soundTheme, mineCount: boardCell.value, cascadeSize });
-      }
+      vibrate('reveal');
+      revealCell(r, c, { noGuessMode });
+      const cascadeSize = useGameStore.getState().lastRevealCount;
+      play('reveal', { mineCount: boardCell.value, cascadeSize });
     }
-  }, [
-    getCell,
-    board,
-    isGameOver,
-    hapticEnabled,
-    chordClick,
-    soundEnabled,
-    volume,
-    soundTheme,
-    revealCell,
-  ]);
+  }, [getCell, board, isGameOver, noGuessMode, chordClick, revealCell, play, vibrate]);
 
   const handleLongPress = useCallback(() => {
     const cell = getCell(tapCoords.current.x, tapCoords.current.y);
@@ -271,22 +249,10 @@ export const useCanvasBoardLogic = () => {
       return;
     }
 
-    haptic(boardCell.isFlagged ? 'unflag' : 'flag', hapticEnabled);
+    vibrate(boardCell.isFlagged ? 'unflag' : 'flag');
     flagCell(r, c, allowQuestionMarks);
-    if (soundEnabled) {
-      playSound('flag', volume, { soundTheme });
-    }
-  }, [
-    getCell,
-    board,
-    isGameOver,
-    hapticEnabled,
-    flagCell,
-    allowQuestionMarks,
-    soundEnabled,
-    volume,
-    soundTheme,
-  ]);
+    play('flag');
+  }, [getCell, board, isGameOver, flagCell, allowQuestionMarks, play, vibrate]);
 
   const longPressHandlers = useLongPress({
     onTap: handleTap,
@@ -359,7 +325,7 @@ export const useCanvasBoardLogic = () => {
         e.preventDefault();
         const cell = board[r]?.[c];
         if (cell && !cell.isRevealed) {
-          revealCell(r, c);
+          revealCell(r, c, { noGuessMode });
         }
         return;
       }
@@ -387,6 +353,7 @@ export const useCanvasBoardLogic = () => {
       flagCell,
       chordClick,
       allowQuestionMarks,
+      noGuessMode,
       setFocusedCell,
       openNewGameModal,
     ]

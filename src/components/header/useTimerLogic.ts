@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+import { TIMER_INTERVAL_MS } from '@/constants/ui.constants';
 import { useGameStore } from '@/stores/game.store';
 
 export const useTimerLogic = () => {
@@ -11,7 +12,7 @@ export const useTimerLogic = () => {
     if (status !== 'playing') {
       return;
     }
-    const interval = setInterval(tick, 1000);
+    const interval = setInterval(tick, TIMER_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [status, tick]);
 

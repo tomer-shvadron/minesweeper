@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { MAX_PLAYER_NAME_LENGTH } from '@/constants/ui.constants';
 import { useLeaderboardStore } from '@/stores/leaderboard.store';
 import { useUIStore } from '@/stores/ui.store';
 
@@ -38,7 +39,7 @@ export const useHighScorePromptLogic = () => {
       })
       .join('')
       .trim()
-      .slice(0, 20);
+      .slice(0, MAX_PLAYER_NAME_LENGTH);
     const trimmed = sanitized || 'Anonymous';
     addEntry(highScoreEntry.boardKey, {
       name: trimmed,

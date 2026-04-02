@@ -4,11 +4,11 @@ import { useUIStore } from '@/stores/ui.store';
 
 const resetStore = () =>
   useUIStore.setState({
-    newGameModalOpen: false,
-    settingsModalOpen: false,
-    leaderboardModalOpen: false,
+    activeModal: null,
+    keyboardModalOpen: false,
     resumePromptOpen: false,
     highScoreEntry: null,
+    focusedCell: null,
   });
 
 beforeEach(resetStore);
@@ -18,93 +18,95 @@ describe('ui.store', () => {
   describe('openNewGameModal', () => {
     it('opens the new game modal', () => {
       useUIStore.getState().openNewGameModal();
-      expect(useUIStore.getState().newGameModalOpen).toBe(true);
+      expect(useUIStore.getState().activeModal).toBe('newGame');
     });
 
-    it('closes settings and leaderboard modals when opened', () => {
-      useUIStore.setState({ settingsModalOpen: true, leaderboardModalOpen: true });
+    it('closes other modals when opened', () => {
+      useUIStore.getState().openSettingsModal();
       useUIStore.getState().openNewGameModal();
-      expect(useUIStore.getState().settingsModalOpen).toBe(false);
-      expect(useUIStore.getState().leaderboardModalOpen).toBe(false);
+      expect(useUIStore.getState().activeModal).toBe('newGame');
     });
   });
 
   describe('openSettingsModal', () => {
     it('opens the settings modal', () => {
       useUIStore.getState().openSettingsModal();
-      expect(useUIStore.getState().settingsModalOpen).toBe(true);
+      expect(useUIStore.getState().activeModal).toBe('settings');
     });
 
-    it('closes new game and leaderboard modals when opened', () => {
-      useUIStore.setState({ newGameModalOpen: true, leaderboardModalOpen: true });
+    it('closes other modals when opened', () => {
+      useUIStore.getState().openNewGameModal();
       useUIStore.getState().openSettingsModal();
-      expect(useUIStore.getState().newGameModalOpen).toBe(false);
-      expect(useUIStore.getState().leaderboardModalOpen).toBe(false);
+      expect(useUIStore.getState().activeModal).toBe('settings');
     });
   });
 
   describe('openLeaderboardModal', () => {
     it('opens the leaderboard modal', () => {
       useUIStore.getState().openLeaderboardModal();
-      expect(useUIStore.getState().leaderboardModalOpen).toBe(true);
+      expect(useUIStore.getState().activeModal).toBe('leaderboard');
     });
 
-    it('closes new game and settings modals when opened', () => {
-      useUIStore.setState({ newGameModalOpen: true, settingsModalOpen: true });
+    it('closes other modals when opened', () => {
+      useUIStore.getState().openNewGameModal();
       useUIStore.getState().openLeaderboardModal();
-      expect(useUIStore.getState().newGameModalOpen).toBe(false);
-      expect(useUIStore.getState().settingsModalOpen).toBe(false);
+      expect(useUIStore.getState().activeModal).toBe('leaderboard');
+    });
+  });
+
+  describe('openStatisticsModal', () => {
+    it('opens the statistics modal', () => {
+      useUIStore.getState().openStatisticsModal();
+      expect(useUIStore.getState().activeModal).toBe('statistics');
     });
   });
 
   describe('modal exclusivity — only one modal open at a time', () => {
     it('opening a second modal closes the first', () => {
       useUIStore.getState().openNewGameModal();
-      expect(useUIStore.getState().newGameModalOpen).toBe(true);
+      expect(useUIStore.getState().activeModal).toBe('newGame');
 
       useUIStore.getState().openSettingsModal();
-      expect(useUIStore.getState().newGameModalOpen).toBe(false);
-      expect(useUIStore.getState().settingsModalOpen).toBe(true);
+      expect(useUIStore.getState().activeModal).toBe('settings');
     });
 
-    it('cycling through all three modals always leaves only one open', () => {
+    it('cycling through all modals always leaves only the last one open', () => {
       useUIStore.getState().openNewGameModal();
       useUIStore.getState().openLeaderboardModal();
       useUIStore.getState().openSettingsModal();
 
-      const state = useUIStore.getState();
-      const openCount = [
-        state.newGameModalOpen,
-        state.leaderboardModalOpen,
-        state.settingsModalOpen,
-      ].filter(Boolean).length;
-      expect(openCount).toBe(1);
-      expect(state.settingsModalOpen).toBe(true);
+      expect(useUIStore.getState().activeModal).toBe('settings');
     });
   });
 
   describe('close actions', () => {
-    it('closeNewGameModal sets newGameModalOpen to false', () => {
-      useUIStore.setState({ newGameModalOpen: true });
+    it('closeNewGameModal sets activeModal to null', () => {
+      useUIStore.getState().openNewGameModal();
       useUIStore.getState().closeNewGameModal();
-      expect(useUIStore.getState().newGameModalOpen).toBe(false);
+      expect(useUIStore.getState().activeModal).toBeNull();
     });
 
-    it('closeSettingsModal sets settingsModalOpen to false', () => {
-      useUIStore.setState({ settingsModalOpen: true });
+    it('closeSettingsModal sets activeModal to null', () => {
+      useUIStore.getState().openSettingsModal();
       useUIStore.getState().closeSettingsModal();
-      expect(useUIStore.getState().settingsModalOpen).toBe(false);
+      expect(useUIStore.getState().activeModal).toBeNull();
     });
 
-    it('closeLeaderboardModal sets leaderboardModalOpen to false', () => {
-      useUIStore.setState({ leaderboardModalOpen: true });
+    it('closeLeaderboardModal sets activeModal to null', () => {
+      useUIStore.getState().openLeaderboardModal();
       useUIStore.getState().closeLeaderboardModal();
-      expect(useUIStore.getState().leaderboardModalOpen).toBe(false);
+      expect(useUIStore.getState().activeModal).toBeNull();
     });
 
-    it('closing an already-closed modal is a no-op', () => {
+    it('closeModal sets activeModal to null', () => {
+      useUIStore.getState().openStatisticsModal();
+      useUIStore.getState().closeModal();
+      expect(useUIStore.getState().activeModal).toBeNull();
+    });
+
+    it('closing when no modal is open is a no-op', () => {
       useUIStore.getState().closeNewGameModal();
-      expect(useUIStore.getState().newGameModalOpen).toBe(false);
+      expect(useUIStore.getState().activeModal).toBeNull();
     });
   });
 
@@ -125,7 +127,7 @@ describe('ui.store', () => {
       useUIStore.getState().openNewGameModal();
       // Opening new game modal should NOT close the resume prompt
       expect(useUIStore.getState().resumePromptOpen).toBe(true);
-      expect(useUIStore.getState().newGameModalOpen).toBe(true);
+      expect(useUIStore.getState().activeModal).toBe('newGame');
     });
   });
 
@@ -144,6 +146,26 @@ describe('ui.store', () => {
 
     it('highScoreEntry is null by default', () => {
       expect(useUIStore.getState().highScoreEntry).toBeNull();
+    });
+  });
+
+  describe('keyboardModal', () => {
+    it('openKeyboardModal sets keyboardModalOpen to true', () => {
+      useUIStore.getState().openKeyboardModal();
+      expect(useUIStore.getState().keyboardModalOpen).toBe(true);
+    });
+
+    it('closeKeyboardModal sets keyboardModalOpen to false', () => {
+      useUIStore.getState().openKeyboardModal();
+      useUIStore.getState().closeKeyboardModal();
+      expect(useUIStore.getState().keyboardModalOpen).toBe(false);
+    });
+
+    it('keyboardModal is independent from activeModal', () => {
+      useUIStore.getState().openSettingsModal();
+      useUIStore.getState().openKeyboardModal();
+      expect(useUIStore.getState().activeModal).toBe('settings');
+      expect(useUIStore.getState().keyboardModalOpen).toBe(true);
     });
   });
 });

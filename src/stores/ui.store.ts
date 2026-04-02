@@ -7,11 +7,12 @@ export interface HighScoreEntry {
   boardKey: BoardKey;
 }
 
+export type ModalName = 'newGame' | 'settings' | 'leaderboard' | 'statistics' | null;
+
 interface UIState {
-  newGameModalOpen: boolean;
-  settingsModalOpen: boolean;
-  leaderboardModalOpen: boolean;
-  statisticsModalOpen: boolean;
+  /** Currently active exclusive modal. Only one can be open at a time. */
+  activeModal: ModalName;
+  /** Keyboard modal is a sub-modal of settings, not mutually exclusive. */
   keyboardModalOpen: boolean;
   resumePromptOpen: boolean;
   /** Non-null when the player just set a high score and needs to enter their name */
@@ -21,6 +22,8 @@ interface UIState {
 }
 
 interface UIActions {
+  openModal: (name: ModalName) => void;
+  closeModal: () => void;
   openNewGameModal: () => void;
   openSettingsModal: () => void;
   openLeaderboardModal: () => void;
@@ -41,48 +44,25 @@ interface UIActions {
 type UIStore = UIState & UIActions;
 
 export const useUIStore = create<UIStore>()((set) => ({
-  newGameModalOpen: false,
-  settingsModalOpen: false,
-  leaderboardModalOpen: false,
-  statisticsModalOpen: false,
+  activeModal: null,
   keyboardModalOpen: false,
   resumePromptOpen: false,
   highScoreEntry: null,
   focusedCell: null,
 
-  openNewGameModal: () =>
-    set({
-      newGameModalOpen: true,
-      settingsModalOpen: false,
-      leaderboardModalOpen: false,
-      statisticsModalOpen: false,
-    }),
-  openSettingsModal: () =>
-    set({
-      settingsModalOpen: true,
-      newGameModalOpen: false,
-      leaderboardModalOpen: false,
-      statisticsModalOpen: false,
-    }),
-  openLeaderboardModal: () =>
-    set({
-      leaderboardModalOpen: true,
-      newGameModalOpen: false,
-      settingsModalOpen: false,
-      statisticsModalOpen: false,
-    }),
-  openStatisticsModal: () =>
-    set({
-      statisticsModalOpen: true,
-      newGameModalOpen: false,
-      settingsModalOpen: false,
-      leaderboardModalOpen: false,
-    }),
+  openModal: (name) => set({ activeModal: name }),
+  closeModal: () => set({ activeModal: null }),
+
+  // Convenience aliases that preserve the existing API surface
+  openNewGameModal: () => set({ activeModal: 'newGame' }),
+  openSettingsModal: () => set({ activeModal: 'settings' }),
+  openLeaderboardModal: () => set({ activeModal: 'leaderboard' }),
+  openStatisticsModal: () => set({ activeModal: 'statistics' }),
   openKeyboardModal: () => set({ keyboardModalOpen: true }),
-  closeNewGameModal: () => set({ newGameModalOpen: false }),
-  closeSettingsModal: () => set({ settingsModalOpen: false }),
-  closeLeaderboardModal: () => set({ leaderboardModalOpen: false }),
-  closeStatisticsModal: () => set({ statisticsModalOpen: false }),
+  closeNewGameModal: () => set({ activeModal: null }),
+  closeSettingsModal: () => set({ activeModal: null }),
+  closeLeaderboardModal: () => set({ activeModal: null }),
+  closeStatisticsModal: () => set({ activeModal: null }),
   closeKeyboardModal: () => set({ keyboardModalOpen: false }),
 
   openResumePrompt: () => set({ resumePromptOpen: true }),

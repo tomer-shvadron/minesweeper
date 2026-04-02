@@ -10,7 +10,7 @@ const mockCloseLeaderboard = vi.fn();
 vi.mock('@/stores/ui.store', () => ({
   useUIStore: (selector: (s: object) => unknown) =>
     selector({
-      leaderboardModalOpen: mockIsOpen,
+      activeModal: mockIsOpen ? 'leaderboard' : null,
       closeLeaderboardModal: mockCloseLeaderboard,
     }),
 }));

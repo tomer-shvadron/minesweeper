@@ -1,12 +1,18 @@
 import { useCallback, useRef } from 'react';
 
+import { LONG_PRESS_DELAY_MS, TOUCH_MOVE_THRESHOLD_PX } from '@/constants/ui.constants';
+
 interface UseLongPressOptions {
   onLongPress: () => void;
   onTap: () => void;
   delay?: number;
 }
 
-export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOptions) {
+export function useLongPress({
+  onLongPress,
+  onTap,
+  delay = LONG_PRESS_DELAY_MS,
+}: UseLongPressOptions) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTriggeredRef = useRef(false);
   const movedRef = useRef(false);
@@ -160,7 +166,7 @@ export function useLongPress({ onLongPress, onTap, delay = 650 }: UseLongPressOp
         return;
       }
 
-      if (dx > 10 || Math.abs(dy) > 10) {
+      if (dx > TOUCH_MOVE_THRESHOLD_PX || Math.abs(dy) > TOUCH_MOVE_THRESHOLD_PX) {
         clearTimer();
         movedRef.current = true;
       }

@@ -10,6 +10,7 @@ import {
   MIN_ROWS,
   SAFE_ZONE_SIZE,
 } from '@/constants/game.constants';
+import { STORAGE_KEYS } from '@/constants/storage.constants';
 import {
   calculateAdjacentValues,
   chordReveal,
@@ -22,7 +23,6 @@ import {
   revealCell as revealCellFn,
   toggleFlag,
 } from '@/services/board.service';
-import { useSettingsStore } from '@/stores/settings.store';
 import type { Board, BoardConfig, GameStatus } from '@/types/game.types';
 
 interface GameState {
@@ -44,7 +44,7 @@ interface GameState {
 
 interface GameActions {
   startNewGame: (config?: BoardConfig) => void;
-  revealCell: (row: number, col: number) => void;
+  revealCell: (row: number, col: number, options?: { noGuessMode?: boolean }) => void;
   flagCell: (row: number, col: number, allowQuestionMarks: boolean) => void;
   chordClick: (row: number, col: number) => void;
   tick: () => void;
@@ -215,7 +215,7 @@ export const useGameStore = create<GameStore>()(
         });
       },
 
-      revealCell: (row, col) => {
+      revealCell: (row, col, options) => {
         const {
           board,
           config,
@@ -232,7 +232,7 @@ export const useGameStore = create<GameStore>()(
         let currentBoard = board;
 
         if (isFirstClick) {
-          const { noGuessMode } = useSettingsStore.getState();
+          const noGuessMode = options?.noGuessMode ?? false;
 
           if (typeof Worker !== 'undefined') {
             pendingRevealRow = row;
@@ -424,7 +424,7 @@ export const useGameStore = create<GameStore>()(
       clearChordReveal: () => set({ lastChordReveal: null }),
     }),
     {
-      name: 'minesweeper-game',
+      name: STORAGE_KEYS.game,
       partialize: (s) => ({
         board: s.board,
         status: s.status === 'generating' ? 'idle' : s.status,

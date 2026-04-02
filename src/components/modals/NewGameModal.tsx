@@ -15,7 +15,7 @@ const PRESETS = [
 ] as const;
 
 export const NewGameModal = () => {
-  const isOpen = useUIStore((s) => s.newGameModalOpen);
+  const isOpen = useUIStore((s) => s.activeModal === 'newGame');
   const closeModal = useUIStore((s) => s.closeNewGameModal);
   const {
     selectedPreset,

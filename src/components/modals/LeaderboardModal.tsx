@@ -28,7 +28,7 @@ function boardLabel(key: BoardKey): string {
 }
 
 export const LeaderboardModal = () => {
-  const isOpen = useUIStore((s) => s.leaderboardModalOpen);
+  const isOpen = useUIStore((s) => s.activeModal === 'leaderboard');
   const {
     allTabs,
     selectedTab,

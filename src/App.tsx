@@ -11,10 +11,9 @@ import { ResumePrompt } from '@/components/modals/ResumePrompt';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { StatisticsModal } from '@/components/modals/StatisticsModal';
 import { Confetti } from '@/components/ui/Confetti';
-import { soundThemeForTheme } from '@/constants/theme.constants';
+import { useHaptic } from '@/hooks/useHaptic';
+import { useSound } from '@/hooks/useSound';
 import { createBoardKey } from '@/services/board.service';
-import { haptic } from '@/services/haptic.service';
-import { playSound } from '@/services/sound.service';
 import { useGameStore } from '@/stores/game.store';
 import { useLeaderboardStore } from '@/stores/leaderboard.store';
 import { useSettingsStore } from '@/stores/settings.store';
@@ -26,11 +25,9 @@ export const App = () => {
   const status = useGameStore((s) => s.status);
   const elapsedSeconds = useGameStore((s) => s.elapsedSeconds);
   const config = useGameStore((s) => s.config);
-  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
-  const volume = useSettingsStore((s) => s.volume);
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
-  const soundTheme = soundThemeForTheme(theme);
-  const hapticEnabled = useSettingsStore((s) => s.hapticEnabled);
+  const play = useSound();
+  const vibrate = useHaptic();
   const board = useGameStore((s) => s.board);
   const totalClicks = useGameStore((s) => s.totalClicks);
   const firstClick = useGameStore((s) => s.firstClick);
@@ -84,20 +81,16 @@ export const App = () => {
     }
 
     if (status === 'won') {
-      if (soundEnabled) {
-        playSound('win', volume, { soundTheme });
-      }
-      haptic('win', hapticEnabled);
+      play('win');
+      vibrate('win');
       const boardKey = createBoardKey(config);
       incrementGamesPlayed(boardKey);
       if (isHighScore(boardKey, elapsedSeconds)) {
         showHighScorePrompt({ boardKey, timeSeconds: elapsedSeconds });
       }
     } else if (status === 'lost') {
-      if (soundEnabled) {
-        playSound('explode', volume, { soundTheme });
-      }
-      haptic('loss', hapticEnabled);
+      play('explode');
+      vibrate('loss');
       const boardKey = createBoardKey(config);
       incrementGamesPlayed(boardKey);
     }

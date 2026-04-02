@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { DEFAULT_KEY_BINDINGS } from '@/constants/keyboard.constants';
+import { STORAGE_KEYS } from '@/constants/storage.constants';
 import type { FlagMode, KeyboardAction, Settings, Theme } from '@/types/settings.types';
 
 const VALID_THEMES = new Set<Theme>([
@@ -79,7 +80,7 @@ export const useSettingsStore = create<SettingsStore>()(
         set((s) => ({ keyboardBindings: { ...s.keyboardBindings, [action]: key } })),
     }),
     {
-      name: 'minesweeper-settings',
+      name: STORAGE_KEYS.settings,
       partialize: (s) => ({
         theme: s.theme,
         flagMode: s.flagMode,

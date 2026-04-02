@@ -1,5 +1,7 @@
 import { useGameStore } from '@/stores/game.store';
+import { selectIsGameOver } from '@/stores/selectors';
 import type { CellState } from '@/types/game.types';
+import { cn } from '@/utils/cn';
 
 const NUMBER_COLOR_CLASSES: Record<number, string> = {
   1: 'text-[var(--color-n1)]',
@@ -17,9 +19,7 @@ interface UseCellLogicProps {
 }
 
 export const useCellLogic = ({ cell }: UseCellLogicProps) => {
-  const status = useGameStore((s) => s.status);
-
-  const isGameOver = status === 'won' || status === 'lost';
+  const isGameOver = useGameStore(selectIsGameOver);
 
   const getContent = (): string => {
     if (!cell.isRevealed) {
@@ -48,22 +48,20 @@ export const useCellLogic = ({ cell }: UseCellLogicProps) => {
   // Cell was correctly flagged — show a green checkmark badge on game over
   const isCorrectFlag = isGameOver && cell.isFlagged && cell.hasMine;
 
-  const containerClass = [
+  const containerClass = cn(
     'cell',
     isRaised
       ? 'shadow-[inset_2px_2px_0_var(--color-border-light),inset_-2px_-2px_0_var(--color-border-dark)]'
       : 'cell-revealed',
-    isExploded ? 'cell-exploded' : '',
-    !isGameOver && !isRaised ? 'cursor-default' : '',
-    isGameOver ? 'cursor-default' : 'cursor-pointer',
-  ]
-    .filter(Boolean)
-    .join(' ');
+    isExploded && 'cell-exploded',
+    (isGameOver || !isRaised) && 'cursor-default',
+    !isGameOver && isRaised && 'cursor-pointer'
+  );
 
-  const numberClass =
-    cell.isRevealed && !cell.hasMine && cell.value > 0
-      ? `font-bold ${NUMBER_COLOR_CLASSES[cell.value] ?? ''}`
-      : '';
+  const numberClass = cn(
+    cell.isRevealed && !cell.hasMine && cell.value > 0 && 'font-bold',
+    cell.isRevealed && !cell.hasMine && cell.value > 0 && NUMBER_COLOR_CLASSES[cell.value]
+  );
 
   return {
     content: getContent(),

@@ -7,6 +7,7 @@ import {
   MIN_COLS,
   MIN_MINES,
   MIN_ROWS,
+  detectPreset,
 } from '@/constants/game.constants';
 import { useGameStore } from '@/stores/game.store';
 import { useSettingsStore } from '@/stores/settings.store';
@@ -27,20 +28,7 @@ export const useNewGameModalLogic = () => {
   const noGuessMode = useSettingsStore((s) => s.noGuessMode);
   const setNoGuessMode = useSettingsStore((s) => s.setNoGuessMode);
 
-  const detectCurrentPreset = (): Preset => {
-    for (const [key, preset] of Object.entries(DIFFICULTY_PRESETS)) {
-      if (
-        preset.rows === currentConfig.rows &&
-        preset.cols === currentConfig.cols &&
-        preset.mines === currentConfig.mines
-      ) {
-        return key as Preset;
-      }
-    }
-    return 'custom';
-  };
-
-  const [selectedPreset, setSelectedPreset] = useState<Preset>(detectCurrentPreset);
+  const [selectedPreset, setSelectedPreset] = useState<Preset>(() => detectPreset(currentConfig));
 
   // Raw string state — allows intermediate values while typing (e.g. "1" on the
   // way to "15"). Clamping only happens on blur or when Start is clicked.

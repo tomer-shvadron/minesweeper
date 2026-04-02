@@ -10,7 +10,7 @@ const mockCloseSettings = vi.fn();
 vi.mock('@/stores/ui.store', () => ({
   useUIStore: (selector: (s: object) => unknown) =>
     selector({
-      settingsModalOpen: mockIsOpen,
+      activeModal: mockIsOpen ? 'settings' : null,
       closeSettingsModal: mockCloseSettings,
     }),
 }));

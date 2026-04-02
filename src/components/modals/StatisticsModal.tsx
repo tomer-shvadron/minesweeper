@@ -64,7 +64,7 @@ function HeatmapCanvas({
 }
 
 export const StatisticsModal = () => {
-  const isOpen = useUIStore((s) => s.statisticsModalOpen);
+  const isOpen = useUIStore((s) => s.activeModal === 'statistics');
   const {
     allTabs,
     selectedTab,

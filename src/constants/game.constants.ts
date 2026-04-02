@@ -14,3 +14,19 @@ export const MIN_MINES = 1;
 /** First click + 8 neighbors must be safe. */
 export const SAFE_ZONE_SIZE = 9;
 export const CANVAS_THRESHOLD = 250;
+
+export type DifficultyKey = keyof typeof DIFFICULTY_PRESETS;
+
+/** Match a config against known presets, returning the preset key or 'custom'. */
+export function detectPreset(config: BoardConfig): DifficultyKey | 'custom' {
+  for (const [key, preset] of Object.entries(DIFFICULTY_PRESETS)) {
+    if (
+      preset.rows === config.rows &&
+      preset.cols === config.cols &&
+      preset.mines === config.mines
+    ) {
+      return key as DifficultyKey;
+    }
+  }
+  return 'custom';
+}

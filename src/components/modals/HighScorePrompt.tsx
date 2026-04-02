@@ -2,6 +2,7 @@ import { useHighScorePromptLogic } from './useHighScorePromptLogic';
 
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { MAX_PLAYER_NAME_LENGTH } from '@/constants/ui.constants';
 import { formatTime } from '@/utils/time.utils';
 
 export const HighScorePrompt = () => {
@@ -19,7 +20,7 @@ export const HighScorePrompt = () => {
           type="text"
           className="xp-input w-full"
           value={name}
-          maxLength={20}
+          maxLength={MAX_PLAYER_NAME_LENGTH}
           placeholder="Your name"
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { STORAGE_KEYS } from '@/constants/storage.constants';
 import type { BoardKey } from '@/types/game.types';
 import type { Leaderboard, LeaderboardEntry } from '@/types/leaderboard.types';
 
@@ -96,7 +97,7 @@ export const useLeaderboardStore = create<LeaderboardStore>()(
       },
     }),
     {
-      name: 'minesweeper-leaderboard',
+      name: STORAGE_KEYS.leaderboard,
       partialize: (s) => ({
         entries: s.entries,
         gamesPlayed: s.gamesPlayed,

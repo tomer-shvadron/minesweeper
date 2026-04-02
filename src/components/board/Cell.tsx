@@ -1,5 +1,6 @@
 import { useCellLogic } from './useCellLogic';
 
+import { CELL_FONT_SCALE_ICON, CELL_FONT_SCALE_NUMBER } from '@/constants/ui.constants';
 import type { CellState } from '@/types/game.types';
 
 interface CellProps {
@@ -25,8 +26,8 @@ export const Cell = ({
 
   const fontSize =
     cell.isRevealed && !cell.hasMine && cell.value > 0
-      ? Math.floor(cellSize * 0.65)
-      : Math.floor(cellSize * 0.72);
+      ? Math.floor(cellSize * CELL_FONT_SCALE_NUMBER)
+      : Math.floor(cellSize * CELL_FONT_SCALE_ICON);
 
   const animClass = [
     mineRevealIndex !== undefined ? 'cell--mine-reveal' : '',

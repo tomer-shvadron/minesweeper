@@ -9,7 +9,7 @@ import { Toggle } from '@/components/ui/Toggle';
 import { THEME_LABELS, THEME_PREVIEW, THEMES } from '@/constants/theme.constants';
 import { useUIStore } from '@/stores/ui.store';
 export const SettingsModal = () => {
-  const isOpen = useUIStore((s) => s.settingsModalOpen);
+  const isOpen = useUIStore((s) => s.activeModal === 'settings');
   const {
     theme,
     flagMode,

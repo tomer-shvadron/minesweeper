@@ -9,7 +9,7 @@ const mockClose = vi.fn();
 vi.mock('@/stores/ui.store', () => ({
   useUIStore: (selector: (s: object) => unknown) =>
     selector({
-      newGameModalOpen: mockIsOpen,
+      activeModal: mockIsOpen ? 'newGame' : null,
       closeNewGameModal: mockClose,
     }),
 }));

@@ -52,7 +52,7 @@ export const SettingsModal = () => {
                   {
                     backgroundColor: THEME_PREVIEW[t].surface,
                     '--swatch-accent': THEME_PREVIEW[t].accent,
-                  } as React.CSSProperties
+                  } as React.CSSProperties & Record<`--${string}`, string>
                 }
               />
               <span className="max-w-11 overflow-hidden text-center text-[0.5625rem] leading-[1.2] text-ellipsis whitespace-nowrap text-[var(--color-text)]">

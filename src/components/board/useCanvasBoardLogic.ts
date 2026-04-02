@@ -12,6 +12,8 @@ import { useSettingsStore } from '@/stores/settings.store';
 import { useUIStore } from '@/stores/ui.store';
 import { cellKey } from '@/utils/cell.utils';
 
+const EMPTY_MAP = new Map<string, number>();
+
 export const useCanvasBoardLogic = () => {
   const board = useGameStore((s) => s.board);
   const gameKey = useGameStore((s) => s.gameKey);
@@ -136,7 +138,7 @@ export const useCanvasBoardLogic = () => {
 
   const chordRippleLookup = useMemo(() => {
     if (!lastChordReveal) {
-      return new Map<string, number>();
+      return EMPTY_MAP;
     }
     const [or, oc] = lastChordReveal.origin;
     return new Map(

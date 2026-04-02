@@ -14,6 +14,8 @@ import { cellKey } from '@/utils/cell.utils';
 // Read store state synchronously after dispatch for cascade detection
 const getGameState = () => useGameStore.getState();
 
+const EMPTY_MAP = new Map<string, number>();
+
 function getCellFromTarget(target: EventTarget | null): { row: number; col: number } | null {
   const el = (target as HTMLElement | null)?.closest?.('[data-row]') as HTMLElement | null;
   if (!el) {
@@ -306,7 +308,7 @@ export const useGameBoardLogic = () => {
 
   const chordRippleLookup = useMemo(() => {
     if (!lastChordReveal) {
-      return new Map<string, number>();
+      return EMPTY_MAP;
     }
     const [or, oc] = lastChordReveal.origin;
     return new Map(
@@ -329,8 +331,8 @@ export const useGameBoardLogic = () => {
     pinchHandlers,
     gridInteractionHandlers,
     boardEntering: animationsEnabled && boardEntering,
-    mineRevealLookup: animationsEnabled ? mineRevealLookup : new Map<string, number>(),
-    chordRippleLookup: animationsEnabled ? chordRippleLookup : new Map<string, number>(),
+    mineRevealLookup: animationsEnabled ? mineRevealLookup : EMPTY_MAP,
+    chordRippleLookup: animationsEnabled ? chordRippleLookup : EMPTY_MAP,
     focusedCell: boardFocused ? focusedCell : null,
     handleKeyDown,
     handleBoardFocus,

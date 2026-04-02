@@ -72,7 +72,7 @@ export const Cell = ({
           '--cell-col': col,
           ...(mineRevealIndex !== undefined && { '--mine-delay': `${mineRevealIndex * 35}ms` }),
           ...(chordRippleDelay !== undefined && { '--chord-delay': `${chordRippleDelay}ms` }),
-        } as React.CSSProperties
+        } as React.CSSProperties & Record<`--${string}`, string | number>
       }
       role="gridcell"
       className={`relative ${animClass ? `${containerClass} ${animClass}` : containerClass}`}

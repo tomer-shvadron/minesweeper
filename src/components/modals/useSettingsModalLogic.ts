@@ -21,8 +21,14 @@ export const useSettingsModalLogic = () => {
   const setHapticEnabled = useSettingsStore((s) => s.setHapticEnabled);
   const setNoGuessMode = useSettingsStore((s) => s.setNoGuessMode);
 
-  // navigator.vibrate is undefined in non-touch environments (desktop browsers)
-  const hapticSupported = typeof navigator !== 'undefined' && 'vibrate' in navigator;
+  // Show haptic toggle only on mobile devices with vibration support.
+  // Desktop Chrome exposes navigator.vibrate (as a no-op), so we also check
+  // for a coarse primary pointer which indicates a touchscreen mobile device.
+  const hapticSupported =
+    typeof navigator !== 'undefined' &&
+    'vibrate' in navigator &&
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(pointer: coarse)').matches;
 
   return {
     theme,

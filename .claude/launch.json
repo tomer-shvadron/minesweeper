@@ -3,8 +3,11 @@
   "configurations": [
     {
       "name": "dev",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev"],
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": [
+        "-c",
+        "eval \"$(/usr/local/Cellar/fnm/1.38.1/bin/fnm env)\" && exec /usr/local/bin/pnpm dev"
+      ],
       "port": 5173
     }
   ]

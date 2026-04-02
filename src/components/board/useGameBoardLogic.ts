@@ -108,17 +108,22 @@ export const useGameBoardLogic = () => {
     onLongPress: handleCellLongPress,
   });
 
-  // Wrap long press handlers to extract target cell from event delegation
+  // Wrap long press + pinch-zoom handlers into a single set of event handlers.
+  // Both hooks define onTouchStart/Move/End — we must call both so pinch-to-zoom
+  // and cell interaction (tap, long-press, swipe-to-flag) all work on the same div.
   const gridInteractionHandlers = useMemo(
     () => ({
       onTouchStart: (e: React.TouchEvent) => {
         activeCellRef.current = getCellFromTarget(e.target);
+        pinchHandlers.onTouchStart(e);
         longPressHandlers.onTouchStart(e);
       },
       onTouchMove: (e: React.TouchEvent) => {
+        pinchHandlers.onTouchMove(e);
         longPressHandlers.onTouchMove(e);
       },
       onTouchEnd: (e: React.TouchEvent) => {
+        pinchHandlers.onTouchEnd(e);
         longPressHandlers.onTouchEnd(e);
       },
       onClick: (e: React.MouseEvent) => {
@@ -133,7 +138,7 @@ export const useGameBoardLogic = () => {
       onMouseUp: () => setCellPressEnd(),
       onMouseLeave: () => setCellPressEnd(),
     }),
-    [longPressHandlers, setCellPressStart, setCellPressEnd]
+    [longPressHandlers, pinchHandlers, setCellPressStart, setCellPressEnd]
   );
 
   const [boardEntering, setBoardEntering] = useState(false);
@@ -328,7 +333,6 @@ export const useGameBoardLogic = () => {
     scale,
     panX,
     panY,
-    pinchHandlers,
     gridInteractionHandlers,
     boardEntering: animationsEnabled && boardEntering,
     mineRevealLookup: animationsEnabled ? mineRevealLookup : EMPTY_MAP,

@@ -13,7 +13,7 @@ const NUMBER_COLORS = [
 ];
 
 function getCSSVar(name: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
 interface DrawColors {

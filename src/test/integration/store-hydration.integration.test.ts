@@ -132,7 +132,7 @@ describe('corrupted localStorage hydration', () => {
           persist: { getOptions: () => { merge?: (p: unknown, c: unknown) => unknown } };
         }
       ).persist.getOptions();
-      const current = { theme: 'xp' };
+      const current = { theme: 'regular' };
       const corrupted = { theme: 'NONEXISTENT_THEME' };
       const result = options.merge?.(corrupted, current);
       expect(result).toBe(current);
@@ -197,12 +197,41 @@ describe('corrupted localStorage hydration', () => {
           persist: { getOptions: () => { merge?: (p: unknown, c: unknown) => unknown } };
         }
       ).persist.getOptions();
-      const current = { theme: 'xp', volume: 0.5 };
-      const valid = { theme: 'dark', volume: 0.8, soundEnabled: false };
+      const current = { theme: 'regular', volume: 0.5 };
+      const valid = { theme: 'jedi', volume: 0.8, soundEnabled: false };
       const result = options.merge?.(valid, current) as Record<string, unknown>;
       expect(result).not.toBe(current);
-      expect(result.theme).toBe('dark');
+      expect(result.theme).toBe('jedi');
       expect(result.volume).toBe(0.8);
+    });
+
+    it('migrates legacy V3 theme "xp" to "regular"', async () => {
+      const { useSettingsStore } = await import('@/stores/settings.store');
+      const options = (
+        useSettingsStore as unknown as {
+          persist: { getOptions: () => { merge?: (p: unknown, c: unknown) => unknown } };
+        }
+      ).persist.getOptions();
+      const current = { theme: 'regular' };
+      const legacy = { theme: 'xp', volume: 0.7 };
+      const result = options.merge?.(legacy, current) as Record<string, unknown>;
+      expect(result).not.toBe(current);
+      expect(result.theme).toBe('regular');
+      expect(result.volume).toBe(0.7);
+    });
+
+    it('migrates legacy V3 theme "dark" to "regular"', async () => {
+      const { useSettingsStore } = await import('@/stores/settings.store');
+      const options = (
+        useSettingsStore as unknown as {
+          persist: { getOptions: () => { merge?: (p: unknown, c: unknown) => unknown } };
+        }
+      ).persist.getOptions();
+      const current = { theme: 'regular' };
+      const legacy = { theme: 'dark' };
+      const result = options.merge?.(legacy, current) as Record<string, unknown>;
+      expect(result).not.toBe(current);
+      expect(result.theme).toBe('regular');
     });
   });
 

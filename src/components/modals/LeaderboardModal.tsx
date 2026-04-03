@@ -1,6 +1,6 @@
 import { RECENT_TAB, useLeaderboardModalLogic } from './useLeaderboardModalLogic';
 
-import { Modal } from '@/components/ui/Modal';
+import { BottomSheet } from '@/components/ui/BottomSheet';
 import { useUIStore } from '@/stores/ui.store';
 import type { BoardKey } from '@/types/game.types';
 import { formatRelativeDate } from '@/utils/date.utils';
@@ -42,20 +42,20 @@ export const LeaderboardModal = () => {
   const isRecent = selectedTab === RECENT_TAB;
 
   return (
-    <Modal isOpen={isOpen} title="Best Times" onClose={closeModal}>
-      {/* Board selector tabs */}
-      <div
-        role="tablist"
-        aria-label="Difficulty levels"
-        className="flex flex-wrap gap-0.5 border-b-2 border-[var(--color-border-dark)]"
-      >
+    <BottomSheet isOpen={isOpen} title="Best Times" onClose={closeModal}>
+      {/* Tabs */}
+      <div role="tablist" aria-label="Difficulty levels" className="flex gap-1 overflow-x-auto">
         {allTabs.map((key) => (
           <button
             key={key}
             type="button"
             role="tab"
             aria-selected={selectedTab === key}
-            className={`cursor-pointer border border-b-0 border-[var(--color-border-dark)] bg-[var(--color-surface)] px-[14px] py-[5px] text-[0.9375rem] shadow-[inset_1px_1px_0_var(--color-border-light),inset_-1px_0_0_var(--color-border-dark)] ${selectedTab === key ? 'bg-[var(--color-border-light)] font-bold' : ''}`}
+            className={`cursor-pointer rounded-lg border border-[var(--color-border)] px-3.5 py-1.5 text-sm transition-colors duration-100 ${
+              selectedTab === key
+                ? 'bg-[var(--color-accent)] font-semibold text-white'
+                : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2,var(--color-surface))]'
+            }`}
             onClick={() => setSelectedTab(key)}
           >
             {tabLabel(key)}
@@ -71,31 +71,31 @@ export const LeaderboardModal = () => {
               Play a game to see recent history!
             </p>
           ) : (
-            <table className="w-full border-collapse text-[0.9375rem]">
+            <table className="scores-table w-full border-collapse text-[0.9375rem]">
               <caption className="sr-only">Recent games history</caption>
               <thead>
                 <tr>
-                  <th className="border-b border-[var(--color-border-dark)] px-[10px] py-[5px] text-left font-bold">
+                  <th className="border-b border-[var(--color-border)] px-3 py-2 text-left text-xs font-medium tracking-wide text-[var(--color-text-muted)] uppercase">
                     Level
                   </th>
-                  <th className="border-b border-[var(--color-border-dark)] px-[10px] py-[5px] text-left font-bold">
+                  <th className="border-b border-[var(--color-border)] px-3 py-2 text-left text-xs font-medium tracking-wide text-[var(--color-text-muted)] uppercase">
                     Result
                   </th>
-                  <th className="border-b border-[var(--color-border-dark)] px-[10px] py-[5px] text-left font-bold">
+                  <th className="border-b border-[var(--color-border)] px-3 py-2 text-left text-xs font-medium tracking-wide text-[var(--color-text-muted)] uppercase">
                     Time
                   </th>
-                  <th className="border-b border-[var(--color-border-dark)] px-[10px] py-[5px] text-left font-bold">
+                  <th className="border-b border-[var(--color-border)] px-3 py-2 text-left text-xs font-medium tracking-wide text-[var(--color-text-muted)] uppercase">
                     When
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {recentGames.map((record) => (
-                  <tr key={record.id} className="even:bg-black/5">
-                    <td className="px-[10px] py-[5px]">{boardLabel(record.boardKey)}</td>
-                    <td className="px-[10px] py-[5px]">{record.result === 'won' ? '✅' : '💣'}</td>
-                    <td className="px-[10px] py-[5px]">{formatTime(record.timeSeconds)}</td>
-                    <td className="px-[10px] py-[5px] text-[var(--color-text-muted)]">
+                  <tr key={record.id} className="even:bg-black/[0.03]">
+                    <td className="px-3 py-2">{boardLabel(record.boardKey)}</td>
+                    <td className="px-3 py-2">{record.result === 'won' ? '✅' : '💣'}</td>
+                    <td className="px-3 py-2">{formatTime(record.timeSeconds)}</td>
+                    <td className="px-3 py-2 text-[var(--color-text-muted)]">
                       {formatRelativeDate(record.date)}
                     </td>
                   </tr>
@@ -107,14 +107,14 @@ export const LeaderboardModal = () => {
       ) : (
         <div role="tabpanel" aria-label={`${tabLabel(selectedTab)} high scores`}>
           {/* Games played stat */}
-          <p className="m-0 text-[0.8125rem] text-[var(--color-text-muted)]">
+          <p className="m-0 text-sm text-[var(--color-text-muted)]">
             {gamesPlayedCount > 0
               ? `${gamesPlayedCount} game${gamesPlayedCount !== 1 ? 's' : ''} played`
               : 'No games played yet'}
           </p>
 
           {/* Scores table */}
-          <div className="min-h-[180px] w-full">
+          <div className="min-h-[180px] w-full pt-2">
             {entries.length === 0 ? (
               <p className="py-6 text-center text-[0.9375rem] text-[var(--color-text-muted)]">
                 {gamesPlayedCount > 0
@@ -122,27 +122,27 @@ export const LeaderboardModal = () => {
                   : 'Play a game to set a record!'}
               </p>
             ) : (
-              <table className="w-full border-collapse text-[0.9375rem]">
+              <table className="scores-table w-full border-collapse text-[0.9375rem]">
                 <caption className="sr-only">{tabLabel(selectedTab)} high scores</caption>
                 <thead>
                   <tr>
-                    <th className="border-b border-[var(--color-border-dark)] px-[10px] py-[5px] text-left font-bold">
+                    <th className="border-b border-[var(--color-border)] px-3 py-2 text-left text-xs font-medium tracking-wide text-[var(--color-text-muted)] uppercase">
                       #
                     </th>
-                    <th className="border-b border-[var(--color-border-dark)] px-[10px] py-[5px] text-left font-bold">
+                    <th className="border-b border-[var(--color-border)] px-3 py-2 text-left text-xs font-medium tracking-wide text-[var(--color-text-muted)] uppercase">
                       Name
                     </th>
-                    <th className="border-b border-[var(--color-border-dark)] px-[10px] py-[5px] text-left font-bold">
+                    <th className="border-b border-[var(--color-border)] px-3 py-2 text-left text-xs font-medium tracking-wide text-[var(--color-text-muted)] uppercase">
                       Time
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {entries.map((entry, i) => (
-                    <tr key={`${entry.name}-${entry.date}`} className="even:bg-black/5">
-                      <td className="px-[10px] py-[5px]">{i + 1}</td>
-                      <td className="px-[10px] py-[5px]">{entry.name}</td>
-                      <td className="px-[10px] py-[5px]">{formatTime(entry.timeSeconds)}</td>
+                    <tr key={`${entry.name}-${entry.date}`} className="even:bg-black/[0.03]">
+                      <td className="px-3 py-2">{i + 1}</td>
+                      <td className="px-3 py-2">{entry.name}</td>
+                      <td className="px-3 py-2">{formatTime(entry.timeSeconds)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -151,6 +151,6 @@ export const LeaderboardModal = () => {
           </div>
         </div>
       )}
-    </Modal>
+    </BottomSheet>
   );
 };

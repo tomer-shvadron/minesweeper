@@ -19,25 +19,26 @@ export const Modal = ({ isOpen, title, onClose, children }: ModalProps) => (
     }}
   >
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-[100] bg-black/45" onClick={onClose} />
+      <DialogPrimitive.Overlay
+        className="modal-backdrop fixed inset-0 z-[100] bg-black/35 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
       <DialogPrimitive.Content
-        className="fixed top-1/2 left-1/2 z-[101] flex max-h-[90dvh] max-w-[min(520px,94vw)] min-w-[340px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden bg-[var(--color-surface)] shadow-[inset_2px_2px_0_var(--color-border-light),inset_-2px_-2px_0_var(--color-border-darker),4px_4px_8px_rgba(0,0,0,0.4)]"
+        className="modal-window fixed top-1/2 left-1/2 z-[101] flex max-h-[85dvh] max-w-[min(480px,92vw)] min-w-[320px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_24px_64px_rgba(0,0,0,0.2)]"
         aria-describedby={undefined}
       >
-        <DialogPrimitive.Title className="flex items-center justify-between bg-[var(--color-titlebar-bg)] p-[4px_6px_4px_8px] text-[0.9375rem] font-bold text-[var(--color-titlebar-text)] select-none">
+        <DialogPrimitive.Title className="modal-title-bar flex items-center justify-between border-b border-[var(--color-border)] px-5 py-3 text-base font-semibold text-[var(--color-text)] select-none">
           <span>{title}</span>
           <DialogPrimitive.Close asChild>
             <button
-              className="flex h-[18px] w-5 cursor-pointer items-center justify-center border-none bg-[var(--color-surface)] text-xs leading-none text-[var(--color-text)] shadow-[inset_1px_1px_0_var(--color-border-light),inset_-1px_-1px_0_var(--color-border-dark)] outline-none active:shadow-[inset_-1px_-1px_0_var(--color-border-light),inset_1px_1px_0_var(--color-border-dark)]"
+              className="modal-close-btn flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface-2,var(--color-surface))] text-[var(--color-text-muted)] transition-colors duration-100 hover:bg-[var(--color-border)] hover:text-[var(--color-text)] focus-visible:outline-2 focus-visible:outline-[var(--color-accent)]"
               aria-label="Close"
             >
-              <X size={10} strokeWidth={2.5} />
+              <X size={14} strokeWidth={2} />
             </button>
           </DialogPrimitive.Close>
         </DialogPrimitive.Title>
-        <div className="flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto p-[18px]">
-          {children}
-        </div>
+        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-5">{children}</div>
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   </DialogPrimitive.Root>

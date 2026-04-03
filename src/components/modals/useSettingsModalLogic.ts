@@ -12,6 +12,7 @@ export const useSettingsModalLogic = () => {
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
   const hapticEnabled = useSettingsStore((s) => s.hapticEnabled);
   const noGuessMode = useSettingsStore((s) => s.noGuessMode);
+  const boardSize = useSettingsStore((s) => s.boardSize);
 
   const setTheme = useSettingsStore((s) => s.setTheme);
   const setFlagMode = useSettingsStore((s) => s.setFlagMode);
@@ -20,6 +21,7 @@ export const useSettingsModalLogic = () => {
   const setAnimationsEnabled = useSettingsStore((s) => s.setAnimationsEnabled);
   const setHapticEnabled = useSettingsStore((s) => s.setHapticEnabled);
   const setNoGuessMode = useSettingsStore((s) => s.setNoGuessMode);
+  const setBoardSize = useSettingsStore((s) => s.setBoardSize);
 
   // Show haptic toggle only on mobile devices with vibration support.
   // Desktop Chrome exposes navigator.vibrate (as a no-op), so we also check
@@ -38,6 +40,7 @@ export const useSettingsModalLogic = () => {
     animationsEnabled,
     hapticEnabled,
     noGuessMode,
+    boardSize,
     hapticSupported,
     setTheme,
     setFlagMode,
@@ -46,6 +49,7 @@ export const useSettingsModalLogic = () => {
     setAnimationsEnabled,
     setHapticEnabled,
     setNoGuessMode,
+    setBoardSize,
     openKeyboardModal,
     closeModal,
   };

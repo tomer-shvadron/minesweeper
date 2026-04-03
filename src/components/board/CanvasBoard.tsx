@@ -17,7 +17,7 @@ export const CanvasBoard = () => {
     <div
       id="game-board"
       role="grid"
-      className={boardEntering ? 'board--entering overflow-hidden' : 'overflow-hidden'}
+      className={`game-window overflow-hidden${boardEntering ? 'board--entering' : ''}`}
       data-testid="board"
       style={{ width: boardWidth, height: boardHeight, touchAction: 'none' }}
       tabIndex={0}

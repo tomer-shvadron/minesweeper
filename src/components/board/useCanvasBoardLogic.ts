@@ -11,6 +11,7 @@ import { selectAllowQuestionMarks, selectIsGameOver } from '@/stores/selectors';
 import { useSettingsStore } from '@/stores/settings.store';
 import { useUIStore } from '@/stores/ui.store';
 import { cellKey } from '@/utils/cell.utils';
+import { CELL_GAP_ROUNDED } from '@/utils/layout.utils';
 
 const EMPTY_MAP = new Map<string, number>();
 
@@ -28,6 +29,7 @@ export const useCanvasBoardLogic = () => {
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
   const keyboardBindings = useSettingsStore((s) => s.keyboardBindings);
   const noGuessMode = useSettingsStore((s) => s.noGuessMode);
+  const cellStyleSetting = useSettingsStore((s) => s.cellStyle);
   const focusedCell = useUIStore((s) => s.focusedCell);
   const setFocusedCell = useUIStore((s) => s.setFocusedCell);
   const openNewGameModal = useUIStore((s) => s.openNewGameModal);
@@ -36,14 +38,17 @@ export const useCanvasBoardLogic = () => {
   const isGameOver = useGameStore(selectIsGameOver);
   const allowQuestionMarks = useSettingsStore(selectAllowQuestionMarks);
 
-  const { cellSize, boardWidth, boardHeight, config } = useGameLayout();
+  const { cellSize, config } = useGameLayout();
+  const cellGap = cellStyleSetting === 'rounded' ? CELL_GAP_ROUNDED : 0;
+  const totalW = cellSize * config.cols + cellGap * (config.cols - 1);
+  const totalH = cellSize * config.rows + cellGap * (config.rows - 1);
   const {
     scale,
     panX,
     panY,
     handlers: pinchHandlers,
     resetZoom,
-  } = usePinchZoom(1, 5, boardWidth, boardHeight);
+  } = usePinchZoom(1, 5, totalW, totalH);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [boardEntering, setBoardEntering] = useState(false);
@@ -57,15 +62,15 @@ export const useCanvasBoardLogic = () => {
       return;
     }
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = boardWidth * dpr;
-    canvas.height = boardHeight * dpr;
-    canvas.style.width = `${boardWidth}px`;
-    canvas.style.height = `${boardHeight}px`;
+    canvas.width = totalW * dpr;
+    canvas.height = totalH * dpr;
+    canvas.style.width = `${totalW}px`;
+    canvas.style.height = `${totalH}px`;
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.scale(dpr, dpr);
     }
-  }, [boardWidth, boardHeight]);
+  }, [totalW, totalH]);
 
   // Board entering animation
   useLayoutEffect(() => {
@@ -97,7 +102,7 @@ export const useCanvasBoardLogic = () => {
   // Reset zoom on board size change
   useEffect(() => {
     resetZoom();
-  }, [boardWidth, boardHeight, resetZoom]);
+  }, [totalW, totalH, resetZoom]);
 
   useEffect(() => {
     if (isGameOver) {
@@ -165,6 +170,8 @@ export const useCanvasBoardLogic = () => {
       drawBoard(canvas, ctx, {
         board,
         cellSize,
+        cellStyle: cellStyleSetting,
+        cellGap,
         scale,
         panX,
         panY,
@@ -181,6 +188,8 @@ export const useCanvasBoardLogic = () => {
   }, [
     board,
     cellSize,
+    cellStyleSetting,
+    cellGap,
     scale,
     panX,
     panY,
@@ -200,14 +209,15 @@ export const useCanvasBoardLogic = () => {
         cellSize,
         config.cols,
         config.rows,
-        boardWidth,
-        boardHeight,
+        totalW,
+        totalH,
         scale,
         panX,
-        panY
+        panY,
+        cellGap
       );
     },
-    [cellSize, config.cols, config.rows, boardWidth, boardHeight, scale, panX, panY]
+    [cellSize, config.cols, config.rows, totalW, totalH, scale, panX, panY, cellGap]
   );
 
   // Coordinate storage for long-press (captures position before callbacks fire)
@@ -395,8 +405,8 @@ export const useCanvasBoardLogic = () => {
     canvasRef,
     board,
     config,
-    boardWidth,
-    boardHeight,
+    boardWidth: totalW,
+    boardHeight: totalH,
     pinchHandlers,
     boardEntering: animationsEnabled && boardEntering,
     focusedCell: boardFocused ? focusedCell : null,

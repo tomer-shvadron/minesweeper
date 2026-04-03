@@ -94,6 +94,6 @@ describe('LeaderboardModal', () => {
     render(<LeaderboardModal />);
     const expertTab = screen.getByText('Expert');
     fireEvent.click(expertTab);
-    expect(expertTab.className).toContain('font-bold');
+    expect(expertTab.className).toContain('font-semibold');
   });
 });

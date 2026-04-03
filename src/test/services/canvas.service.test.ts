@@ -348,6 +348,8 @@ describe('drawBoard', () => {
     return {
       board: makeBoard(rows, cols),
       cellSize,
+      cellStyle: 'flat',
+      cellGap: 0,
       scale: 1,
       panX: 0,
       panY: 0,
@@ -402,6 +404,8 @@ describe('drawBoard', () => {
     const opts: DrawOptions = {
       board,
       cellSize: 30,
+      cellStyle: 'flat',
+      cellGap: 0,
       scale: 1,
       panX: 0,
       panY: 0,
@@ -420,6 +424,8 @@ describe('drawBoard', () => {
     const opts: DrawOptions = {
       board: makeBoard(2, 2),
       cellSize: 30,
+      cellStyle: 'flat',
+      cellGap: 0,
       scale: 1,
       panX: 0,
       panY: 0,
@@ -443,6 +449,8 @@ describe('drawBoard', () => {
     const opts: DrawOptions = {
       board: [],
       cellSize: 30,
+      cellStyle: 'flat',
+      cellGap: 0,
       scale: 1,
       panX: 0,
       panY: 0,

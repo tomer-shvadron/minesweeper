@@ -4,7 +4,11 @@ import { DEFAULT_KEY_BINDINGS } from '@/constants/keyboard.constants';
 import { useSettingsStore } from '@/stores/settings.store';
 
 const defaults = {
-  theme: 'xp' as const,
+  theme: 'regular' as const,
+  colorMode: 'system' as const,
+  cellStyle: 'rounded' as const,
+  backgroundStyle: 'gradient' as const,
+  boardSize: 'medium' as const,
   flagMode: 'flags-only' as const,
   soundEnabled: true,
   volume: 0.5,
@@ -19,15 +23,58 @@ beforeEach(() => {
 
 describe('settings.store', () => {
   describe('setTheme', () => {
-    it('updates theme to dark', () => {
-      useSettingsStore.getState().setTheme('dark');
-      expect(useSettingsStore.getState().theme).toBe('dark');
+    it('updates theme to jedi', () => {
+      useSettingsStore.getState().setTheme('jedi');
+      expect(useSettingsStore.getState().theme).toBe('jedi');
     });
 
-    it('updates theme back to xp', () => {
-      useSettingsStore.setState({ theme: 'dark' });
-      useSettingsStore.getState().setTheme('xp');
-      expect(useSettingsStore.getState().theme).toBe('xp');
+    it('updates theme back to regular', () => {
+      useSettingsStore.setState({ theme: 'jedi' });
+      useSettingsStore.getState().setTheme('regular');
+      expect(useSettingsStore.getState().theme).toBe('regular');
+    });
+  });
+
+  describe('setColorMode', () => {
+    it('updates color mode to dark', () => {
+      useSettingsStore.getState().setColorMode('dark');
+      expect(useSettingsStore.getState().colorMode).toBe('dark');
+    });
+
+    it('updates color mode to light', () => {
+      useSettingsStore.getState().setColorMode('light');
+      expect(useSettingsStore.getState().colorMode).toBe('light');
+    });
+
+    it('updates color mode to system', () => {
+      useSettingsStore.setState({ colorMode: 'dark' });
+      useSettingsStore.getState().setColorMode('system');
+      expect(useSettingsStore.getState().colorMode).toBe('system');
+    });
+  });
+
+  describe('setCellStyle', () => {
+    it('updates cell style to flat', () => {
+      useSettingsStore.getState().setCellStyle('flat');
+      expect(useSettingsStore.getState().cellStyle).toBe('flat');
+    });
+
+    it('updates cell style to rounded', () => {
+      useSettingsStore.setState({ cellStyle: 'flat' });
+      useSettingsStore.getState().setCellStyle('rounded');
+      expect(useSettingsStore.getState().cellStyle).toBe('rounded');
+    });
+  });
+
+  describe('setBackgroundStyle', () => {
+    it('updates background style to pattern', () => {
+      useSettingsStore.getState().setBackgroundStyle('pattern');
+      expect(useSettingsStore.getState().backgroundStyle).toBe('pattern');
+    });
+
+    it('updates background style to solid', () => {
+      useSettingsStore.getState().setBackgroundStyle('solid');
+      expect(useSettingsStore.getState().backgroundStyle).toBe('solid');
     });
   });
 
@@ -89,7 +136,23 @@ describe('settings.store', () => {
 
   describe('initial defaults', () => {
     it('has correct default theme', () => {
-      expect(useSettingsStore.getState().theme).toBe('xp');
+      expect(useSettingsStore.getState().theme).toBe('regular');
+    });
+
+    it('has correct default colorMode', () => {
+      expect(useSettingsStore.getState().colorMode).toBe('system');
+    });
+
+    it('has correct default cellStyle', () => {
+      expect(useSettingsStore.getState().cellStyle).toBe('rounded');
+    });
+
+    it('has correct default backgroundStyle', () => {
+      expect(useSettingsStore.getState().backgroundStyle).toBe('gradient');
+    });
+
+    it('has correct default boardSize', () => {
+      expect(useSettingsStore.getState().boardSize).toBe('medium');
     });
 
     it('has correct default flagMode', () => {
@@ -114,6 +177,24 @@ describe('settings.store', () => {
 
     it('has default keyboard bindings', () => {
       expect(useSettingsStore.getState().keyboardBindings).toEqual(DEFAULT_KEY_BINDINGS);
+    });
+  });
+
+  describe('setBoardSize', () => {
+    it('updates board size to small', () => {
+      useSettingsStore.getState().setBoardSize('small');
+      expect(useSettingsStore.getState().boardSize).toBe('small');
+    });
+
+    it('updates board size to large', () => {
+      useSettingsStore.getState().setBoardSize('large');
+      expect(useSettingsStore.getState().boardSize).toBe('large');
+    });
+
+    it('updates board size back to medium', () => {
+      useSettingsStore.setState({ boardSize: 'large' });
+      useSettingsStore.getState().setBoardSize('medium');
+      expect(useSettingsStore.getState().boardSize).toBe('medium');
     });
   });
 

@@ -1,38 +1,36 @@
+/* Sith — Near-black with red undertone, menacing glow */
 [data-theme='sith'] {
-  --color-bg: #060004;
-  --color-surface: #120008;
+  --color-bg: #0a0004;
+  --color-bg-solid: #0a0004;
+  --color-surface: #140008;
   --color-surface-2: #1e000e;
 
-  --color-border: #4a0018;
-  --color-border-light: rgba(200, 0, 0, 0.35);
-  --color-border-dark: #1a0008;
-  --color-border-darker: #0a0004;
+  --color-border: rgba(200, 0, 0, 0.2);
+  --color-border-light: rgba(200, 0, 0, 0.3);
+  --color-border-dark: rgba(0, 0, 0, 0.5);
+  --color-border-darker: rgba(0, 0, 0, 0.7);
 
   --color-text: #f0d0d0;
   --color-text-muted: #8a4a4a;
 
-  --color-accent: #cc0000;
-  --color-accent-hover: #ee2020;
+  --color-accent: #ff4444;
+  --color-accent-hover: #ff6666;
 
-  --color-header-bg: #120008;
-  --color-header-text: #f0d0d0;
-  --color-header-border-light: rgba(200, 0, 0, 0.3);
-  --color-header-border-dark: #1a0008;
+  --color-digit: #ff4444;
+  --color-digit-bg: rgba(10, 0, 4, 0.8);
 
-  --color-titlebar-bg: #3a0000;
-  --color-titlebar-text: #ff8080;
-
-  --color-digit: #ff2020;
-  --color-digit-bg: #060004;
-
-  --color-n1: #cc2244;
-  --color-n2: #882200;
-  --color-n3: #ff4444;
-  --color-n4: #aa00aa;
-  --color-n5: #dd4400;
-  --color-n6: #880044;
+  --color-n1: #ff4466;
+  --color-n2: #cc4400;
+  --color-n3: #ff2222;
+  --color-n4: #cc44cc;
+  --color-n5: #ff6600;
+  --color-n6: #aa2244;
   --color-n7: #f0d0d0;
   --color-n8: #8a4a4a;
+
+  --color-glass-bg: rgba(20, 0, 8, 0.85);
+  --color-glass-border: rgba(200, 0, 0, 0.12);
+  --color-overlay: rgba(0, 0, 0, 0.6);
 }
 
 [data-theme='sith'] body {
@@ -40,14 +38,12 @@
 }
 
 [data-theme='sith'] .game-window {
-  border-radius: 4px;
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #4a0018;
   box-shadow:
-    0 0 0 1px rgba(180, 0, 0, 0.4),
-    0 0 30px rgba(180, 0, 0, 0.2),
-    0 8px 32px rgba(0, 0, 0, 0.8),
-    0 0 80px rgba(100, 0, 0, 0.1);
+    0 0 0 1px rgba(180, 0, 0, 0.25),
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(180, 0, 0, 0.08);
 }
 
 [data-theme='sith'] .cell {
@@ -57,97 +53,91 @@
 
 [data-theme='sith'] .cell-raised {
   box-shadow: none;
-  border: 1px solid rgba(180, 0, 0, 0.18);
+  border: 1px solid rgba(180, 0, 0, 0.12);
 }
 
 [data-theme='sith'] .cell-raised:hover {
   background-color: #2a0014;
-  border-color: rgba(200, 0, 0, 0.35);
+  border-color: rgba(200, 0, 0, 0.25);
 }
 
 [data-theme='sith'] .cell-revealed {
   background-color: var(--color-surface);
-  border: 1px solid rgba(100, 0, 20, 0.5);
-  box-shadow: none;
+  border: 1px solid rgba(100, 0, 20, 0.3);
 }
 
 [data-theme='sith'] .cell-exploded {
   background-color: rgba(200, 0, 0, 0.3);
-  border: 1px solid rgba(255, 0, 0, 0.6);
-  box-shadow: 0 0 8px rgba(255, 0, 0, 0.3) inset;
-}
-
-[data-theme='sith'] .game-header {
-  background-color: var(--color-surface);
-  box-shadow: none;
-  border-bottom: 1px solid rgba(180, 0, 0, 0.3);
-}
-
-[data-theme='sith'] .game-header__inner {
-  background-color: transparent;
-  box-shadow: none;
-}
-
-[data-theme='sith'] .lcd-display {
+  border: 1px solid rgba(255, 0, 0, 0.5);
   box-shadow: 0 0 8px rgba(255, 0, 0, 0.2) inset;
-  border-radius: 3px;
-  border: 1px solid rgba(200, 0, 0, 0.3);
-  text-shadow: 0 0 8px var(--color-digit);
-}
-
-[data-theme='sith'] .smiley-button {
-  border-radius: 50%;
-  background-color: var(--color-surface-2);
-  box-shadow:
-    0 0 10px rgba(180, 0, 0, 0.3),
-    0 0 3px rgba(200, 0, 0, 0.5) inset;
-  border: 1px solid rgba(180, 0, 0, 0.4);
 }
 
 [data-theme='sith'] .btn-raised {
-  background-color: transparent;
-  box-shadow: 0 0 6px rgba(180, 0, 0, 0.2);
-  border: 1px solid rgba(180, 0, 0, 0.4);
-  border-radius: 3px;
+  background-color: var(--color-surface-2);
+  box-shadow: 0 0 6px rgba(180, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
   color: var(--color-text);
 }
 
 [data-theme='sith'] .btn-primary {
   background-color: transparent;
   box-shadow:
-    0 0 12px rgba(200, 0, 0, 0.4),
+    0 0 12px rgba(200, 0, 0, 0.35),
     inset 0 0 8px rgba(200, 0, 0, 0.1);
   border: 1px solid var(--color-accent);
-  border-radius: 3px;
+  border-radius: 10px;
   color: #ff6060;
 }
 
 [data-theme='sith'] .btn-primary:active {
   box-shadow:
-    0 0 18px rgba(220, 0, 0, 0.6),
+    0 0 18px rgba(220, 0, 0, 0.5),
     inset 0 0 12px rgba(200, 0, 0, 0.2);
   color: var(--color-accent-hover);
 }
 
 [data-theme='sith'] .btn-secondary {
   background-color: transparent;
-  border: 1px solid rgba(180, 0, 0, 0.4);
-  border-radius: 3px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
   color: var(--color-text);
-  box-shadow: 0 0 6px rgba(180, 0, 0, 0.1);
+  box-shadow: 0 0 4px rgba(180, 0, 0, 0.08);
 }
 
-[data-theme='sith'] .xp-input {
+[data-theme='sith'] .smiley-button {
+  border-radius: 50%;
+  background-color: var(--color-surface-2);
+  box-shadow:
+    0 0 10px rgba(180, 0, 0, 0.2),
+    0 0 3px rgba(200, 0, 0, 0.4) inset;
+  border: 1px solid var(--color-border);
+}
+
+[data-theme='sith'] .input-field {
   background-color: #0e0006;
   color: var(--color-text);
-  border: 1px solid rgba(180, 0, 0, 0.4);
-  border-radius: 2px;
-  box-shadow: 0 0 4px rgba(180, 0, 0, 0.12) inset;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: none;
 }
 
-[data-theme='sith'] .xp-input:focus {
+[data-theme='sith'] .input-field:focus {
   border-color: var(--color-accent);
   outline: 2px solid rgba(200, 0, 0, 0.2);
+}
+
+[data-theme='sith'] .modal-backdrop {
+  background: rgba(10, 0, 4, 0.75);
+}
+
+[data-theme='sith'] .modal-window {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px var(--color-border),
+    0 24px 64px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(180, 0, 0, 0.05);
 }
 
 [data-theme='sith'] .switch-root {
@@ -156,17 +146,17 @@
 
 [data-theme='sith'] .switch-root[data-state='checked'] {
   background-color: var(--color-accent);
-  box-shadow: 0 0 8px rgba(200, 0, 0, 0.4);
+  box-shadow: 0 0 8px rgba(200, 0, 0, 0.35);
 }
 
 [data-theme='sith'] .preset-radio {
   background-color: var(--color-surface-2);
-  border-color: rgba(180, 0, 0, 0.35);
+  border-color: var(--color-border);
 }
 
 [data-theme='sith'] .preset-radio[data-state='checked'] {
   border-color: var(--color-accent);
-  box-shadow: 0 0 6px rgba(200, 0, 0, 0.35);
+  box-shadow: 0 0 6px rgba(200, 0, 0, 0.3);
 }
 
 [data-theme='sith'] .preset-radio[data-state='checked']::after {
@@ -179,10 +169,33 @@
 
 [data-theme='sith'] .slider-range {
   background-color: var(--color-accent);
-  box-shadow: 0 0 4px rgba(200, 0, 0, 0.5);
+  box-shadow: 0 0 4px rgba(200, 0, 0, 0.4);
 }
 
 [data-theme='sith'] .slider-thumb {
   border-color: var(--color-accent);
-  box-shadow: 0 0 6px rgba(200, 0, 0, 0.4);
+  box-shadow: 0 0 6px rgba(200, 0, 0, 0.35);
+}
+
+[data-theme='sith'] .leaderboard-tabs {
+  border-color: var(--color-border);
+}
+
+[data-theme='sith'] .leaderboard-tab {
+  border-radius: 6px 6px 0 0;
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  background-color: transparent;
+  box-shadow: none;
+  color: var(--color-text-muted);
+}
+
+[data-theme='sith'] .leaderboard-tab--active {
+  background-color: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+[data-theme='sith'] .scores-table th {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
 }

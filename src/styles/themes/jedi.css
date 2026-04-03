@@ -1,38 +1,36 @@
+/* Jedi — Deep space blue with cool blue/green accents, subtle glow */
 [data-theme='jedi'] {
-  --color-bg: #c8dff0;
-  --color-surface: #deeef8;
-  --color-surface-2: #cce0f0;
+  --color-bg: #0a1628;
+  --color-bg-solid: #0a1628;
+  --color-surface: #0f2240;
+  --color-surface-2: #132a4a;
 
-  --color-border: #8ab4d8;
-  --color-border-light: #f0f8ff;
-  --color-border-dark: #5a8cb4;
-  --color-border-darker: #2a5a84;
+  --color-border: rgba(77, 166, 255, 0.15);
+  --color-border-light: rgba(77, 166, 255, 0.25);
+  --color-border-dark: rgba(0, 0, 0, 0.4);
+  --color-border-darker: rgba(0, 0, 0, 0.6);
 
-  --color-text: #0a1e38;
-  --color-text-muted: #3a6890;
+  --color-text: #c8e0f8;
+  --color-text-muted: #5a8ab8;
 
-  --color-accent: #0066cc;
-  --color-accent-hover: #2288ee;
+  --color-accent: #4da6ff;
+  --color-accent-hover: #7ac0ff;
 
-  --color-header-bg: #deeef8;
-  --color-header-text: #0a1e38;
-  --color-header-border-light: #f0f8ff;
-  --color-header-border-dark: #5a8cb4;
+  --color-digit: #4da6ff;
+  --color-digit-bg: rgba(10, 22, 40, 0.8);
 
-  --color-titlebar-bg: #003e7e;
-  --color-titlebar-text: #b8d8f8;
+  --color-n1: #4da6ff;
+  --color-n2: #50e890;
+  --color-n3: #ff6b6b;
+  --color-n4: #a78bfa;
+  --color-n5: #ffb84d;
+  --color-n6: #5ac8fa;
+  --color-n7: #c8e0f8;
+  --color-n8: #5a8ab8;
 
-  --color-digit: #00ccff;
-  --color-digit-bg: #001830;
-
-  --color-n1: #0066cc;
-  --color-n2: #006622;
-  --color-n3: #bb2200;
-  --color-n4: #440088;
-  --color-n5: #883300;
-  --color-n6: #006688;
-  --color-n7: #0a1e38;
-  --color-n8: #446688;
+  --color-glass-bg: rgba(15, 34, 64, 0.85);
+  --color-glass-border: rgba(77, 166, 255, 0.12);
+  --color-overlay: rgba(0, 0, 0, 0.5);
 }
 
 [data-theme='jedi'] body {
@@ -40,13 +38,12 @@
 }
 
 [data-theme='jedi'] .game-window {
-  border-radius: 8px;
+  border-radius: 16px;
   overflow: hidden;
   box-shadow:
-    0 0 0 2px rgba(0, 102, 204, 0.35),
-    0 0 0 1px rgba(0, 200, 255, 0.15),
-    0 8px 32px rgba(0, 30, 80, 0.3),
-    0 0 60px rgba(0, 102, 204, 0.08);
+    0 0 0 1px rgba(77, 166, 255, 0.2),
+    0 8px 32px rgba(0, 10, 30, 0.6),
+    0 0 48px rgba(77, 166, 255, 0.06);
 }
 
 [data-theme='jedi'] .cell {
@@ -55,69 +52,40 @@
 }
 
 [data-theme='jedi'] .cell-raised {
-  box-shadow:
-    inset 2px 2px 0 var(--color-border-light),
-    inset -2px -2px 0 var(--color-border-dark);
+  box-shadow: none;
+  border: 1px solid rgba(77, 166, 255, 0.1);
 }
 
 [data-theme='jedi'] .cell-raised:hover {
-  background-color: #d8eeff;
+  background-color: #1a3660;
+  border-color: rgba(77, 166, 255, 0.2);
 }
 
 [data-theme='jedi'] .cell-revealed {
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border-dark);
+  border: 1px solid rgba(77, 166, 255, 0.08);
 }
 
 [data-theme='jedi'] .cell-exploded {
-  background-color: rgba(180, 30, 30, 0.2);
+  background-color: rgba(180, 30, 30, 0.25);
   border: 1px solid rgba(180, 30, 30, 0.5);
 }
 
-[data-theme='jedi'] .game-header {
-  background-color: var(--color-surface);
-  box-shadow:
-    inset -2px -2px 0 var(--color-border-light),
-    inset 2px 2px 0 var(--color-border-dark);
-}
-
-[data-theme='jedi'] .game-header__inner {
-  background-color: var(--color-surface-2);
-  box-shadow:
-    inset 2px 2px 0 var(--color-border-dark),
-    inset -2px -2px 0 var(--color-border-light);
-}
-
-[data-theme='jedi'] .lcd-display {
-  box-shadow:
-    inset 1px 1px 0 rgba(0, 0, 0, 0.3),
-    inset -1px -1px 0 rgba(0, 200, 255, 0.15),
-    0 0 8px rgba(0, 200, 255, 0.15);
-  border-radius: 3px;
-  border: 1px solid rgba(0, 100, 180, 0.4);
-  text-shadow: 0 0 6px rgba(0, 204, 255, 0.6);
-}
-
-[data-theme='jedi'] .smiley-button {
-  box-shadow:
-    inset 2px 2px 0 var(--color-border-light),
-    inset -2px -2px 0 var(--color-border-dark);
-}
-
 [data-theme='jedi'] .btn-raised {
-  background-color: var(--color-surface);
-  box-shadow:
-    inset 2px 2px 0 var(--color-border-light),
-    inset -2px -2px 0 var(--color-border-dark);
+  background-color: var(--color-surface-2);
+  box-shadow: 0 0 8px rgba(77, 166, 255, 0.08);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
   color: var(--color-text);
 }
 
 [data-theme='jedi'] .btn-primary {
   background-color: var(--color-accent);
   border: none;
-  border-radius: 4px;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.4);
+  border-radius: 10px;
+  color: #0a1628;
+  font-weight: 600;
+  box-shadow: 0 2px 12px rgba(77, 166, 255, 0.35);
 }
 
 [data-theme='jedi'] .btn-primary:active {
@@ -125,31 +93,40 @@
 }
 
 [data-theme='jedi'] .btn-secondary {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border-dark);
-  border-radius: 4px;
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
   color: var(--color-text);
-  box-shadow:
-    inset 1px 1px 0 var(--color-border-light),
-    inset -1px -1px 0 var(--color-border-dark);
 }
 
-[data-theme='jedi'] .xp-input {
-  background-color: #f0f8ff;
+[data-theme='jedi'] .input-field {
+  background-color: rgba(10, 22, 40, 0.8);
   color: var(--color-text);
-  border: 1px solid var(--color-border-dark);
-  box-shadow:
-    inset 2px 2px 0 var(--color-border-dark),
-    inset -1px -1px 0 var(--color-border-light);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: none;
 }
 
-[data-theme='jedi'] .xp-input:focus {
+[data-theme='jedi'] .input-field:focus {
   border-color: var(--color-accent);
-  outline: 2px solid rgba(0, 102, 204, 0.25);
+  outline: 2px solid rgba(77, 166, 255, 0.2);
+}
+
+[data-theme='jedi'] .modal-backdrop {
+  background: rgba(0, 8, 20, 0.7);
+}
+
+[data-theme='jedi'] .modal-window {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px var(--color-border),
+    0 24px 64px rgba(0, 10, 30, 0.7),
+    0 0 40px rgba(77, 166, 255, 0.04);
 }
 
 [data-theme='jedi'] .switch-root {
-  background-color: var(--color-border-dark);
+  background-color: rgba(77, 166, 255, 0.15);
 }
 
 [data-theme='jedi'] .switch-root[data-state='checked'] {
@@ -157,8 +134,8 @@
 }
 
 [data-theme='jedi'] .preset-radio {
-  background-color: var(--color-surface);
-  border-color: var(--color-border-dark);
+  background-color: var(--color-surface-2);
+  border-color: var(--color-border);
 }
 
 [data-theme='jedi'] .preset-radio[data-state='checked'] {
@@ -170,7 +147,7 @@
 }
 
 [data-theme='jedi'] .slider-track {
-  background-color: var(--color-border-dark);
+  background-color: rgba(77, 166, 255, 0.15);
 }
 
 [data-theme='jedi'] .slider-range {
@@ -179,4 +156,27 @@
 
 [data-theme='jedi'] .slider-thumb {
   border-color: var(--color-accent);
+}
+
+[data-theme='jedi'] .leaderboard-tabs {
+  border-color: var(--color-border);
+}
+
+[data-theme='jedi'] .leaderboard-tab {
+  border-radius: 6px 6px 0 0;
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  background-color: transparent;
+  box-shadow: none;
+  color: var(--color-text-muted);
+}
+
+[data-theme='jedi'] .leaderboard-tab--active {
+  background-color: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+[data-theme='jedi'] .scores-table th {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
 }

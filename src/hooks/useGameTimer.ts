@@ -3,8 +3,11 @@ import { useEffect } from 'react';
 import { TIMER_INTERVAL_MS } from '@/constants/ui.constants';
 import { useGameStore } from '@/stores/game.store';
 
-export const useTimerLogic = () => {
-  const elapsedSeconds = useGameStore((s) => s.elapsedSeconds);
+/**
+ * Drives the game timer. Must be mounted at all times (e.g. in App)
+ * so the timer ticks regardless of which layout components are rendered.
+ */
+export const useGameTimer = () => {
   const status = useGameStore((s) => s.status);
   const tick = useGameStore((s) => s.tick);
 
@@ -15,6 +18,4 @@ export const useTimerLogic = () => {
     const interval = setInterval(tick, TIMER_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [status, tick]);
-
-  return { elapsedSeconds };
 };

@@ -8,13 +8,15 @@ export const ResumePrompt = () => {
 
   return (
     <Modal isOpen={isOpen} title="Resume Game?" onClose={handleResume}>
-      <div className="flex flex-col gap-[10px]">
-        <p className="text-sm">You have an unfinished game in progress:</p>
-        <p className="text-[0.9375rem] font-bold">
+      <div className="flex flex-col gap-2">
+        <p className="text-sm text-[var(--color-text-muted)]">
+          You have an unfinished game in progress:
+        </p>
+        <p className="text-base font-semibold">
           {config.rows}×{config.cols}, {config.mines} mines — {timeStr} elapsed
         </p>
       </div>
-      <div className="flex justify-end gap-1.5 px-3 py-2 pb-[10px]">
+      <div className="flex justify-end gap-2 pt-2">
         <Button variant="primary" onClick={handleResume}>
           Resume
         </Button>

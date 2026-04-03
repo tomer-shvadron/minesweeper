@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { tabLabel, useStatisticsModalLogic } from './useStatisticsModalLogic';
 
-import { Modal } from '@/components/ui/Modal';
+import { BottomSheet } from '@/components/ui/BottomSheet';
 import { useUIStore } from '@/stores/ui.store';
 import { formatTime } from '@/utils/time.utils';
 
@@ -58,7 +58,7 @@ function HeatmapCanvas({
       ref={canvasRef}
       width={cols * HEATMAP_CELL_SIZE}
       height={rows * HEATMAP_CELL_SIZE}
-      className="rounded border border-[var(--color-border-dark)]"
+      className="rounded-lg border border-[var(--color-border)]"
     />
   );
 }
@@ -85,14 +85,18 @@ export const StatisticsModal = () => {
   } = useStatisticsModalLogic();
 
   return (
-    <Modal isOpen={isOpen} title="Statistics" onClose={closeModal}>
+    <BottomSheet isOpen={isOpen} title="Statistics" onClose={closeModal}>
       {/* Difficulty tabs */}
-      <div className="flex flex-wrap gap-0.5 border-b-2 border-[var(--color-border-dark)]">
+      <div className="flex gap-1 overflow-x-auto">
         {allTabs.map((key) => (
           <button
             key={key}
             type="button"
-            className={`cursor-pointer border border-b-0 border-[var(--color-border-dark)] bg-[var(--color-surface)] px-[14px] py-[5px] text-[0.9375rem] shadow-[inset_1px_1px_0_var(--color-border-light),inset_-1px_0_0_var(--color-border-dark)] ${selectedTab === key ? 'bg-[var(--color-border-light)] font-bold' : ''}`}
+            className={`cursor-pointer rounded-lg border border-[var(--color-border)] px-3.5 py-1.5 text-sm transition-colors duration-100 ${
+              selectedTab === key
+                ? 'bg-[var(--color-accent)] font-semibold text-white'
+                : 'bg-[var(--color-surface)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2,var(--color-surface))]'
+            }`}
             onClick={() => setSelectedTab(key)}
           >
             {tabLabel(key)}
@@ -107,7 +111,7 @@ export const StatisticsModal = () => {
       ) : (
         <>
           {/* Stats grid */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-[0.9375rem]">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3">
             <div>
               <div className="text-xs tracking-wide text-[var(--color-text-muted)] uppercase">
                 Win rate
@@ -177,7 +181,7 @@ export const StatisticsModal = () => {
           {/* Heatmap */}
           {showHeatmap && heatmap && heatmapDims && (
             <div className="flex flex-col gap-2">
-              <p className="mb-1 border-b border-[var(--color-border-dark)] pb-[3px] text-[0.8125rem] font-bold tracking-[0.05em] text-[var(--color-text-muted)] uppercase">
+              <p className="mb-1 border-b border-[var(--color-border)] pb-1 text-xs font-semibold tracking-widest text-[var(--color-text-muted)] uppercase">
                 Where you first click
               </p>
               <div className="flex justify-center overflow-x-auto">
@@ -200,6 +204,6 @@ export const StatisticsModal = () => {
           )}
         </>
       )}
-    </Modal>
+    </BottomSheet>
   );
 };

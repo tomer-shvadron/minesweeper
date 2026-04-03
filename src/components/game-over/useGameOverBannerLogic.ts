@@ -13,6 +13,7 @@ export const useGameOverBannerLogic = () => {
   const isVisible = (status === 'won' || status === 'lost') && highScoreEntry === null;
 
   const cellsRevealed = board.flat().filter((c) => c.isRevealed && !c.hasMine).length;
+  const minesFlagged = board.flat().filter((c) => c.isFlagged && c.hasMine).length;
   const efficiency = totalClicks > 0 ? cellsRevealed / totalClicks : null;
 
   return {
@@ -20,6 +21,8 @@ export const useGameOverBannerLogic = () => {
     isWon: status === 'won',
     elapsedSeconds,
     efficiency,
+    cellsRevealed,
+    minesFlagged,
     handlePlayAgain: () => startNewGame(),
     handleChangeLevel: openNewGameModal,
   };

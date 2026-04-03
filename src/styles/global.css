@@ -1,11 +1,8 @@
 @import 'tailwindcss';
-@import './themes/xp.css';
-@import './themes/dark.css';
-@import './themes/material.css';
-@import './themes/aero.css';
-@import './themes/pastel.css';
-@import './themes/neon.css';
-@import './themes/aqua.css';
+@import './themes/regular.css';
+@import './themes/regular-dark.css';
+@import './themes/liquid-glass.css';
+@import './themes/liquid-glass-dark.css';
 @import './themes/jedi.css';
 @import './themes/sith.css';
 
@@ -31,6 +28,10 @@
     touch-action: manipulation;
   }
 
+  /* Liquid Glass themes use gradient backgrounds via `background` shorthand
+     which is set on `body` by the theme CSS.  For non-gradient themes the
+     `background-color` on html,body above handles it. */
+
   #root {
     height: 100%;
   }
@@ -55,109 +56,175 @@
        ensuring touchmove events are always delivered to our handlers */
     touch-action: none;
   }
-}
 
-@layer components {
-  .game-header {
-    background-color: var(--color-surface);
-    box-shadow:
-      inset -2px -2px 0 var(--color-border-light),
-      inset 2px 2px 0 var(--color-border-dark);
-    padding: 8px 10px;
+  /* Rounded cell style — soft tiles with border-radius */
+  body[data-cell-style='rounded'] .cell {
+    border-radius: 6px;
   }
 
-  .game-header__inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: var(--color-surface);
-    box-shadow:
-      inset 2px 2px 0 var(--color-border-dark),
-      inset -2px -2px 0 var(--color-border-light);
-    padding: 6px 8px;
+  body[data-cell-style='rounded'] .cell-revealed {
+    border-radius: 6px;
+  }
+
+  /* Flat cell style — dense grid with divider lines, no radius */
+  body[data-cell-style='flat'] .cell {
+    border-radius: 0;
   }
 }
 
 @layer components {
-  .lcd-display {
-    background-color: var(--color-digit-bg);
-    color: var(--color-digit);
-    font-family: 'Courier New', 'Lucida Console', monospace;
-    font-weight: bold;
-    font-size: 1.375rem;
-    letter-spacing: 2px;
-    padding: 1px 4px;
-    min-width: 3.5ch;
-    text-align: right;
-    text-shadow: 0 0 6px var(--color-digit);
-    box-shadow:
-      inset 1px 1px 0 var(--color-border-dark),
-      inset -1px -1px 0 var(--color-border-light);
+  /* ── Background styles ────────────────────────────────────── */
+
+  /* Pattern background — dot grid */
+  body[data-bg-style='pattern'] {
+    background-color: var(--color-bg-solid, var(--color-bg));
+    background-image: radial-gradient(circle, var(--color-border, #ddd) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Dynamic background — slowly shifting gradient */
+  body[data-bg-style='dynamic'] {
+    background: var(--color-bg);
+    background-size: 200% 200%;
+    animation: bgshift 8s ease infinite alternate;
+  }
+
+  @keyframes bgshift {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 100% 50%;
+    }
+  }
+
+  body[data-animations='false'][data-bg-style='dynamic'] {
+    animation: none;
+    background-position: 0% 50%;
+  }
+
+  /* Solid background — single color, no gradient */
+  body[data-bg-style='solid'] {
+    background: var(--color-bg-solid, var(--color-bg));
   }
 }
 
 @layer components {
-  /* .xp-input stays in CSS: complex inset shadow + user-select override */
-  .xp-input {
+  /* ── Bottom sheet / modal animations ──────────────────── */
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  body[data-animations='false'] .modal-backdrop,
+  body[data-animations='false'] .modal-window {
+    animation: none !important;
+  }
+}
+
+@layer components {
+  /* .input-field stays in CSS: user-select override */
+  .input-field {
     background-color: #fff;
-    border: none;
-    box-shadow:
-      inset 2px 2px 0 var(--color-border-dark),
-      inset -1px -1px 0 var(--color-border-light);
+    border: 1px solid var(--color-border-dark);
     padding: 2px 4px;
     font-size: 0.875rem;
     width: 60px;
     outline: none;
+    border-radius: 6px;
     -webkit-user-select: text;
     user-select: text;
   }
 }
 
 @layer components {
-  /* .game-over-banner stays in CSS: env(safe-area-inset-bottom) in padding */
-  .game-over-banner {
+  /* Game over overlay — centered card over dimmed board */
+  .game-over-overlay {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    /* Respect iPhone home-indicator safe area; top mirrors bottom */
-    padding: calc(20px + env(safe-area-inset-bottom, 0px)) 16px;
+    inset: 0;
     z-index: 90;
-    background-color: var(--color-surface);
-    box-shadow:
-      inset 0 2px 0 var(--color-border-light),
-      0 -2px 8px rgba(0, 0, 0, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    animation: banner-slide-in 0.2s ease-out;
+    background-color: rgba(0, 0, 0, 0.25);
+    animation: fadeIn 0.15s ease-out;
+    /* Account for bottom nav in mobile-portrait (default) */
+    padding-bottom: 64px;
   }
 
-  @keyframes banner-slide-in {
+  /* Desktop / mobile-landscape: top bar instead of bottom nav */
+  body[data-layout='desktop'] .game-over-overlay {
+    padding-bottom: 0;
+    padding-top: 52px;
+  }
+
+  body[data-layout='mobile-landscape'] .game-over-overlay {
+    padding-bottom: 0;
+    padding-top: 44px;
+  }
+
+  .game-over-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 28px 32px;
+    border-radius: 20px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border, transparent);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+    min-width: 260px;
+    max-width: 360px;
+    animation: card-scale-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes card-scale-in {
     from {
       opacity: 0;
-      transform: translateY(100%);
+      transform: scale(0.85);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: scale(1);
     }
   }
 
-  body[data-animations='false'] .game-over-banner {
+  body[data-animations='false'] .game-over-overlay {
     animation: none;
   }
 
-  /* In landscape the header becomes a left sidebar — offset banner so it
-     doesn't cover sidebar buttons. 72px = HEADER_SIDEBAR_WIDTH constant. */
-  @media (orientation: landscape) {
-    .game-over-banner {
-      left: 72px;
-      padding-top: calc(12px + env(safe-area-inset-bottom, 0px));
-      padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    }
+  body[data-animations='false'] .game-over-card {
+    animation: none;
   }
 }
 
@@ -332,25 +399,5 @@
     outline-offset: -2px;
     position: relative;
     z-index: 2;
-  }
-}
-
-@layer components {
-  @media (orientation: landscape) {
-    .game-header--sidebar {
-      /* Height is set via inline style (boardHeight) for guaranteed resolution.
-         display: flex lets the inner use flex: 1 to fill it. */
-      display: flex;
-      flex-direction: column;
-      padding: 10px 8px; /* mirrors portrait's 8px 10px, rotated */
-    }
-
-    .game-header--sidebar .game-header__inner {
-      flex: 1;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 6px; /* mirrors portrait's 6px 8px, rotated */
-    }
   }
 }

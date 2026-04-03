@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 
 import { GameBoard } from '@/components/board/GameBoard';
 import { GameOverBanner } from '@/components/game-over/GameOverBanner';
-import { Header } from '@/components/header/Header';
 import { HighScorePrompt } from '@/components/modals/HighScorePrompt';
 import { KeyboardModal } from '@/components/modals/KeyboardModal';
 import { LeaderboardModal } from '@/components/modals/LeaderboardModal';
@@ -10,7 +9,12 @@ import { NewGameModal } from '@/components/modals/NewGameModal';
 import { ResumePrompt } from '@/components/modals/ResumePrompt';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { StatisticsModal } from '@/components/modals/StatisticsModal';
+import { NavBar } from '@/components/nav/NavBar';
+import { TopBar } from '@/components/nav/TopBar';
 import { Confetti } from '@/components/ui/Confetti';
+import { resolveTheme } from '@/constants/theme.constants';
+import { useGameLayout } from '@/hooks/useGameLayout';
+import { useGameTimer } from '@/hooks/useGameTimer';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useSound } from '@/hooks/useSound';
 import { createBoardKey } from '@/services/board.service';
@@ -22,12 +26,19 @@ import { useUIStore } from '@/stores/ui.store';
 
 export const App = () => {
   const theme = useSettingsStore((s) => s.theme);
+  const colorMode = useSettingsStore((s) => s.colorMode);
+  const cellStyle = useSettingsStore((s) => s.cellStyle);
+  const backgroundStyle = useSettingsStore((s) => s.backgroundStyle);
   const status = useGameStore((s) => s.status);
   const elapsedSeconds = useGameStore((s) => s.elapsedSeconds);
   const config = useGameStore((s) => s.config);
   const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
   const play = useSound();
   const vibrate = useHaptic();
+  const { layoutMode, showTopBar, topBarHeight } = useGameLayout();
+
+  // Ensure game timer ticks regardless of which layout components are mounted
+  useGameTimer();
   const board = useGameStore((s) => s.board);
   const totalClicks = useGameStore((s) => s.totalClicks);
   const firstClick = useGameStore((s) => s.firstClick);
@@ -37,13 +48,45 @@ export const App = () => {
   const showHighScorePrompt = useUIStore((s) => s.showHighScorePrompt);
   const openResumePrompt = useUIStore((s) => s.openResumePrompt);
 
+  // Track system color scheme preference
+  const systemPrefersDarkRef = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
+
+  // Resolve and apply effective theme whenever theme, colorMode, or system preference changes
   useEffect(() => {
-    document.body.setAttribute('data-theme', theme);
-  }, [theme]);
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = () => {
+      systemPrefersDarkRef.current = mql.matches;
+      const resolved = resolveTheme(theme, colorMode, mql.matches);
+      document.body.setAttribute('data-theme', resolved);
+    };
+
+    // Apply immediately
+    apply();
+
+    // Listen for system preference changes (only relevant when colorMode is 'system')
+    mql.addEventListener('change', apply);
+    return () => mql.removeEventListener('change', apply);
+  }, [theme, colorMode]);
 
   useEffect(() => {
     document.body.setAttribute('data-animations', String(animationsEnabled));
   }, [animationsEnabled]);
+
+  // Apply cell style and background style as data attributes
+  useEffect(() => {
+    document.body.setAttribute('data-cell-style', cellStyle);
+  }, [cellStyle]);
+
+  useEffect(() => {
+    document.body.setAttribute('data-bg-style', backgroundStyle);
+  }, [backgroundStyle]);
+
+  // Expose layout mode as data attribute for CSS selectors (game-over overlay, etc.)
+  useEffect(() => {
+    document.body.setAttribute('data-layout', layoutMode);
+  }, [layoutMode]);
 
   // Show resume prompt on mount if a game was in progress (uses refs to avoid deps)
   const mountStatusRef = useRef(status);
@@ -112,18 +155,26 @@ export const App = () => {
     showHighScorePrompt,
   ]);
 
+  // Dynamic main padding based on layout mode
+  const mainStyle = showTopBar ? { paddingTop: `${topBarHeight}px` } : { paddingBottom: '64px' }; // NAV_BAR_HEIGHT for mobile-portrait
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg)]">
+    <div className="flex min-h-[100dvh] flex-col bg-[var(--color-bg)]">
       <a
         href="#game-board"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-[var(--color-accent)] focus:px-3 focus:py-1 focus:text-white"
       >
         Skip to game board
       </a>
-      <main className="inline-flex flex-col shadow-[inset_2px_2px_0_var(--color-border-light),inset_-2px_-2px_0_var(--color-border-darker)] landscape:flex-row">
-        <Header />
+
+      {showTopBar && <TopBar compact={layoutMode === 'mobile-landscape'} />}
+
+      {/* Board area: centered in remaining viewport space */}
+      <main className="flex flex-1 items-center justify-center" style={mainStyle}>
         <GameBoard />
       </main>
+
+      {!showTopBar && <NavBar />}
 
       <GameOverBanner />
       <Confetti />

@@ -1,0 +1,174 @@
+/* Liquid Glass Light — Translucent frosted glass over colorful gradients (iOS 26-inspired) */
+[data-theme='liquid-glass'] {
+  --color-bg: linear-gradient(135deg, #e0e7ff 0%, #fce7f3 40%, #dbeafe 70%, #e0f2fe 100%);
+  --color-bg-solid: #e8edf5;
+  --color-surface: rgba(255, 255, 255, 0.55);
+  --color-surface-2: rgba(255, 255, 255, 0.35);
+
+  --color-border: rgba(255, 255, 255, 0.6);
+  --color-border-light: rgba(255, 255, 255, 0.8);
+  --color-border-dark: rgba(0, 0, 0, 0.08);
+  --color-border-darker: rgba(0, 0, 0, 0.12);
+
+  --color-text: #1a1a2e;
+  --color-text-muted: #5a5a7e;
+
+  --color-accent: #007aff;
+  --color-accent-hover: #3395ff;
+
+  --color-digit: #007aff;
+  --color-digit-bg: rgba(255, 255, 255, 0.3);
+
+  --color-n1: #007aff;
+  --color-n2: #34c759;
+  --color-n3: #ff3b30;
+  --color-n4: #af52de;
+  --color-n5: #ff9500;
+  --color-n6: #5ac8fa;
+  --color-n7: #1a1a2e;
+  --color-n8: #8e8e93;
+
+  --color-glass-bg: rgba(255, 255, 255, 0.5);
+  --color-glass-border: rgba(255, 255, 255, 0.7);
+  --color-glass-blur: 16px;
+  --color-overlay: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme='liquid-glass'] body {
+  /* Gradient backgrounds can't use background-color, override in global.css layer */
+  background: var(--color-bg);
+}
+
+[data-theme='liquid-glass'] .game-window {
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--color-surface);
+  backdrop-filter: blur(var(--color-glass-blur));
+  -webkit-backdrop-filter: blur(var(--color-glass-blur));
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px var(--color-glass-border);
+  border: 1px solid var(--color-border);
+}
+
+[data-theme='liquid-glass'] .cell {
+  background-color: rgba(255, 255, 255, 0.3);
+  transition: background-color 0.08s ease;
+}
+
+[data-theme='liquid-glass'] .cell-raised {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+[data-theme='liquid-glass'] .cell-raised:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme='liquid-glass'] .cell-revealed {
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='liquid-glass'] .cell-exploded {
+  background-color: rgba(255, 59, 48, 0.2);
+  border: 1px solid rgba(255, 59, 48, 0.35);
+}
+
+[data-theme='liquid-glass'] .btn-raised {
+  background-color: var(--color-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text);
+}
+
+[data-theme='liquid-glass'] .btn-primary {
+  background-color: var(--color-accent);
+  box-shadow: 0 2px 12px rgba(0, 122, 255, 0.3);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+}
+
+[data-theme='liquid-glass'] .btn-primary:active {
+  background-color: var(--color-accent-hover);
+}
+
+[data-theme='liquid-glass'] .btn-secondary {
+  background-color: var(--color-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text);
+}
+
+[data-theme='liquid-glass'] .input-field {
+  background-color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme='liquid-glass'] .input-field:focus {
+  border-color: var(--color-accent);
+  outline: 2px solid rgba(0, 122, 255, 0.2);
+}
+
+[data-theme='liquid-glass'] .switch-root {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme='liquid-glass'] .switch-root[data-state='checked'] {
+  background-color: var(--color-accent);
+}
+
+[data-theme='liquid-glass'] .preset-radio {
+  background-color: rgba(255, 255, 255, 0.4);
+  border-color: var(--color-border);
+}
+
+[data-theme='liquid-glass'] .preset-radio[data-state='checked'] {
+  border-color: var(--color-accent);
+}
+
+[data-theme='liquid-glass'] .preset-radio[data-state='checked']::after {
+  background-color: var(--color-accent);
+}
+
+[data-theme='liquid-glass'] .slider-track {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='liquid-glass'] .slider-range {
+  background-color: var(--color-accent);
+}
+
+[data-theme='liquid-glass'] .slider-thumb {
+  border-color: var(--color-accent);
+  background-color: #fff;
+}
+
+[data-theme='liquid-glass'] .modal-backdrop {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+[data-theme='liquid-glass'] .modal-window {
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--color-surface);
+  backdrop-filter: blur(var(--color-glass-blur));
+  -webkit-backdrop-filter: blur(var(--color-glass-blur));
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px var(--color-glass-border);
+  border: 1px solid var(--color-border);
+}

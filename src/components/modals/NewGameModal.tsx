@@ -37,36 +37,34 @@ export const NewGameModal = () => {
 
   return (
     <Modal isOpen={isOpen} title="New Game" onClose={closeModal}>
-      <div className="flex flex-col gap-[10px]">
+      <div className="flex flex-col gap-1">
         <RadioGroup
           value={selectedPreset}
           onValueChange={(v) => setSelectedPreset(v as typeof selectedPreset)}
         >
           {PRESETS.map(({ key, label, detail }) => (
-            <label key={key} className="flex items-center gap-2 px-0.5 py-1">
+            <label key={key} className="flex items-center gap-2.5 rounded-lg px-1 py-1.5">
               <RadioGroupItem
                 value={key}
-                className="flex h-[17px] w-[17px] shrink-0 items-center justify-center rounded-full border-2 border-[var(--color-border-dark)] bg-white data-[state=checked]:border-[var(--color-n4)] data-[state=checked]:after:block data-[state=checked]:after:h-[7px] data-[state=checked]:after:w-[7px] data-[state=checked]:after:rounded-full data-[state=checked]:after:bg-[var(--color-n4)] data-[state=checked]:after:content-['']"
+                className="preset-radio flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 border-[var(--color-border)] bg-[var(--color-surface)] data-[state=checked]:border-[var(--color-accent)] data-[state=checked]:after:block data-[state=checked]:after:h-2 data-[state=checked]:after:w-2 data-[state=checked]:after:rounded-full data-[state=checked]:after:bg-[var(--color-accent)] data-[state=checked]:after:content-['']"
               />
-              <span className="cursor-pointer text-base font-bold">{label}</span>
-              <span className="ml-auto text-[0.8125rem] text-[var(--color-border-darker)]">
-                {detail}
-              </span>
+              <span className="cursor-pointer text-base font-semibold">{label}</span>
+              <span className="ml-auto text-sm text-[var(--color-text-muted)]">{detail}</span>
             </label>
           ))}
         </RadioGroup>
       </div>
 
       {selectedPreset === 'custom' && (
-        <div className="flex flex-col gap-[6px] pt-1 pl-[22px]">
-          <div className="flex items-center gap-2 text-[0.8125rem]">
-            <label htmlFor="custom-rows" className="w-[50px]">
+        <div className="flex flex-col gap-2 pt-1 pl-7">
+          <div className="flex items-center gap-2 text-sm">
+            <label htmlFor="custom-rows" className="w-14">
               Rows
             </label>
             <input
               id="custom-rows"
               type="number"
-              className="xp-input"
+              className="input-field"
               value={customRows}
               min={5}
               max={30}
@@ -74,14 +72,14 @@ export const NewGameModal = () => {
               onBlur={handleCustomRowsBlur}
             />
           </div>
-          <div className="flex items-center gap-2 text-[0.8125rem]">
-            <label htmlFor="custom-cols" className="w-[50px]">
+          <div className="flex items-center gap-2 text-sm">
+            <label htmlFor="custom-cols" className="w-14">
               Columns
             </label>
             <input
               id="custom-cols"
               type="number"
-              className="xp-input"
+              className="input-field"
               value={customCols}
               min={5}
               max={50}
@@ -89,14 +87,14 @@ export const NewGameModal = () => {
               onBlur={handleCustomColsBlur}
             />
           </div>
-          <div className="flex items-center gap-2 text-[0.8125rem]">
-            <label htmlFor="custom-mines" className="w-[50px]">
+          <div className="flex items-center gap-2 text-sm">
+            <label htmlFor="custom-mines" className="w-14">
               Mines
             </label>
             <input
               id="custom-mines"
               type="number"
-              className="xp-input"
+              className="input-field"
               value={customMines}
               min={1}
               max={maxMines}
@@ -104,18 +102,15 @@ export const NewGameModal = () => {
               onBlur={handleCustomMinesBlur}
             />
           </div>
-          <p className="text-[0.8125rem]">Max mines: {maxMines}</p>
+          <p className="text-sm text-[var(--color-text-muted)]">Max mines: {maxMines}</p>
         </div>
       )}
 
       {selectedPreset !== 'custom' && (
-        <div className="flex flex-col gap-[10px]">
-          <p>
-            {DIFFICULTY_PRESETS[selectedPreset].rows} rows ×{' '}
-            {DIFFICULTY_PRESETS[selectedPreset].cols} cols,{' '}
-            {DIFFICULTY_PRESETS[selectedPreset].mines} mines
-          </p>
-        </div>
+        <p className="text-sm text-[var(--color-text-muted)]">
+          {DIFFICULTY_PRESETS[selectedPreset].rows} rows × {DIFFICULTY_PRESETS[selectedPreset].cols}{' '}
+          cols, {DIFFICULTY_PRESETS[selectedPreset].mines} mines
+        </p>
       )}
 
       <Toggle
@@ -125,7 +120,7 @@ export const NewGameModal = () => {
         onChange={setNoGuessMode}
       />
 
-      <div className="flex justify-end gap-1.5 px-3 py-2 pb-[10px]">
+      <div className="flex justify-end gap-2 pt-2">
         <Button variant="primary" onClick={handleStart}>
           Start
         </Button>

@@ -35,7 +35,7 @@ interface MockSettings {
 }
 
 let mockSettings: MockSettings = {
-  theme: 'xp',
+  theme: 'regular',
   flagMode: 'flags-only',
   soundEnabled: true,
   volume: 0.5,
@@ -56,7 +56,7 @@ describe('SettingsModal', () => {
     vi.clearAllMocks();
     mockIsOpen = true;
     mockSettings = {
-      theme: 'xp',
+      theme: 'regular',
       flagMode: 'flags-only',
       soundEnabled: true,
       volume: 0.5,
@@ -80,22 +80,22 @@ describe('SettingsModal', () => {
     expect(screen.getByText('Settings')).toBeTruthy();
   });
 
-  it('shows Theme section with Classic XP and Dark options', () => {
+  it('shows Theme section with Regular and Jedi options', () => {
     render(<SettingsModal />);
-    expect(screen.getByText('Classic XP')).toBeTruthy();
-    expect(screen.getByText('Dark')).toBeTruthy();
+    expect(screen.getByText('Regular')).toBeTruthy();
+    expect(screen.getByText('Jedi')).toBeTruthy();
   });
 
-  it('has Classic XP swatch pressed when theme is xp', () => {
+  it('has Regular swatch pressed when theme is regular', () => {
     render(<SettingsModal />);
-    const xpSwatch = screen.getByRole('button', { name: /classic xp/i });
-    expect(xpSwatch.getAttribute('aria-pressed')).toBe('true');
+    const regularSwatch = screen.getByRole('button', { name: /^regular$/i });
+    expect(regularSwatch.getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('calls setTheme when Dark swatch is clicked', () => {
+  it('calls setTheme when Jedi swatch is clicked', () => {
     render(<SettingsModal />);
-    fireEvent.click(screen.getByRole('button', { name: /^dark$/i }));
-    expect(mockSetTheme).toHaveBeenCalledWith('dark');
+    fireEvent.click(screen.getByRole('button', { name: /^jedi$/i }));
+    expect(mockSetTheme).toHaveBeenCalledWith('jedi');
   });
 
   it('shows Sound toggle checked when soundEnabled is true', () => {
@@ -117,24 +117,24 @@ describe('SettingsModal', () => {
     expect(slider.getAttribute('data-disabled')).toBe('');
   });
 
-  it('calls closeModal when OK is clicked', () => {
+  it('calls closeModal when Done is clicked', () => {
     render(<SettingsModal />);
-    fireEvent.click(screen.getByText('OK'));
+    fireEvent.click(screen.getByText('Done'));
     expect(mockCloseSettings).toHaveBeenCalledTimes(1);
   });
 
-  it('has Dark swatch pressed when theme is dark', () => {
-    mockSettings = { ...mockSettings, theme: 'dark' };
+  it('has Jedi swatch pressed when theme is jedi', () => {
+    mockSettings = { ...mockSettings, theme: 'jedi' };
     render(<SettingsModal />);
-    const darkSwatch = screen.getByRole('button', { name: /^dark$/i });
-    expect(darkSwatch.getAttribute('aria-pressed')).toBe('true');
+    const jediSwatch = screen.getByRole('button', { name: /^jedi$/i });
+    expect(jediSwatch.getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('calls setTheme with "xp" when Classic XP swatch is clicked', () => {
-    mockSettings = { ...mockSettings, theme: 'dark' };
+  it('calls setTheme with "regular" when Regular swatch is clicked', () => {
+    mockSettings = { ...mockSettings, theme: 'jedi' };
     render(<SettingsModal />);
-    fireEvent.click(screen.getByRole('button', { name: /classic xp/i }));
-    expect(mockSetTheme).toHaveBeenCalledWith('xp');
+    fireEvent.click(screen.getByRole('button', { name: /^regular$/i }));
+    expect(mockSetTheme).toHaveBeenCalledWith('regular');
   });
 
   it('calls setSoundEnabled with false when sound toggle is clicked while enabled', () => {

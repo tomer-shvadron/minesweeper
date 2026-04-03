@@ -3,21 +3,38 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_KEY_BINDINGS } from '@/constants/keyboard.constants';
 import { STORAGE_KEYS } from '@/constants/storage.constants';
+import { LEGACY_THEME_MAP } from '@/constants/theme.constants';
 import { safeStorage } from '@/stores/safe-storage';
-import type { FlagMode, KeyboardAction, Settings, Theme } from '@/types/settings.types';
+import type {
+  BackgroundStyle,
+  BoardSize,
+  CellStyle,
+  ColorMode,
+  FlagMode,
+  KeyboardAction,
+  Settings,
+  Theme,
+} from '@/types/settings.types';
+import { detectDefaultTheme } from '@/utils/platform.utils';
 
-const VALID_THEMES = new Set<Theme>([
-  'xp',
-  'dark',
-  'material',
-  'aero',
-  'pastel',
-  'neon',
-  'aqua',
-  'jedi',
-  'sith',
-]);
+const VALID_THEMES = new Set<Theme>(['regular', 'liquid-glass', 'jedi', 'sith']);
 const VALID_FLAG_MODES = new Set<FlagMode>(['flags-only', 'flags-and-questions']);
+const VALID_COLOR_MODES = new Set<ColorMode>(['light', 'dark', 'system']);
+const VALID_CELL_STYLES = new Set<CellStyle>(['rounded', 'flat']);
+const VALID_BG_STYLES = new Set<BackgroundStyle>(['gradient', 'pattern', 'dynamic', 'solid']);
+const VALID_BOARD_SIZES = new Set<BoardSize>(['small', 'medium', 'large']);
+
+/** Migrate legacy V3 theme names to V4 equivalents. Returns the theme unchanged if already valid. */
+function migrateTheme(raw: unknown): Theme | undefined {
+  if (typeof raw !== 'string') {
+    return undefined;
+  }
+  if (VALID_THEMES.has(raw as Theme)) {
+    return raw as Theme;
+  }
+  const mapped = LEGACY_THEME_MAP[raw];
+  return mapped ?? undefined;
+}
 
 function isValidPersistedSettings(persisted: unknown): boolean {
   if (!persisted || typeof persisted !== 'object') {
@@ -25,10 +42,29 @@ function isValidPersistedSettings(persisted: unknown): boolean {
   }
   const s = persisted as Record<string, unknown>;
 
-  if (typeof s.theme === 'string' && !VALID_THEMES.has(s.theme as Theme)) {
-    return false;
+  // Validate theme — allow legacy values (they'll be migrated)
+  if (typeof s.theme === 'string') {
+    const migrated = migrateTheme(s.theme);
+    if (migrated === undefined) {
+      return false;
+    }
   }
   if (typeof s.flagMode === 'string' && !VALID_FLAG_MODES.has(s.flagMode as FlagMode)) {
+    return false;
+  }
+  if (typeof s.colorMode === 'string' && !VALID_COLOR_MODES.has(s.colorMode as ColorMode)) {
+    return false;
+  }
+  if (typeof s.cellStyle === 'string' && !VALID_CELL_STYLES.has(s.cellStyle as CellStyle)) {
+    return false;
+  }
+  if (
+    typeof s.backgroundStyle === 'string' &&
+    !VALID_BG_STYLES.has(s.backgroundStyle as BackgroundStyle)
+  ) {
+    return false;
+  }
+  if (typeof s.boardSize === 'string' && !VALID_BOARD_SIZES.has(s.boardSize as BoardSize)) {
     return false;
   }
   if (
@@ -49,6 +85,10 @@ function isValidPersistedSettings(persisted: unknown): boolean {
 
 type SettingsStore = Settings & {
   setTheme: (theme: Theme) => void;
+  setColorMode: (mode: ColorMode) => void;
+  setCellStyle: (style: CellStyle) => void;
+  setBackgroundStyle: (style: BackgroundStyle) => void;
+  setBoardSize: (size: BoardSize) => void;
   setFlagMode: (mode: FlagMode) => void;
   setSoundEnabled: (enabled: boolean) => void;
   setVolume: (volume: number) => void;
@@ -58,10 +98,16 @@ type SettingsStore = Settings & {
   setKeyBinding: (action: KeyboardAction, key: string) => void;
 };
 
+const defaultTheme = detectDefaultTheme();
+
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set) => ({
-      theme: 'xp',
+      theme: defaultTheme,
+      colorMode: 'system',
+      cellStyle: 'rounded',
+      backgroundStyle: 'gradient',
+      boardSize: 'medium',
       flagMode: 'flags-only',
       soundEnabled: true,
       volume: 0.5,
@@ -71,6 +117,10 @@ export const useSettingsStore = create<SettingsStore>()(
       keyboardBindings: DEFAULT_KEY_BINDINGS,
 
       setTheme: (theme) => set({ theme }),
+      setColorMode: (mode) => set({ colorMode: mode }),
+      setCellStyle: (style) => set({ cellStyle: style }),
+      setBackgroundStyle: (style) => set({ backgroundStyle: style }),
+      setBoardSize: (size) => set({ boardSize: size }),
       setFlagMode: (mode) => set({ flagMode: mode }),
       setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
       setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
@@ -85,6 +135,10 @@ export const useSettingsStore = create<SettingsStore>()(
       storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({
         theme: s.theme,
+        colorMode: s.colorMode,
+        cellStyle: s.cellStyle,
+        backgroundStyle: s.backgroundStyle,
+        boardSize: s.boardSize,
         flagMode: s.flagMode,
         soundEnabled: s.soundEnabled,
         volume: s.volume,
@@ -97,7 +151,15 @@ export const useSettingsStore = create<SettingsStore>()(
         if (!isValidPersistedSettings(persisted)) {
           return current;
         }
-        return { ...current, ...(persisted as object) };
+        const p = persisted as Record<string, unknown>;
+        // Migrate legacy theme names on hydration
+        if (typeof p.theme === 'string') {
+          const migrated = migrateTheme(p.theme);
+          if (migrated !== undefined) {
+            p.theme = migrated;
+          }
+        }
+        return { ...current, ...(p as object) };
       },
     }
   )

@@ -2,7 +2,7 @@ import type { BoardSize, CellStyle, LayoutMode } from '@/types/settings.types';
 
 export const NAV_BAR_HEIGHT = 64; // px — mobile portrait: bottom nav bar
 export const BOARD_PADDING = 16; // px on each side
-export const FLOATING_PILLS_HEIGHT = 48; // px — space reserved above board for pills
+export const FLOATING_PILLS_HEIGHT = 56; // px — space reserved above board for pills (incl. gap)
 /** @deprecated Game over is now an overlay card — no space reservation needed. Kept for test compatibility. */
 export const GAME_OVER_BANNER_HEIGHT = 0;
 export const CELL_GAP_ROUNDED = 3; // px gap between cells in rounded cell style

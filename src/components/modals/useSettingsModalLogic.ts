@@ -1,11 +1,16 @@
+import { useGameLayout } from '@/hooks/useGameLayout';
 import { useSettingsStore } from '@/stores/settings.store';
 import { useUIStore } from '@/stores/ui.store';
 
 export const useSettingsModalLogic = () => {
   const closeModal = useUIStore((s) => s.closeSettingsModal);
   const openKeyboardModal = useUIStore((s) => s.openKeyboardModal);
+  const { layoutMode } = useGameLayout();
 
   const theme = useSettingsStore((s) => s.theme);
+  const colorMode = useSettingsStore((s) => s.colorMode);
+  const cellStyle = useSettingsStore((s) => s.cellStyle);
+  const backgroundStyle = useSettingsStore((s) => s.backgroundStyle);
   const flagMode = useSettingsStore((s) => s.flagMode);
   const soundEnabled = useSettingsStore((s) => s.soundEnabled);
   const volume = useSettingsStore((s) => s.volume);
@@ -15,6 +20,9 @@ export const useSettingsModalLogic = () => {
   const boardSize = useSettingsStore((s) => s.boardSize);
 
   const setTheme = useSettingsStore((s) => s.setTheme);
+  const setColorMode = useSettingsStore((s) => s.setColorMode);
+  const setCellStyle = useSettingsStore((s) => s.setCellStyle);
+  const setBackgroundStyle = useSettingsStore((s) => s.setBackgroundStyle);
   const setFlagMode = useSettingsStore((s) => s.setFlagMode);
   const setSoundEnabled = useSettingsStore((s) => s.setSoundEnabled);
   const setVolume = useSettingsStore((s) => s.setVolume);
@@ -24,8 +32,6 @@ export const useSettingsModalLogic = () => {
   const setBoardSize = useSettingsStore((s) => s.setBoardSize);
 
   // Show haptic toggle only on mobile devices with vibration support.
-  // Desktop Chrome exposes navigator.vibrate (as a no-op), so we also check
-  // for a coarse primary pointer which indicates a touchscreen mobile device.
   const hapticSupported =
     typeof navigator !== 'undefined' &&
     'vibrate' in navigator &&
@@ -33,7 +39,11 @@ export const useSettingsModalLogic = () => {
     window.matchMedia?.('(pointer: coarse)').matches;
 
   return {
+    layoutMode,
     theme,
+    colorMode,
+    cellStyle,
+    backgroundStyle,
     flagMode,
     soundEnabled,
     volume,
@@ -43,6 +53,9 @@ export const useSettingsModalLogic = () => {
     boardSize,
     hapticSupported,
     setTheme,
+    setColorMode,
+    setCellStyle,
+    setBackgroundStyle,
     setFlagMode,
     setSoundEnabled,
     setVolume,

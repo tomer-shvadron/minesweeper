@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useGameLayout } from '@/hooks/useGameLayout';
 import { createBoardKey } from '@/services/board.service';
 import { useGameStore } from '@/stores/game.store';
 import { useLeaderboardStore } from '@/stores/leaderboard.store';
@@ -13,6 +14,7 @@ export const RECENT_TAB = '__recent__' as BoardKey;
 
 export const useLeaderboardModalLogic = () => {
   const closeModal = useUIStore((s) => s.closeLeaderboardModal);
+  const { layoutMode } = useGameLayout();
   const allEntries = useLeaderboardStore((s) => s.entries);
   const allGamesPlayed = useLeaderboardStore((s) => s.gamesPlayed);
   const config = useGameStore((s) => s.config);
@@ -33,9 +35,10 @@ export const useLeaderboardModalLogic = () => {
 
   const entries = allEntries[selectedTab] ?? [];
   const gamesPlayedCount = allGamesPlayed[selectedTab] ?? 0;
-  const recentGames = recentRecords.slice(0, 20);
+  const recentGames = recentRecords.slice(0, 50);
 
   return {
+    layoutMode,
     allTabs,
     selectedTab,
     setSelectedTab,

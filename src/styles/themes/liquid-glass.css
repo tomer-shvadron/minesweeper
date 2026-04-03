@@ -1,37 +1,37 @@
-/* Liquid Glass Light — Translucent frosted glass over colorful gradients (iOS 26-inspired) */
+/* Liquid Glass Light — Pastel Sky: lavender-to-mint translucent glass */
 [data-theme='liquid-glass'] {
-  --color-bg: linear-gradient(135deg, #e0e7ff 0%, #fce7f3 40%, #dbeafe 70%, #e0f2fe 100%);
-  --color-bg-solid: #e8edf5;
-  --color-surface: rgba(255, 255, 255, 0.55);
-  --color-surface-2: rgba(255, 255, 255, 0.35);
+  --color-bg: linear-gradient(135deg, #e8e0f0 0%, #d8e4f8 40%, #ddf0ee 70%, #e0f0f4 100%);
+  --color-bg-solid: #e0e4f0;
+  --color-surface: rgba(255, 255, 255, 0.45);
+  --color-surface-2: rgba(255, 255, 255, 0.3);
 
   --color-border: rgba(255, 255, 255, 0.6);
-  --color-border-light: rgba(255, 255, 255, 0.8);
-  --color-border-dark: rgba(0, 0, 0, 0.08);
-  --color-border-darker: rgba(0, 0, 0, 0.12);
+  --color-border-light: rgba(255, 255, 255, 0.7);
+  --color-border-dark: rgba(90, 60, 140, 0.08);
+  --color-border-darker: rgba(90, 60, 140, 0.12);
 
-  --color-text: #1a1a2e;
-  --color-text-muted: #5a5a7e;
+  --color-text: #2a2a4e;
+  --color-text-muted: #6a6a9e;
 
-  --color-accent: #007aff;
-  --color-accent-hover: #3395ff;
+  --color-accent: #5b7fff;
+  --color-accent-hover: #7b9fff;
 
-  --color-digit: #007aff;
+  --color-digit: #5b7fff;
   --color-digit-bg: rgba(255, 255, 255, 0.3);
 
-  --color-n1: #007aff;
-  --color-n2: #34c759;
-  --color-n3: #ff3b30;
-  --color-n4: #af52de;
-  --color-n5: #ff9500;
-  --color-n6: #5ac8fa;
-  --color-n7: #1a1a2e;
+  --color-n1: #5b7fff;
+  --color-n2: #2ebc6e;
+  --color-n3: #e84855;
+  --color-n4: #a855f7;
+  --color-n5: #f59e0b;
+  --color-n6: #06b6d4;
+  --color-n7: #2a2a4e;
   --color-n8: #8e8e93;
 
-  --color-glass-bg: rgba(255, 255, 255, 0.5);
-  --color-glass-border: rgba(255, 255, 255, 0.7);
+  --color-glass-bg: rgba(255, 255, 255, 0.45);
+  --color-glass-border: rgba(255, 255, 255, 0.6);
   --color-glass-blur: 16px;
-  --color-overlay: rgba(0, 0, 0, 0.12);
+  --color-overlay: rgba(90, 60, 140, 0.1);
 }
 
 [data-theme='liquid-glass'] body {
@@ -87,7 +87,7 @@
 
 [data-theme='liquid-glass'] .btn-primary {
   background-color: var(--color-accent);
-  box-shadow: 0 2px 12px rgba(0, 122, 255, 0.3);
+  box-shadow: 0 2px 12px rgba(91, 127, 255, 0.3);
   border: none;
   border-radius: 12px;
   color: #fff;
@@ -118,7 +118,7 @@
 
 [data-theme='liquid-glass'] .input-field:focus {
   border-color: var(--color-accent);
-  outline: 2px solid rgba(0, 122, 255, 0.2);
+  outline: 2px solid rgba(91, 127, 255, 0.2);
 }
 
 [data-theme='liquid-glass'] .switch-root {

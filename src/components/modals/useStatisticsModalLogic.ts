@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { DIFFICULTY_PRESETS } from '@/constants/game.constants';
+import { useGameLayout } from '@/hooks/useGameLayout';
 import { createBoardKey } from '@/services/board.service';
 import { useGameStore } from '@/stores/game.store';
 import { useStatsStore } from '@/stores/stats.store';
@@ -21,6 +22,7 @@ export function tabLabel(key: BoardKey): string {
 
 export const useStatisticsModalLogic = () => {
   const closeModal = useUIStore((s) => s.closeStatisticsModal);
+  const { layoutMode } = useGameLayout();
   const records = useStatsStore((s) => s.records);
   const getWinRate = useStatsStore((s) => s.getWinRate);
   const getAverageTime = useStatsStore((s) => s.getAverageTime);
@@ -28,7 +30,6 @@ export const useStatisticsModalLogic = () => {
   const getCurrentStreak = useStatsStore((s) => s.getCurrentStreak);
   const getBestStreak = useStatsStore((s) => s.getBestStreak);
   const getTotalTimePlayed = useStatsStore((s) => s.getTotalTimePlayed);
-  const getAverageEfficiency = useStatsStore((s) => s.getAverageEfficiency);
   const getFirstClickHeatmap = useStatsStore((s) => s.getFirstClickHeatmap);
   const config = useGameStore((s) => s.config);
 
@@ -63,7 +64,6 @@ export const useStatisticsModalLogic = () => {
   const currentStreak = getCurrentStreak(selectedTab);
   const bestStreak = getBestStreak(selectedTab);
   const totalTimePlayed = getTotalTimePlayed(selectedTab);
-  const averageEfficiency = getAverageEfficiency(selectedTab);
   const heatmap = getFirstClickHeatmap(selectedTab);
 
   const heatmapDims = (() => {
@@ -83,6 +83,7 @@ export const useStatisticsModalLogic = () => {
   })();
 
   return {
+    layoutMode,
     allTabs,
     selectedTab,
     setSelectedTab,
@@ -95,7 +96,6 @@ export const useStatisticsModalLogic = () => {
     currentStreak,
     bestStreak,
     totalTimePlayed,
-    averageEfficiency,
     heatmap,
     heatmapDims,
     showHeatmap: totalGames >= 10 && heatmap !== null && heatmapDims !== null,

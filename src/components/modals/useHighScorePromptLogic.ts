@@ -1,10 +1,12 @@
 import { useState } from 'react';
 
 import { MAX_PLAYER_NAME_LENGTH } from '@/constants/ui.constants';
+import { useGameLayout } from '@/hooks/useGameLayout';
 import { useLeaderboardStore } from '@/stores/leaderboard.store';
 import { useUIStore } from '@/stores/ui.store';
 
 export const useHighScorePromptLogic = () => {
+  const { layoutMode } = useGameLayout();
   const highScoreEntry = useUIStore((s) => s.highScoreEntry);
   const dismissHighScorePrompt = useUIStore((s) => s.dismissHighScorePrompt);
   const openLeaderboardModal = useUIStore((s) => s.openLeaderboardModal);
@@ -56,6 +58,7 @@ export const useHighScorePromptLogic = () => {
   };
 
   return {
+    layoutMode,
     isOpen: highScoreEntry !== null,
     timeSeconds: highScoreEntry?.timeSeconds ?? 0,
     name,

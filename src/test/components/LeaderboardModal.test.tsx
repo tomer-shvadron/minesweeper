@@ -44,6 +44,27 @@ vi.mock('@/stores/game.store', () => ({
     }),
 }));
 
+// ---- stats.store mock ----
+vi.mock('@/stores/stats.store', () => ({
+  useStatsStore: (selector: (s: object) => unknown) => selector({ records: [] }),
+}));
+
+// ---- useGameLayout mock ----
+vi.mock('@/hooks/useGameLayout', () => ({
+  useGameLayout: () => ({
+    layoutMode: 'mobile-portrait' as const,
+    cellSize: 32,
+    boardWidth: 288,
+    boardHeight: 288,
+    showTopBar: false,
+    showBottomNav: true,
+    showFloatingPills: true,
+    topBarHeight: 0,
+    navBarHeight: 64,
+    config: { rows: 9, cols: 9, mines: 10 },
+  }),
+}));
+
 describe('LeaderboardModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -66,7 +87,7 @@ describe('LeaderboardModal', () => {
   it('shows default preset tabs', () => {
     render(<LeaderboardModal />);
     expect(screen.getByText('Beginner')).toBeTruthy();
-    expect(screen.getByText('Inter.')).toBeTruthy();
+    expect(screen.getByText('Intermediate')).toBeTruthy();
     expect(screen.getByText('Expert')).toBeTruthy();
   });
 
@@ -94,6 +115,6 @@ describe('LeaderboardModal', () => {
     render(<LeaderboardModal />);
     const expertTab = screen.getByText('Expert');
     fireEvent.click(expertTab);
-    expect(expertTab.className).toContain('font-semibold');
+    expect(expertTab.getAttribute('aria-selected')).toBe('true');
   });
 });

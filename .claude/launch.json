@@ -9,6 +9,15 @@
         "eval \"$(/usr/local/Cellar/fnm/1.38.1/bin/fnm env)\" && exec /usr/local/bin/pnpm dev"
       ],
       "port": 5173
+    },
+    {
+      "name": "preview-static",
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": [
+        "-c",
+        "eval \"$(/usr/local/Cellar/fnm/1.38.1/bin/fnm env)\" && exec npx serve docs -l 3456"
+      ],
+      "port": 3456
     }
   ]
 }

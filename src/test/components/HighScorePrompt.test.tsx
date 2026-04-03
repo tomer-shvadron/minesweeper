@@ -29,6 +29,22 @@ vi.mock('@/stores/leaderboard.store', () => ({
   ),
 }));
 
+// ---- useGameLayout mock ----
+vi.mock('@/hooks/useGameLayout', () => ({
+  useGameLayout: () => ({
+    layoutMode: 'mobile-portrait' as const,
+    cellSize: 32,
+    boardWidth: 288,
+    boardHeight: 288,
+    showTopBar: false,
+    showBottomNav: true,
+    showFloatingPills: true,
+    topBarHeight: 0,
+    navBarHeight: 64,
+    config: { rows: 9, cols: 9, mines: 10 },
+  }),
+}));
+
 describe('HighScorePrompt', () => {
   beforeEach(() => {
     vi.clearAllMocks();

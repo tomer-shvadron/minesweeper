@@ -1,3 +1,5 @@
+import { X } from 'lucide-react';
+
 import { useGameOverBannerLogic } from './useGameOverBannerLogic';
 
 import { Button } from '@/components/ui/Button';
@@ -8,11 +10,11 @@ export const GameOverBanner = () => {
     isVisible,
     isWon,
     elapsedSeconds,
-    efficiency,
     cellsRevealed,
     minesFlagged,
     handlePlayAgain,
     handleChangeLevel,
+    handleDismiss,
   } = useGameOverBannerLogic();
 
   if (!isVisible) {
@@ -26,7 +28,26 @@ export const GameOverBanner = () => {
       role="status"
       aria-live="polite"
     >
-      <div className="game-over-card">
+      {/* Invisible backdrop button for dismiss-on-click-outside */}
+      <button
+        type="button"
+        className="absolute inset-0 cursor-default border-none bg-transparent"
+        aria-label="Dismiss"
+        onClick={handleDismiss}
+        tabIndex={-1}
+      />
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+      <div className="game-over-card" onClick={(e) => e.stopPropagation()}>
+        {/* Close button */}
+        <button
+          type="button"
+          className="absolute top-3 right-3 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface-2,var(--color-surface))] text-[var(--color-text-muted)] transition-colors duration-100 hover:bg-[var(--color-border)] hover:text-[var(--color-text)]"
+          aria-label="Close"
+          onClick={handleDismiss}
+        >
+          <X size={14} strokeWidth={2} />
+        </button>
+
         {/* Emoji + title */}
         <div className="flex flex-col items-center gap-1">
           <span className="text-4xl">{isWon ? '🏆' : '💣'}</span>
@@ -47,16 +68,13 @@ export const GameOverBanner = () => {
           {formatTime(elapsedSeconds)}
         </p>
 
-        {/* Stats */}
-        <div className="flex justify-center gap-6 text-sm text-[var(--color-text-muted)]">
-          {isWon && efficiency !== null && <span>×{efficiency.toFixed(1)} per click</span>}
-          {!isWon && (
-            <>
-              <span>{cellsRevealed} revealed</span>
-              <span>{minesFlagged} flagged</span>
-            </>
-          )}
-        </div>
+        {/* Stats (loss only) */}
+        {!isWon && (
+          <div className="flex justify-center gap-6 text-sm text-[var(--color-text-muted)]">
+            <span>{cellsRevealed} revealed</span>
+            <span>{minesFlagged} flagged</span>
+          </div>
+        )}
 
         {/* Buttons */}
         <div className="flex justify-center gap-3 pt-1">

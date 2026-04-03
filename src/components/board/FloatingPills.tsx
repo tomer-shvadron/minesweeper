@@ -25,7 +25,7 @@ export const FloatingPills = () => {
   };
 
   return (
-    <div className="flex w-full items-center justify-between px-1 pb-2">
+    <div className="flex w-full items-center justify-between px-1 pb-4">
       {/* Mine counter pill */}
       <div className={pillClass} style={pillStyle}>
         <Bomb size={iconSize} className="text-[var(--color-text-muted)]" strokeWidth={2} />

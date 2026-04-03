@@ -46,7 +46,7 @@ export function resolveTheme(
 
 export const THEME_PREVIEW: Record<Theme, { surface: string; accent: string }> = {
   regular: { surface: '#ffffff', accent: '#6366f1' },
-  'liquid-glass': { surface: 'rgba(255,255,255,0.5)', accent: '#007aff' },
+  'liquid-glass': { surface: 'rgba(255,255,255,0.45)', accent: '#5b7fff' },
   jedi: { surface: '#0a1628', accent: '#4da6ff' },
   sith: { surface: '#1a0008', accent: '#ff4444' },
 };

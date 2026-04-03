@@ -11,9 +11,10 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  // Each browser runs on its own dedicated CI runner (matrix job), so 2 workers
-  // matches the 2 vCPUs available on ubuntu-latest and roughly halves run time.
-  workers: process.env.CI ? 2 : undefined,
+  // Each browser runs on its own dedicated CI runner (matrix job).
+  // ubuntu-latest provides 4 vCPUs — matching worker count to core count
+  // maximises throughput without CPU contention or timeout flakes.
+  workers: process.env.CI ? 4 : undefined,
   reporter: process.env.CI
     ? [['github'], ['list'], ['html', { open: 'never' }]]
     : [['list'], ['html']],
@@ -23,7 +24,7 @@ export default defineConfig({
   use: {
     baseURL: BASE_URL,
     trace: 'on-first-retry',
-    reducedMotion: 'reduce',
+    contextOptions: { reducedMotion: 'reduce' },
     screenshot: 'only-on-failure',
   },
 

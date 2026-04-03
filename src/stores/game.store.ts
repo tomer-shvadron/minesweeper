@@ -37,6 +37,7 @@ interface GameState {
   gameKey: number;
   mineRevealOrder: [number, number][];
   lastChordReveal: { origin: [number, number]; cells: [number, number][] } | null;
+  lastFloodReveal: { origin: [number, number]; cells: [number, number][] } | null;
   lastRevealCount: number;
   unrevealedSafeCount: number;
   firstClick: [number, number] | null;
@@ -52,6 +53,7 @@ interface GameActions {
   setCellPressStart: () => void;
   setCellPressEnd: () => void;
   clearChordReveal: () => void;
+  clearFloodReveal: () => void;
   _applyGeneratedBoard: (board: Board) => void;
 }
 
@@ -141,8 +143,18 @@ function resolveRevealResult(
   // O(1) loss check: the board service marks the detonated cell with isExploded
   const isLoss = newBoard[row]?.[col]?.isExploded === true;
 
-  // Count newly revealed safe cells for incremental win tracking
-  const newlyRevealed = countNewlyRevealed(oldBoard, newBoard);
+  // Collect newly revealed cells for flood ripple animation + win tracking
+  const newlyRevealedCells: [number, number][] = [];
+  for (let r = 0; r < config.rows; r++) {
+    for (let c = 0; c < config.cols; c++) {
+      const oldCell = oldBoard[r]?.[c];
+      const newCell = newBoard[r]?.[c];
+      if (oldCell && newCell && !oldCell.isRevealed && newCell.isRevealed && !newCell.hasMine) {
+        newlyRevealedCells.push([r, c]);
+      }
+    }
+  }
+  const newlyRevealed = newlyRevealedCells.length;
   const newUnrevealedSafe = prevUnrevealedSafe - newlyRevealed;
 
   let newStatus: GameStatus = 'playing';
@@ -173,6 +185,7 @@ function resolveRevealResult(
     newStatus,
     mineRevealOrder,
     lastRevealCount: newlyRevealed,
+    newlyRevealedCells,
     unrevealedSafeCount: newUnrevealedSafe,
   };
 }
@@ -190,6 +203,7 @@ export const useGameStore = create<GameStore>()(
       gameKey: 0,
       mineRevealOrder: [],
       lastChordReveal: null,
+      lastFloodReveal: null,
       lastRevealCount: 0,
       unrevealedSafeCount: DEFAULT_CONFIG.rows * DEFAULT_CONFIG.cols - DEFAULT_CONFIG.mines,
       firstClick: null,
@@ -210,6 +224,7 @@ export const useGameStore = create<GameStore>()(
           gameKey: get().gameKey + 1,
           mineRevealOrder: [],
           lastChordReveal: null,
+          lastFloodReveal: null,
           unrevealedSafeCount: newConfig.rows * newConfig.cols - newConfig.mines,
           firstClick: null,
           totalClicks: 0,
@@ -312,6 +327,10 @@ export const useGameStore = create<GameStore>()(
           isFirstClick: false,
           mineRevealOrder: result.mineRevealOrder,
           lastRevealCount: result.lastRevealCount,
+          lastFloodReveal:
+            result.newlyRevealedCells.length > 1 && result.newStatus !== 'lost'
+              ? { origin: [row, col], cells: result.newlyRevealedCells }
+              : null,
           unrevealedSafeCount: result.unrevealedSafeCount,
           firstClick: firstClick ?? [row, col],
           totalClicks: totalClicks + 1,
@@ -341,6 +360,10 @@ export const useGameStore = create<GameStore>()(
           isFirstClick: false,
           mineRevealOrder: result.mineRevealOrder,
           lastRevealCount: result.lastRevealCount,
+          lastFloodReveal:
+            result.newlyRevealedCells.length > 1 && result.newStatus !== 'lost'
+              ? { origin: [row, col], cells: result.newlyRevealedCells }
+              : null,
           unrevealedSafeCount: result.unrevealedSafeCount,
           firstClick: firstClick ?? [row, col],
           totalClicks: totalClicks + 1,
@@ -423,6 +446,7 @@ export const useGameStore = create<GameStore>()(
       setCellPressStart: () => set({ isPressingCell: true }),
       setCellPressEnd: () => set({ isPressingCell: false }),
       clearChordReveal: () => set({ lastChordReveal: null }),
+      clearFloodReveal: () => set({ lastFloodReveal: null }),
     }),
     {
       name: STORAGE_KEYS.game,

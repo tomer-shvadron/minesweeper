@@ -267,28 +267,36 @@
 }
 
 @layer components {
-  /* body[data-animations='false'] — ancestor selector, cannot be expressed in Tailwind without body group */
-  body[data-animations='false'] .smiley--win,
-  body[data-animations='false'] .smiley--loss,
-  body[data-animations='false'] .board--entering .cell,
-  body[data-animations='false'] .cell.cell--mine-reveal,
-  body[data-animations='false'] .cell.cell--chord-ripple {
-    animation: none;
-  }
-}
-
-@layer components {
-  @keyframes cell-reveal {
-    from {
-      opacity: 0.4;
-      transform: scale(0.82);
+  @keyframes flood-ripple {
+    0% {
+      opacity: 0.3;
+      transform: scale(0.85);
     }
-    to {
+    100% {
       opacity: 1;
       transform: scale(1);
     }
   }
 
+  .cell.cell--flood-ripple {
+    animation: flood-ripple 0.12s ease-out both;
+    animation-delay: var(--flood-delay, 0ms);
+  }
+}
+
+@layer components {
+  /* body[data-animations='false'] — ancestor selector, cannot be expressed in Tailwind without body group */
+  body[data-animations='false'] .smiley--win,
+  body[data-animations='false'] .smiley--loss,
+  body[data-animations='false'] .board--entering .cell,
+  body[data-animations='false'] .cell.cell--mine-reveal,
+  body[data-animations='false'] .cell.cell--chord-ripple,
+  body[data-animations='false'] .cell.cell--flood-ripple {
+    animation: none;
+  }
+}
+
+@layer components {
   @keyframes cell-explode {
     0% {
       transform: scale(1);
@@ -304,7 +312,6 @@
   /* .cell-revealed / .cell-exploded stay in CSS: referenced by body[data-animations='false'] ancestor selector */
   .cell-revealed {
     border: 1px solid var(--color-border-dark);
-    animation: cell-reveal 0.1s ease-out both;
   }
 
   .cell-exploded {
@@ -313,7 +320,6 @@
     animation: cell-explode 0.28s ease-out both;
   }
 
-  body[data-animations='false'] .cell-revealed,
   body[data-animations='false'] .cell-exploded {
     animation: none;
   }

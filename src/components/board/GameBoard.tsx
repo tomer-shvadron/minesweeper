@@ -19,6 +19,7 @@ const DOMBoard = () => {
     boardEntering,
     mineRevealLookup,
     chordRippleLookup,
+    floodRippleLookup,
     focusedCell,
     handleKeyDown,
     handleBoardFocus,
@@ -54,6 +55,7 @@ const DOMBoard = () => {
             const key = `${rowIdx},${colIdx}`;
             const mineRevealIndex = mineRevealLookup.get(key);
             const chordRippleDelay = chordRippleLookup.get(key);
+            const floodRippleDelay = floodRippleLookup.get(key);
             const isFocused =
               focusedCell !== null && focusedCell[0] === rowIdx && focusedCell[1] === colIdx;
             return (
@@ -66,6 +68,7 @@ const DOMBoard = () => {
                 isFocused={isFocused}
                 {...(mineRevealIndex !== undefined && { mineRevealIndex })}
                 {...(chordRippleDelay !== undefined && { chordRippleDelay })}
+                {...(floodRippleDelay !== undefined && { floodRippleDelay })}
               />
             );
           })

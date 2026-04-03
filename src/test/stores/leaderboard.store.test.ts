@@ -87,11 +87,20 @@ describe('leaderboard.store', () => {
 
   // ----------------------------------------------------------------
   describe('isHighScore', () => {
-    it('returns true when there are fewer than 10 entries', () => {
+    it('returns true when fewer than 10 entries and time beats the worst', () => {
       for (let i = 0; i < 9; i++) {
         useLeaderboardStore.getState().addEntry('beginner', entry((i + 1) * 10));
       }
-      expect(useLeaderboardStore.getState().isHighScore('beginner', 999)).toBe(true);
+      // Worst is 90s; 85 < 90 → qualifies
+      expect(useLeaderboardStore.getState().isHighScore('beginner', 85)).toBe(true);
+    });
+
+    it('returns false when fewer than 10 entries but time is worse than all', () => {
+      for (let i = 0; i < 9; i++) {
+        useLeaderboardStore.getState().addEntry('beginner', entry((i + 1) * 10));
+      }
+      // Worst is 90s; 999 is not < 90 → does not qualify
+      expect(useLeaderboardStore.getState().isHighScore('beginner', 999)).toBe(false);
     });
 
     it('returns true when there are no entries yet', () => {

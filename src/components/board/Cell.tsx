@@ -34,6 +34,7 @@ interface CellProps {
   isFocused?: boolean;
   mineRevealIndex?: number;
   chordRippleDelay?: number;
+  floodRippleDelay?: number;
 }
 
 export const Cell = ({
@@ -44,6 +45,7 @@ export const Cell = ({
   isFocused,
   mineRevealIndex,
   chordRippleDelay,
+  floodRippleDelay,
 }: CellProps) => {
   const { content, containerClass, numberClass, isCorrectFlag } = useCellLogic({ cell });
 
@@ -55,6 +57,7 @@ export const Cell = ({
   const animClass = [
     mineRevealIndex !== undefined ? 'cell--mine-reveal' : '',
     chordRippleDelay !== undefined ? 'cell--chord-ripple' : '',
+    floodRippleDelay !== undefined ? 'cell--flood-ripple' : '',
     isFocused ? 'cell-focused' : '',
   ]
     .filter(Boolean)
@@ -72,6 +75,7 @@ export const Cell = ({
           '--cell-col': col,
           ...(mineRevealIndex !== undefined && { '--mine-delay': `${mineRevealIndex * 35}ms` }),
           ...(chordRippleDelay !== undefined && { '--chord-delay': `${chordRippleDelay}ms` }),
+          ...(floodRippleDelay !== undefined && { '--flood-delay': `${floodRippleDelay}ms` }),
         } as React.CSSProperties & Record<`--${string}`, string | number>
       }
       role="gridcell"

@@ -34,7 +34,9 @@ export const useGameBoardLogic = () => {
   const gameKey = useGameStore((s) => s.gameKey);
   const mineRevealOrder = useGameStore((s) => s.mineRevealOrder);
   const lastChordReveal = useGameStore((s) => s.lastChordReveal);
+  const lastFloodReveal = useGameStore((s) => s.lastFloodReveal);
   const clearChordReveal = useGameStore((s) => s.clearChordReveal);
+  const clearFloodReveal = useGameStore((s) => s.clearFloodReveal);
   const revealCell = useGameStore((s) => s.revealCell);
   const flagCell = useGameStore((s) => s.flagCell);
   const chordClick = useGameStore((s) => s.chordClick);
@@ -172,6 +174,20 @@ export const useGameBoardLogic = () => {
       clearTimeout(timer);
     };
   }, [lastChordReveal, clearChordReveal]);
+
+  useEffect(() => {
+    if (!lastFloodReveal) {
+      return;
+    }
+    const [or, oc] = lastFloodReveal.origin;
+    const maxDist = lastFloodReveal.cells.reduce((max, [r, c]) => {
+      return Math.max(max, Math.max(Math.abs(r - or), Math.abs(c - oc)));
+    }, 0);
+    const timer = setTimeout(clearFloodReveal, maxDist * 18 + 350);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [lastFloodReveal, clearFloodReveal]);
 
   useEffect(() => {
     resetZoom();
@@ -324,6 +340,19 @@ export const useGameBoardLogic = () => {
     );
   }, [lastChordReveal]);
 
+  const floodRippleLookup = useMemo(() => {
+    if (!lastFloodReveal) {
+      return EMPTY_MAP;
+    }
+    const [or, oc] = lastFloodReveal.origin;
+    return new Map(
+      lastFloodReveal.cells.map(([r, c]) => [
+        cellKey(r, c),
+        Math.max(Math.abs(r - or), Math.abs(c - oc)) * 18,
+      ])
+    );
+  }, [lastFloodReveal]);
+
   return {
     board,
     config,
@@ -337,6 +366,7 @@ export const useGameBoardLogic = () => {
     boardEntering: animationsEnabled && boardEntering,
     mineRevealLookup: animationsEnabled ? mineRevealLookup : EMPTY_MAP,
     chordRippleLookup: animationsEnabled ? chordRippleLookup : EMPTY_MAP,
+    floodRippleLookup: animationsEnabled ? floodRippleLookup : EMPTY_MAP,
     focusedCell: boardFocused ? focusedCell : null,
     handleKeyDown,
     handleBoardFocus,

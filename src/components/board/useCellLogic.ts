@@ -1,5 +1,4 @@
 import { useGameStore } from '@/stores/game.store';
-import { selectIsGameOver } from '@/stores/selectors';
 import type { CellState } from '@/types/game.types';
 import { cn } from '@/utils/cn';
 
@@ -19,7 +18,8 @@ interface UseCellLogicProps {
 }
 
 export const useCellLogic = ({ cell }: UseCellLogicProps) => {
-  const isGameOver = useGameStore(selectIsGameOver);
+  const status = useGameStore((s) => s.status);
+  const isGameOver = status === 'won' || status === 'lost';
 
   const getContent = (): string => {
     if (!cell.isRevealed) {
@@ -28,6 +28,10 @@ export const useCellLogic = ({ cell }: UseCellLogicProps) => {
       }
       if (cell.isQuestionMark) {
         return '?';
+      }
+      // Show remaining mines when the game is won so the user can see why they won
+      if (status === 'won' && cell.hasMine) {
+        return '💣';
       }
       return '';
     }
@@ -45,8 +49,8 @@ export const useCellLogic = ({ cell }: UseCellLogicProps) => {
 
   const isRaised = !cell.isRevealed;
   const isExploded = cell.isExploded;
-  // Cell was correctly flagged — show a green checkmark badge on game over
-  const isCorrectFlag = isGameOver && cell.isFlagged && cell.hasMine;
+  // Cell was correctly flagged — show a green checkmark badge on loss only
+  const isCorrectFlag = status === 'lost' && cell.isFlagged && cell.hasMine;
 
   const containerClass = cn(
     'cell',

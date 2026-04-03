@@ -112,11 +112,18 @@ describe('Cell — game-over state', () => {
     mockFlagMode = 'flags-only';
   });
 
-  it('shows correct flag checkmark when game is won and cell is correctly flagged', () => {
-    mockGameStatus = 'won';
+  it('shows correct flag checkmark when game is lost and cell is correctly flagged', () => {
+    mockGameStatus = 'lost';
     renderCell({ ...unrevealed(), isFlagged: true, hasMine: true });
     const btn = screen.getByRole('gridcell');
     expect(btn.textContent).toContain('✓');
+  });
+
+  it('does not show checkmark on win even if cell is correctly flagged', () => {
+    mockGameStatus = 'won';
+    renderCell({ ...unrevealed(), isFlagged: true, hasMine: true });
+    const btn = screen.getByRole('gridcell');
+    expect(btn.textContent).not.toContain('✓');
   });
 
   it('does not show checkmark for incorrectly flagged cells', () => {

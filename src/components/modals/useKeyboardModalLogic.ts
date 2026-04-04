@@ -1,11 +1,13 @@
 import { useState } from 'react';
 
 import { DEFAULT_KEY_BINDINGS, KEYBOARD_ACTION_LABELS } from '@/constants/keyboard.constants';
+import { useGameLayout } from '@/hooks/useGameLayout';
 import { useSettingsStore } from '@/stores/settings.store';
 import { useUIStore } from '@/stores/ui.store';
 import type { KeyboardAction } from '@/types/settings.types';
 
 export const useKeyboardModalLogic = () => {
+  const { layoutMode } = useGameLayout();
   const isOpen = useUIStore((s) => s.keyboardModalOpen);
   const closeModal = useUIStore((s) => s.closeKeyboardModal);
   const keyboardBindings = useSettingsStore((s) => s.keyboardBindings);
@@ -92,6 +94,7 @@ export const useKeyboardModalLogic = () => {
   };
 
   return {
+    layoutMode,
     isOpen,
     closeModal,
     actions,

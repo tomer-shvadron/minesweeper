@@ -1,9 +1,6 @@
-import {
-  calculateAdjacentValues,
-  countRemainingFlags,
-  isBoardSolvable,
-  placeMines,
-} from '@/services/board.service';
+import { calculateAdjacentValues, placeMines } from '@/services/board-core.service';
+import { countRemainingFlags } from '@/services/board-reveal.service';
+import { isBoardSolvable } from '@/services/board-solver.service';
 import type { Board, BoardConfig } from '@/types/game.types';
 
 interface WorkerRequest {

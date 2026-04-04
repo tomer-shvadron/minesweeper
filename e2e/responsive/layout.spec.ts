@@ -20,7 +20,7 @@ test.describe('Responsive layout', () => {
     expect(scrollWidth).toBeLessThanOrEqual(393 + 5);
   });
 
-  test('header visible in portrait', async ({ gamePage, page }) => {
+  test('smiley button visible in portrait', async ({ gamePage, page }) => {
     await page.setViewportSize({ width: 393, height: 852 });
     await gamePage.startPreset('Beginner');
     const smileyBox = await gamePage.smiley.boundingBox();
@@ -28,8 +28,9 @@ test.describe('Responsive layout', () => {
     if (!smileyBox) {
       return;
     }
+    // In mobile-portrait the smiley lives in the bottom nav bar
     expect(smileyBox.y).toBeGreaterThanOrEqual(0);
-    expect(smileyBox.y).toBeLessThan(300);
+    expect(smileyBox.y).toBeLessThan(852);
   });
 
   test('board fits viewport in landscape', async ({ gamePage, page }) => {
@@ -76,7 +77,7 @@ test.describe('Responsive layout', () => {
     if (!bannerBox) {
       return;
     }
-    expect(bannerBox.y).toBeGreaterThan(0);
+    expect(bannerBox.y).toBeGreaterThanOrEqual(0);
     expect(bannerBox.y).toBeLessThan(852);
   });
 });

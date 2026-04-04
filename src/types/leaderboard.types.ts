@@ -7,3 +7,9 @@ export interface LeaderboardEntry {
 }
 
 export type Leaderboard = Record<BoardKey, LeaderboardEntry[]>;
+
+/** Data for a pending high score name prompt (after a winning game). */
+export interface HighScoreEntry {
+  timeSeconds: number;
+  boardKey: BoardKey;
+}

@@ -1,6 +1,14 @@
 import { useCallback, useRef } from 'react';
 
-import { LONG_PRESS_DELAY_MS, TOUCH_MOVE_THRESHOLD_PX } from '@/constants/ui.constants';
+import {
+  LONG_PRESS_DELAY_MS,
+  SWIPE_CANCEL_MOVE,
+  SWIPE_COMMIT_DELAY,
+  SWIPE_DOWN_THRESHOLD,
+  SWIPE_TIME_WINDOW,
+  TAP_MAX_DURATION,
+  TOUCH_MOVE_THRESHOLD_PX,
+} from '@/constants/ui.constants';
 
 interface UseLongPressOptions {
   onLongPress: () => void;
@@ -23,18 +31,6 @@ export function useLongPress({
   // Set whenever 2+ fingers are active; prevents swipe-to-flag and long-press
   // from firing during pinch-to-zoom gestures.
   const multiTouchRef = useRef(false);
-
-  // ── Swipe-to-flag gesture state machine ──────────────────────────────────
-  // Option A: tight 150 ms recognition window — fast flicks qualify, slow
-  //           pan ramp-ups don't reach the threshold in time.
-  // Option D: 80 ms commit delay — once the threshold is crossed we wait a
-  //           beat; if the finger keeps moving (pan) we cancel, if it slows
-  //           or lifts (flag flick) we commit.
-  const SWIPE_DOWN_THRESHOLD = 20; // px downward to start evaluation
-  const SWIPE_TIME_WINDOW = 150; // ms from touch-start within which threshold must be crossed
-  const SWIPE_COMMIT_DELAY = 80; // ms to wait before committing the flag
-  const SWIPE_CANCEL_MOVE = 12; // px of additional travel during commit window → cancel
-  const TAP_MAX_DURATION = 200;
 
   const swipePendingRef = useRef(false); // threshold crossed, commit timer running
   const swipeThresholdPosRef = useRef<{ x: number; y: number } | null>(null);

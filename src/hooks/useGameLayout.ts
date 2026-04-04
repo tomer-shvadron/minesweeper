@@ -14,17 +14,14 @@ import {
 export const useGameLayout = () => {
   const config = useGameStore((s) => s.config);
   const boardSize = useSettingsStore((s) => s.boardSize);
-  const cellStyle = useSettingsStore((s) => s.cellStyle);
 
-  const [cellSize, setCellSize] = useState(() =>
-    calcCellSize(config.rows, config.cols, boardSize, cellStyle)
-  );
+  const [cellSize, setCellSize] = useState(() => calcCellSize(config.rows, config.cols, boardSize));
   const [layoutMode, setLayoutMode] = useState<LayoutMode>(getLayoutMode);
 
   useEffect(() => {
     const recalc = () => {
       setLayoutMode(getLayoutMode());
-      setCellSize(calcCellSize(config.rows, config.cols, boardSize, cellStyle));
+      setCellSize(calcCellSize(config.rows, config.cols, boardSize));
     };
     recalc();
 
@@ -48,7 +45,7 @@ export const useGameLayout = () => {
       pointerMql.removeEventListener('change', recalc);
       clearTimeout(orientationTimer);
     };
-  }, [config.rows, config.cols, boardSize, cellStyle]);
+  }, [config.rows, config.cols, boardSize]);
 
   // Convenience booleans derived from layoutMode
   const showTopBar = layoutMode === 'desktop' || layoutMode === 'mobile-landscape';

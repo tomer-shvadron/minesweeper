@@ -5,7 +5,7 @@ test.describe('Play Again & Change Level', () => {
     await gamePage.startPreset('Beginner');
     await gamePage.loseGame();
     await gamePage.gameOverBanner.waitFor();
-    await gamePage.page.getByRole('button', { name: 'Play Again' }).click();
+    await gamePage.page.getByRole('button', { name: 'Try Again' }).click();
     await expect(gamePage.newGameModal()).not.toBeVisible();
     await expect(gamePage.timer).toContainText('0');
     await expect(gamePage.gameOverBanner).not.toBeVisible();
@@ -61,7 +61,7 @@ test.describe('Play Again & Change Level', () => {
     }
     await gamePage.loseGame();
     await gamePage.gameOverBanner.waitFor();
-    await gamePage.page.getByRole('button', { name: 'Play Again' }).click();
+    await gamePage.page.getByRole('button', { name: 'Try Again' }).click();
     await expect(gamePage.mineCounter).toContainText('10');
   });
 });

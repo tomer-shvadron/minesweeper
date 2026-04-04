@@ -1,5 +1,7 @@
 import type { SoundTheme } from '@/types/settings.types';
 
+// ─── Audio context management ───────────────────────────────────────────────
+
 let ctx: AudioContext | null = null;
 
 function getCtx(): AudioContext {
@@ -21,7 +23,70 @@ function master(ac: AudioContext, volume: number): GainNode {
   return g;
 }
 
-// Frequency by adjacent mine count (0 = empty cell, no mines adjacent)
+// ─── Shared synthesis helpers ───────────────────────────────────────────────
+
+/** Create an oscillator with an attack-decay envelope, connected to `out`. */
+function createTone(
+  ac: AudioContext,
+  out: GainNode,
+  opts: {
+    type: OscillatorType;
+    freq: number;
+    freqEnd?: number;
+    start: number;
+    dur: number;
+    attack?: number;
+    peakGain?: number;
+  }
+): void {
+  const { type, freq, freqEnd, start, dur, attack = 0.01, peakGain = 0.6 } = opts;
+  const osc = ac.createOscillator();
+  const env = ac.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, start);
+  if (freqEnd !== undefined) {
+    osc.frequency.exponentialRampToValueAtTime(freqEnd, start + dur);
+  }
+  env.gain.setValueAtTime(0, start);
+  env.gain.linearRampToValueAtTime(peakGain, start + attack);
+  env.gain.exponentialRampToValueAtTime(0.001, start + dur + 0.02);
+  osc.connect(env);
+  env.connect(out);
+  osc.start(start);
+  osc.stop(start + dur + 0.03);
+}
+
+/** Create white noise burst with lowpass filter, connected to `out`. */
+function createNoiseBurst(
+  ac: AudioContext,
+  out: GainNode,
+  opts: { start: number; dur: number; filterFreq: number; peakGain?: number }
+): void {
+  const { start, dur, filterFreq, peakGain = 1 } = opts;
+  const bufLen = Math.ceil(ac.sampleRate * dur);
+  const buf = ac.createBuffer(1, bufLen, ac.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  const noise = ac.createBufferSource();
+  noise.buffer = buf;
+  const noiseEnv = ac.createGain();
+  noiseEnv.gain.setValueAtTime(peakGain, start);
+  noiseEnv.gain.exponentialRampToValueAtTime(0.001, start + dur);
+  const filter = ac.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = filterFreq;
+  noise.connect(filter);
+  filter.connect(noiseEnv);
+  noiseEnv.connect(out);
+  noise.start(start);
+  noise.stop(start + dur);
+}
+
+// ─── Per-theme configuration ────────────────────────────────────────────────
+
+/** Frequency by adjacent mine count (higher count → higher pitch / tension). */
 const MINE_COUNT_FREQ: Record<number, number> = {
   0: 220,
   1: 330,
@@ -34,389 +99,324 @@ const MINE_COUNT_FREQ: Record<number, number> = {
   8: 1200,
 };
 
-type OscType = OscillatorType;
-
-function oscType(soundTheme: SoundTheme): OscType {
-  if (soundTheme === 'arcade') {
-    return 'square';
-  }
-  if (soundTheme === 'minimal') {
-    return 'triangle';
-  }
-  return 'sine';
-}
-
-// ─── Classic / Arcade / Minimal ──────────────────────────────────────────────
-
-function playWhoosh(volume: number, soundTheme: SoundTheme): void {
-  const ac = getCtx();
-  const volMult = soundTheme === 'minimal' ? 0.2 : 0.35;
-  const out = master(ac, volume * volMult);
-  const t = ac.currentTime;
-  const dur = soundTheme === 'minimal' ? 0.12 : 0.2;
-
-  const osc = ac.createOscillator();
-  const env = ac.createGain();
-  osc.type = oscType(soundTheme);
-  osc.frequency.setValueAtTime(200, t);
-  osc.frequency.exponentialRampToValueAtTime(800, t + dur);
-
-  env.gain.setValueAtTime(0.5, t);
-  env.gain.exponentialRampToValueAtTime(0.001, t + dur);
-
-  osc.connect(env);
-  env.connect(out);
-  osc.start(t);
-  osc.stop(t + dur);
-}
-
-function playReveal(
-  mineCount: number,
-  cascadeSize: number,
-  volume: number,
-  soundTheme: SoundTheme
-): void {
-  // Cascade whoosh: flood-fill revealed ≥ 6 cells at once
-  if (cascadeSize >= 6) {
-    playWhoosh(volume, soundTheme);
-    return;
-  }
-
-  const ac = getCtx();
-  const volMult = soundTheme === 'minimal' ? 0.25 : 0.4;
-  const out = master(ac, volume * volMult);
-  const t = ac.currentTime;
-  const dur = soundTheme === 'minimal' ? 0.05 : soundTheme === 'arcade' ? 0.06 : 0.07;
-  const freq = MINE_COUNT_FREQ[mineCount] ?? 880;
-
-  const osc = ac.createOscillator();
-  const env = ac.createGain();
-  osc.type = oscType(soundTheme);
-  osc.frequency.setValueAtTime(freq * 2, t);
-  osc.frequency.exponentialRampToValueAtTime(freq, t + dur);
-
-  const attackEnd = t + (soundTheme === 'arcade' ? 0.003 : 0.01);
-  env.gain.setValueAtTime(0, t);
-  env.gain.linearRampToValueAtTime(soundTheme === 'arcade' ? 0.8 : 0.6, attackEnd);
-  env.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.02);
-
-  osc.connect(env);
-  env.connect(out);
-  osc.start(t);
-  osc.stop(t + dur + 0.03);
-
-  // High mine count (7-8): add a dissonant second oscillator
-  if (mineCount >= 7) {
-    const osc2 = ac.createOscillator();
-    const env2 = ac.createGain();
-    osc2.type = oscType(soundTheme);
-    // Minor second interval (~1.06× = ~100 cents sharp)
-    osc2.frequency.setValueAtTime(freq * 2 * 1.059, t);
-    osc2.frequency.exponentialRampToValueAtTime(freq * 1.059, t + dur);
-    env2.gain.setValueAtTime(0, t);
-    env2.gain.linearRampToValueAtTime(0.3, attackEnd);
-    env2.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.02);
-    osc2.connect(env2);
-    env2.connect(out);
-    osc2.start(t);
-    osc2.stop(t + dur + 0.03);
-  }
-}
-
-function playFlag(volume: number, soundTheme: SoundTheme): void {
-  const ac = getCtx();
-  const volMult = soundTheme === 'minimal' ? 0.3 : 0.45;
-  const out = master(ac, volume * volMult);
-  const t = ac.currentTime;
-  const noteCount = soundTheme === 'minimal' ? 1 : 2;
-  const freqs = [660, 880];
-  const gap = soundTheme === 'arcade' ? 0.03 : 0.04;
-  const decay = soundTheme === 'minimal' ? 0.04 : 0.05;
-
-  for (let i = 0; i < noteCount; i++) {
-    const osc = ac.createOscillator();
-    const env = ac.createGain();
-    const freq = freqs[i] ?? 660;
-    osc.type = oscType(soundTheme);
-    osc.frequency.value = freq;
-    env.gain.setValueAtTime(0, t + i * gap);
-    env.gain.linearRampToValueAtTime(soundTheme === 'arcade' ? 0.5 : 0.3, t + i * gap + 0.005);
-    env.gain.exponentialRampToValueAtTime(0.001, t + i * gap + decay);
-    osc.connect(env);
-    env.connect(out);
-    osc.start(t + i * gap);
-    osc.stop(t + i * gap + decay + 0.01);
-  }
-}
-
-function playExplode(volume: number, soundTheme: SoundTheme): void {
-  const ac = getCtx();
-  const volMult = soundTheme === 'minimal' ? 0.4 : 0.7;
-  const out = master(ac, volume * volMult);
-  const t = ac.currentTime;
-  const dur = soundTheme === 'minimal' ? 0.25 : 0.5;
-
-  if (soundTheme !== 'minimal') {
-    const bufLen = ac.sampleRate * dur;
-    const buf = ac.createBuffer(1, bufLen, ac.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
-    const noise = ac.createBufferSource();
-    noise.buffer = buf;
-    const noiseEnv = ac.createGain();
-    noiseEnv.gain.setValueAtTime(1, t);
-    noiseEnv.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    const filter = ac.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = soundTheme === 'arcade' ? 2000 : 1200;
-    noise.connect(filter);
-    filter.connect(noiseEnv);
-    noiseEnv.connect(out);
-    noise.start(t);
-    noise.stop(t + dur);
-  }
-
-  const osc = ac.createOscillator();
-  const oscEnv = ac.createGain();
-  osc.type = soundTheme === 'arcade' ? 'sawtooth' : 'sine';
-  const startFreq = soundTheme === 'minimal' ? 80 : 120;
-  osc.frequency.setValueAtTime(startFreq, t);
-  osc.frequency.exponentialRampToValueAtTime(soundTheme === 'minimal' ? 25 : 30, t + dur * 0.6);
-  oscEnv.gain.setValueAtTime(soundTheme === 'minimal' ? 0.6 : 1, t);
-  oscEnv.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.7);
-  osc.connect(oscEnv);
-  oscEnv.connect(out);
-  osc.start(t);
-  osc.stop(t + dur * 0.7);
-}
-
-function playWin(volume: number, soundTheme: SoundTheme): void {
-  const ac = getCtx();
-  const volMult = soundTheme === 'minimal' ? 0.3 : 0.5;
-  const out = master(ac, volume * volMult);
-  const t = ac.currentTime;
-
-  // C4 E4 G4 C5 arpeggio
-  const notes = [261.63, 329.63, 392.0, 523.25];
-  const spacing = soundTheme === 'arcade' ? 0.09 : 0.12;
-  const noteDur = soundTheme === 'minimal' ? 0.12 : 0.22;
-
-  notes.forEach((freq, i) => {
-    const osc = ac.createOscillator();
-    const env = ac.createGain();
-    osc.type = oscType(soundTheme);
-    osc.frequency.value = freq;
-    const start = t + i * spacing;
-    env.gain.setValueAtTime(0, start);
-    env.gain.linearRampToValueAtTime(soundTheme === 'arcade' ? 0.8 : 0.6, start + 0.02);
-    env.gain.exponentialRampToValueAtTime(0.001, start + noteDur);
-    osc.connect(env);
-    env.connect(out);
-    osc.start(start);
-    osc.stop(start + noteDur + 0.03);
-  });
-}
-
-// ─── Star Wars ───────────────────────────────────────────────────────────────
-// All sounds synthesized via Web Audio API — no audio files needed.
-//
-// Lightsaber pings map mine count → pitch (higher count = higher tension).
 const SW_MINE_FREQ: Record<number, number> = {
-  0: 196, // G3 – safe empty cell, low hum
-  1: 246, // B3
-  2: 294, // D4
-  3: 349, // F4
-  4: 392, // G4
-  5: 466, // Bb4
-  6: 554, // Db5
-  7: 659, // E5
-  8: 784, // G5 – maximum tension
+  0: 196,
+  1: 246,
+  2: 294,
+  3: 349,
+  4: 392,
+  5: 466,
+  6: 554,
+  7: 659,
+  8: 784,
 };
 
-/**
- * Lightsaber swing: a sawtooth sweep up then back down, like a blade whooshing
- * past. Used for cascade reveals (≥6 cells at once).
- */
-function playStarWarsWhoosh(volume: number): void {
-  const ac = getCtx();
-  const out = master(ac, volume * 0.38);
-  const t = ac.currentTime;
-  const dur = 0.28;
+interface ThemeConfig {
+  oscType: OscillatorType;
+  reveal: {
+    volMult: number;
+    dur: number;
+    attackTime: number;
+    peakGain: number;
+    freqMap: Record<number, number>;
+  };
+  whoosh: { volMult: number; dur: number };
+  flag: {
+    volMult: number;
+    noteCount: number;
+    gap: number;
+    decay: number;
+    freqs: number[];
+    peakGain: number;
+  };
+  explode: {
+    volMult: number;
+    dur: number;
+    oscType: OscillatorType;
+    startFreq: number;
+    filterFreq: number;
+    includeNoise: boolean;
+  };
+  win: { volMult: number; spacing: number; noteDur: number; peakGain: number };
+}
 
+const THEME_CONFIGS: Record<SoundTheme, ThemeConfig> = {
+  classic: {
+    oscType: 'sine',
+    reveal: { volMult: 0.4, dur: 0.07, attackTime: 0.01, peakGain: 0.6, freqMap: MINE_COUNT_FREQ },
+    whoosh: { volMult: 0.35, dur: 0.2 },
+    flag: { volMult: 0.45, noteCount: 2, gap: 0.04, decay: 0.05, freqs: [660, 880], peakGain: 0.3 },
+    explode: {
+      volMult: 0.7,
+      dur: 0.5,
+      oscType: 'sine',
+      startFreq: 120,
+      filterFreq: 1200,
+      includeNoise: true,
+    },
+    win: { volMult: 0.5, spacing: 0.12, noteDur: 0.22, peakGain: 0.6 },
+  },
+  arcade: {
+    oscType: 'square',
+    reveal: { volMult: 0.4, dur: 0.06, attackTime: 0.003, peakGain: 0.8, freqMap: MINE_COUNT_FREQ },
+    whoosh: { volMult: 0.35, dur: 0.2 },
+    flag: { volMult: 0.45, noteCount: 2, gap: 0.03, decay: 0.05, freqs: [660, 880], peakGain: 0.5 },
+    explode: {
+      volMult: 0.7,
+      dur: 0.5,
+      oscType: 'sawtooth',
+      startFreq: 120,
+      filterFreq: 2000,
+      includeNoise: true,
+    },
+    win: { volMult: 0.5, spacing: 0.09, noteDur: 0.22, peakGain: 0.8 },
+  },
+  minimal: {
+    oscType: 'triangle',
+    reveal: { volMult: 0.25, dur: 0.05, attackTime: 0.01, peakGain: 0.6, freqMap: MINE_COUNT_FREQ },
+    whoosh: { volMult: 0.2, dur: 0.12 },
+    flag: { volMult: 0.3, noteCount: 1, gap: 0.04, decay: 0.04, freqs: [660, 880], peakGain: 0.3 },
+    explode: {
+      volMult: 0.4,
+      dur: 0.25,
+      oscType: 'sine',
+      startFreq: 80,
+      filterFreq: 1200,
+      includeNoise: false,
+    },
+    win: { volMult: 0.3, spacing: 0.12, noteDur: 0.12, peakGain: 0.6 },
+  },
+  starwars: {
+    oscType: 'sawtooth',
+    reveal: { volMult: 0.38, dur: 0.09, attackTime: 0.005, peakGain: 0.65, freqMap: SW_MINE_FREQ },
+    whoosh: { volMult: 0.38, dur: 0.28 },
+    flag: {
+      volMult: 0.42,
+      noteCount: 2,
+      gap: 0.1,
+      decay: 0.065,
+      freqs: [900, 1200],
+      peakGain: 0.55,
+    },
+    explode: {
+      volMult: 0.65,
+      dur: 0.6,
+      oscType: 'sawtooth',
+      startFreq: 2200,
+      filterFreq: 1400,
+      includeNoise: true,
+    },
+    win: { volMult: 0.48, spacing: 0.22, noteDur: 0.18, peakGain: 0.72 },
+  },
+};
+
+// ─── Sound implementations ──────────────────────────────────────────────────
+
+function playWhoosh(volume: number, theme: SoundTheme): void {
+  const ac = getCtx();
+  const cfg = THEME_CONFIGS[theme];
+  const out = master(ac, volume * cfg.whoosh.volMult);
+  const t = ac.currentTime;
+  const dur = cfg.whoosh.dur;
+
+  const isStarWars = theme === 'starwars';
   const osc = ac.createOscillator();
   const env = ac.createGain();
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(180, t);
-  osc.frequency.exponentialRampToValueAtTime(750, t + dur * 0.35);
-  osc.frequency.exponentialRampToValueAtTime(220, t + dur);
-
-  env.gain.setValueAtTime(0, t);
-  env.gain.linearRampToValueAtTime(0.7, t + 0.018);
+  osc.type = isStarWars ? 'sawtooth' : cfg.oscType;
+  osc.frequency.setValueAtTime(isStarWars ? 180 : 200, t);
+  if (isStarWars) {
+    osc.frequency.exponentialRampToValueAtTime(750, t + dur * 0.35);
+    osc.frequency.exponentialRampToValueAtTime(220, t + dur);
+  } else {
+    osc.frequency.exponentialRampToValueAtTime(800, t + dur);
+  }
+  env.gain.setValueAtTime(isStarWars ? 0 : 0.5, t);
+  if (isStarWars) {
+    env.gain.linearRampToValueAtTime(0.7, t + 0.018);
+  }
   env.gain.exponentialRampToValueAtTime(0.001, t + dur);
-
   osc.connect(env);
   env.connect(out);
   osc.start(t);
   osc.stop(t + dur + 0.02);
 }
 
-/**
- * Lightsaber ping: a quick sawtooth burst + sub-octave hum that settles to a
- * pitch matching the adjacent mine count.
- */
-function playStarWarsReveal(mineCount: number, cascadeSize: number, volume: number): void {
+function playReveal(
+  mineCount: number,
+  cascadeSize: number,
+  volume: number,
+  theme: SoundTheme
+): void {
   if (cascadeSize >= 6) {
-    playStarWarsWhoosh(volume);
+    playWhoosh(volume, theme);
     return;
   }
 
   const ac = getCtx();
-  const out = master(ac, volume * 0.38);
+  const cfg = THEME_CONFIGS[theme];
+  const { reveal } = cfg;
+  const out = master(ac, volume * reveal.volMult);
   const t = ac.currentTime;
-  const freq = SW_MINE_FREQ[mineCount] ?? 392;
-  const dur = 0.09;
+  const freq = reveal.freqMap[mineCount] ?? 880;
 
-  // Main oscillator: sawtooth gives the electric "buzz" of an active blade
-  const osc = ac.createOscillator();
-  const env = ac.createGain();
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(freq * 1.6, t);
-  osc.frequency.exponentialRampToValueAtTime(freq, t + dur);
-  env.gain.setValueAtTime(0.65, t);
-  env.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.05);
-  osc.connect(env);
-  env.connect(out);
-  osc.start(t);
-  osc.stop(t + dur + 0.06);
-
-  // Sub-octave hum for body/richness
-  const sub = ac.createOscillator();
-  const subEnv = ac.createGain();
-  sub.type = 'sine';
-  sub.frequency.value = freq * 0.5;
-  subEnv.gain.setValueAtTime(0.28, t);
-  subEnv.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.08);
-  sub.connect(subEnv);
-  subEnv.connect(out);
-  sub.start(t);
-  sub.stop(t + dur + 0.09);
-}
-
-/**
- * R2-D2 chirps: two quick ascending sine sweeps, the classic droid "beep boop"
- * used when placing a flag.
- */
-function playStarWarsFlag(volume: number): void {
-  const ac = getCtx();
-  const out = master(ac, volume * 0.42);
-  const t = ac.currentTime;
-
-  const chirps = [
-    { delay: 0.0, f0: 900, f1: 1400, dur: 0.065 },
-    { delay: 0.1, f0: 1200, f1: 1800, dur: 0.055 },
-  ];
-
-  chirps.forEach(({ delay, f0, f1, dur }) => {
-    const osc = ac.createOscillator();
-    const env = ac.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(f0, t + delay);
-    osc.frequency.exponentialRampToValueAtTime(f1, t + delay + dur);
-    env.gain.setValueAtTime(0, t + delay);
-    env.gain.linearRampToValueAtTime(0.55, t + delay + 0.006);
-    env.gain.exponentialRampToValueAtTime(0.001, t + delay + dur + 0.025);
-    osc.connect(env);
-    env.connect(out);
-    osc.start(t + delay);
-    osc.stop(t + delay + dur + 0.03);
+  // Main tone
+  createTone(ac, out, {
+    type: cfg.oscType,
+    freq: freq * (theme === 'starwars' ? 1.6 : 2),
+    freqEnd: freq,
+    start: t,
+    dur: reveal.dur,
+    attack: reveal.attackTime,
+    peakGain: reveal.peakGain,
   });
-}
 
-/**
- * TIE fighter scream + explosion: a sharp sawtooth sweep from ~2 kHz down to
- * ~70 Hz (the iconic TIE engine wail) layered with a white-noise burst for the
- * mine detonation.
- */
-function playStarWarsExplode(volume: number): void {
-  const ac = getCtx();
-  const out = master(ac, volume * 0.65);
-  const t = ac.currentTime;
-  const dur = 0.6;
-
-  // TIE fighter scream: high → low sawtooth sweep
-  const tie = ac.createOscillator();
-  const tieEnv = ac.createGain();
-  tie.type = 'sawtooth';
-  tie.frequency.setValueAtTime(2200, t);
-  tie.frequency.exponentialRampToValueAtTime(70, t + dur * 0.55);
-  tieEnv.gain.setValueAtTime(0.85, t);
-  tieEnv.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.6);
-  tie.connect(tieEnv);
-  tieEnv.connect(out);
-  tie.start(t);
-  tie.stop(t + dur * 0.65);
-
-  // Explosion noise burst
-  const bufLen = Math.ceil(ac.sampleRate * dur);
-  const buf = ac.createBuffer(1, bufLen, ac.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < bufLen; i++) {
-    data[i] = Math.random() * 2 - 1;
+  // Star Wars: sub-octave hum for richness
+  if (theme === 'starwars') {
+    createTone(ac, out, {
+      type: 'sine',
+      freq: freq * 0.5,
+      start: t,
+      dur: reveal.dur + 0.03,
+      attack: 0.001,
+      peakGain: 0.28,
+    });
   }
-  const noise = ac.createBufferSource();
-  noise.buffer = buf;
-  const noiseEnv = ac.createGain();
-  noiseEnv.gain.setValueAtTime(0.7, t);
-  noiseEnv.gain.exponentialRampToValueAtTime(0.001, t + dur);
-  const filter = ac.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.value = 1400;
-  noise.connect(filter);
-  filter.connect(noiseEnv);
-  noiseEnv.connect(out);
-  noise.start(t);
-  noise.stop(t + dur);
+
+  // High mine count (7-8): dissonant second oscillator
+  if (mineCount >= 7 && theme !== 'starwars') {
+    createTone(ac, out, {
+      type: cfg.oscType,
+      freq: freq * 2 * 1.059,
+      freqEnd: freq * 1.059,
+      start: t,
+      dur: reveal.dur,
+      attack: reveal.attackTime,
+      peakGain: 0.3,
+    });
+  }
 }
 
-/**
- * Imperial March opening sting — G4 G4 G4 Eb4 Bb3 G4 — played on a sawtooth
- * oscillator to suggest the brass section of the London Symphony Orchestra.
- */
-function playStarWarsWin(volume: number): void {
+function playFlag(volume: number, theme: SoundTheme): void {
   const ac = getCtx();
-  const out = master(ac, volume * 0.48);
+  const cfg = THEME_CONFIGS[theme];
+  const { flag } = cfg;
+  const out = master(ac, volume * flag.volMult);
   const t = ac.currentTime;
 
-  // G4=392, Eb4=311.13, Bb3=233.08
-  const notes = [
-    { freq: 392.0, start: 0.0, dur: 0.18 }, // G4 (quarter)
-    { freq: 392.0, start: 0.22, dur: 0.18 }, // G4 (quarter)
-    { freq: 392.0, start: 0.44, dur: 0.18 }, // G4 (quarter)
-    { freq: 311.13, start: 0.66, dur: 0.14 }, // Eb4 (dotted eighth)
-    { freq: 233.08, start: 0.82, dur: 0.05 }, // Bb3 (sixteenth)
-    { freq: 392.0, start: 0.9, dur: 0.38 }, // G4 (half — let it ring)
-  ];
+  if (theme === 'starwars') {
+    // R2-D2 chirps: ascending sine sweeps
+    const chirps = [
+      { delay: 0.0, f0: 900, f1: 1400, dur: 0.065 },
+      { delay: 0.1, f0: 1200, f1: 1800, dur: 0.055 },
+    ];
+    chirps.forEach(({ delay, f0, f1, dur }) => {
+      createTone(ac, out, {
+        type: 'sine',
+        freq: f0,
+        freqEnd: f1,
+        start: t + delay,
+        dur,
+        attack: 0.006,
+        peakGain: flag.peakGain,
+      });
+    });
+    return;
+  }
+
+  for (let i = 0; i < flag.noteCount; i++) {
+    const freq = flag.freqs[i] ?? 660;
+    createTone(ac, out, {
+      type: cfg.oscType,
+      freq,
+      start: t + i * flag.gap,
+      dur: flag.decay,
+      attack: 0.005,
+      peakGain: flag.peakGain,
+    });
+  }
+}
+
+function playExplode(volume: number, theme: SoundTheme): void {
+  const ac = getCtx();
+  const cfg = THEME_CONFIGS[theme];
+  const { explode } = cfg;
+  const out = master(ac, volume * explode.volMult);
+  const t = ac.currentTime;
+  const dur = explode.dur;
+
+  // Noise burst (not for minimal)
+  if (explode.includeNoise) {
+    createNoiseBurst(ac, out, {
+      start: t,
+      dur,
+      filterFreq: explode.filterFreq,
+      peakGain: theme === 'starwars' ? 0.7 : 1,
+    });
+  }
+
+  // Pitch sweep oscillator
+  const isStarWars = theme === 'starwars';
+  const isMinimal = theme === 'minimal';
+  const osc = ac.createOscillator();
+  const oscEnv = ac.createGain();
+  osc.type = explode.oscType;
+  osc.frequency.setValueAtTime(explode.startFreq, t);
+
+  if (isStarWars) {
+    // TIE fighter scream: high → low sweep
+    osc.frequency.exponentialRampToValueAtTime(70, t + dur * 0.55);
+    oscEnv.gain.setValueAtTime(0.85, t);
+    oscEnv.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.6);
+  } else {
+    osc.frequency.exponentialRampToValueAtTime(isMinimal ? 25 : 30, t + dur * 0.6);
+    oscEnv.gain.setValueAtTime(isMinimal ? 0.6 : 1, t);
+    oscEnv.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.7);
+  }
+
+  osc.connect(oscEnv);
+  oscEnv.connect(out);
+  osc.start(t);
+  osc.stop(t + dur * (isStarWars ? 0.65 : 0.7));
+}
+
+function playWin(volume: number, theme: SoundTheme): void {
+  const ac = getCtx();
+  const cfg = THEME_CONFIGS[theme];
+  const { win } = cfg;
+  const out = master(ac, volume * win.volMult);
+  const t = ac.currentTime;
+
+  // Star Wars: Imperial March opening sting (G4 G4 G4 Eb4 Bb3 G4)
+  const notes =
+    theme === 'starwars'
+      ? [
+          { freq: 392.0, start: 0.0, dur: 0.18 },
+          { freq: 392.0, start: 0.22, dur: 0.18 },
+          { freq: 392.0, start: 0.44, dur: 0.18 },
+          { freq: 311.13, start: 0.66, dur: 0.14 },
+          { freq: 233.08, start: 0.82, dur: 0.05 },
+          { freq: 392.0, start: 0.9, dur: 0.38 },
+        ]
+      : // Standard: C4 E4 G4 C5 arpeggio
+        [261.63, 329.63, 392.0, 523.25].map((freq, i) => ({
+          freq,
+          start: i * win.spacing,
+          dur: win.noteDur,
+        }));
 
   notes.forEach(({ freq, start, dur }) => {
-    const osc = ac.createOscillator();
-    const env = ac.createGain();
-    osc.type = 'sawtooth'; // brass-like timbre
-    osc.frequency.value = freq;
-    const ns = t + start;
-    env.gain.setValueAtTime(0, ns);
-    env.gain.linearRampToValueAtTime(0.72, ns + 0.012);
-    env.gain.setValueAtTime(0.72, ns + dur * 0.65);
-    env.gain.exponentialRampToValueAtTime(0.001, ns + dur + 0.06);
-    osc.connect(env);
-    env.connect(out);
-    osc.start(ns);
-    osc.stop(ns + dur + 0.08);
+    createTone(ac, out, {
+      type: theme === 'starwars' ? 'sawtooth' : cfg.oscType,
+      freq,
+      start: t + start,
+      dur,
+      attack: 0.012,
+      peakGain: win.peakGain,
+    });
   });
 }
 
-// ─── Public API ──────────────────────────────────────────────────────────────
+// ─── Public API ─────────────────────────────────────────────────────────────
 
 export type SoundName = 'reveal' | 'flag' | 'explode' | 'win';
 
@@ -429,24 +429,6 @@ export interface SoundOptions {
 export function playSound(name: SoundName, volume: number, options: SoundOptions = {}): void {
   const { soundTheme = 'classic', mineCount = 1, cascadeSize = 1 } = options;
   try {
-    if (soundTheme === 'starwars') {
-      switch (name) {
-        case 'reveal':
-          playStarWarsReveal(mineCount, cascadeSize, volume);
-          break;
-        case 'flag':
-          playStarWarsFlag(volume);
-          break;
-        case 'explode':
-          playStarWarsExplode(volume);
-          break;
-        case 'win':
-          playStarWarsWin(volume);
-          break;
-      }
-      return;
-    }
-
     switch (name) {
       case 'reveal':
         playReveal(mineCount, cascadeSize, volume, soundTheme);

@@ -9,6 +9,7 @@ import {
   MIN_ROWS,
   detectPreset,
 } from '@/constants/game.constants';
+import { useGameLayout } from '@/hooks/useGameLayout';
 import { useGameStore } from '@/stores/game.store';
 import { useSettingsStore } from '@/stores/settings.store';
 import { useUIStore } from '@/stores/ui.store';
@@ -22,6 +23,7 @@ function sanitizeInt(raw: string, fallback: number, min: number, max: number): n
 }
 
 export const useNewGameModalLogic = () => {
+  const { layoutMode } = useGameLayout();
   const startNewGame = useGameStore((s) => s.startNewGame);
   const currentConfig = useGameStore((s) => s.config);
   const closeModal = useUIStore((s) => s.closeNewGameModal);
@@ -86,6 +88,7 @@ export const useNewGameModalLogic = () => {
   };
 
   return {
+    layoutMode,
     selectedPreset,
     setSelectedPreset,
     customRows,

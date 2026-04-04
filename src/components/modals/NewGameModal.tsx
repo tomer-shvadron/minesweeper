@@ -1,8 +1,8 @@
 import { useNewGameModalLogic } from './useNewGameModalLogic';
 
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/RadioGroup';
+import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
 import { Toggle } from '@/components/ui/Toggle';
 import { DIFFICULTY_PRESETS } from '@/constants/game.constants';
 import { useUIStore } from '@/stores/ui.store';
@@ -18,6 +18,7 @@ export const NewGameModal = () => {
   const isOpen = useUIStore((s) => s.activeModal === 'newGame');
   const closeModal = useUIStore((s) => s.closeNewGameModal);
   const {
+    layoutMode,
     selectedPreset,
     setSelectedPreset,
     customRows,
@@ -36,7 +37,7 @@ export const NewGameModal = () => {
   } = useNewGameModalLogic();
 
   return (
-    <Modal isOpen={isOpen} title="New Game" onClose={closeModal}>
+    <ResponsiveModal isOpen={isOpen} title="New Game" onClose={closeModal} layoutMode={layoutMode}>
       <div className="flex flex-col gap-1">
         <RadioGroup
           value={selectedPreset}
@@ -120,7 +121,7 @@ export const NewGameModal = () => {
         onChange={setNoGuessMode}
       />
 
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="mt-auto flex justify-end gap-2 pt-2">
         <Button variant="primary" onClick={handleStart}>
           Start
         </Button>
@@ -128,6 +129,6 @@ export const NewGameModal = () => {
           Cancel
         </Button>
       </div>
-    </Modal>
+    </ResponsiveModal>
   );
 };

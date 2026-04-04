@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { DIFFICULTY_PRESETS } from '@/constants/game.constants';
-import { createEmptyBoard } from '@/services/board.service';
+import { createEmptyBoard } from '@/services/board-core.service';
 import { useGameStore } from '@/stores/game.store';
 import type { Board, CellState, CellValue } from '@/types/game.types';
 

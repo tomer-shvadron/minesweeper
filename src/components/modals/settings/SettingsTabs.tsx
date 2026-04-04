@@ -36,17 +36,17 @@ export const SettingsTabs = ({ orientation, activeTab, onTabChange }: SettingsTa
             role="tab"
             aria-selected={isActive}
             onClick={() => onTabChange(key)}
-            className={`flex cursor-pointer items-center gap-2 border-none bg-transparent transition-colors duration-100 outline-none focus-visible:outline-2 focus-visible:outline-[var(--color-accent)] ${
+            className={`flex cursor-pointer items-center gap-2 border-none transition-colors duration-100 outline-none focus-visible:outline-2 focus-visible:outline-[var(--color-accent)] ${
               isVertical
                 ? `rounded-lg px-3 py-2.5 text-sm ${
                     isActive
                       ? 'bg-[var(--color-accent)] font-semibold text-white'
-                      : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2,var(--color-surface))] hover:text-[var(--color-text)]'
+                      : 'bg-transparent text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2,var(--color-surface))] hover:text-[var(--color-text)]'
                   }`
                 : `rounded-lg px-3 py-1.5 text-xs font-medium ${
                     isActive
                       ? 'bg-[var(--color-accent)] text-white'
-                      : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2,var(--color-surface))] hover:text-[var(--color-text)]'
+                      : 'bg-transparent text-[var(--color-text-muted)] hover:bg-[var(--color-surface-2,var(--color-surface))] hover:text-[var(--color-text)]'
                   }`
             }`}
           >

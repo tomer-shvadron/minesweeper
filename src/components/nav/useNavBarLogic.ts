@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useGameStore } from '@/stores/game.store';
 import { useSettingsStore } from '@/stores/settings.store';
@@ -15,10 +16,15 @@ const EMOJI: Record<GameStatus | 'nervous', string> = {
 };
 
 export const useNavBarLogic = () => {
-  const openSettingsModal = useUIStore((s) => s.openSettingsModal);
-  const openLeaderboardModal = useUIStore((s) => s.openLeaderboardModal);
-  const openStatisticsModal = useUIStore((s) => s.openStatisticsModal);
-  const openNewGameModal = useUIStore((s) => s.openNewGameModal);
+  const { openSettingsModal, openLeaderboardModal, openStatisticsModal, openNewGameModal } =
+    useUIStore(
+      useShallow((s) => ({
+        openSettingsModal: s.openSettingsModal,
+        openLeaderboardModal: s.openLeaderboardModal,
+        openStatisticsModal: s.openStatisticsModal,
+        openNewGameModal: s.openNewGameModal,
+      }))
+    );
 
   const status = useGameStore((s) => s.status);
   const isPressingCell = useGameStore((s) => s.isPressingCell);

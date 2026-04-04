@@ -1,10 +1,11 @@
 import { useKeyboardModalLogic } from './useKeyboardModalLogic';
 
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
+import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
 
 export const KeyboardModal = () => {
   const {
+    layoutMode,
     isOpen,
     closeModal,
     actions,
@@ -19,7 +20,12 @@ export const KeyboardModal = () => {
   } = useKeyboardModalLogic();
 
   return (
-    <Modal isOpen={isOpen} title="Keyboard Shortcuts" onClose={closeModal}>
+    <ResponsiveModal
+      isOpen={isOpen}
+      title="Keyboard Shortcuts"
+      onClose={closeModal}
+      layoutMode={layoutMode}
+    >
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div className="flex flex-col gap-2" onKeyDown={recordingAction ? handleKeyDown : undefined}>
         <p className="text-sm text-[var(--color-text-muted)]">
@@ -70,6 +76,6 @@ export const KeyboardModal = () => {
           Reset defaults
         </Button>
       </div>
-    </Modal>
+    </ResponsiveModal>
   );
 };

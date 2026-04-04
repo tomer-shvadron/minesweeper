@@ -3,33 +3,37 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { HighScorePrompt } from '@/components/modals/HighScorePrompt';
 
-// ---- ui.store mock ----
-const mockDismiss = vi.fn();
-const mockOpenLeaderboard = vi.fn();
-let mockHighScoreEntry: { boardKey: string; timeSeconds: number } | null = null;
+const { uiMock, leaderboardMock, mockDismiss, mockOpenLeaderboard, mockAddEntry } = vi.hoisted(
+  () => ({
+    mockDismiss: vi.fn(),
+    mockOpenLeaderboard: vi.fn(),
+    mockAddEntry: vi.fn(),
+    uiMock: {
+      highScoreEntry: null as { boardKey: string; timeSeconds: number } | null,
+      dismissHighScorePrompt: null as ReturnType<typeof vi.fn> | null,
+      openLeaderboardModal: null as ReturnType<typeof vi.fn> | null,
+    },
+    leaderboardMock: {
+      addEntry: null as ReturnType<typeof vi.fn> | null,
+      lastPlayerName: '',
+    },
+  })
+);
+uiMock.dismissHighScorePrompt = mockDismiss;
+uiMock.openLeaderboardModal = mockOpenLeaderboard;
+leaderboardMock.addEntry = mockAddEntry;
 
 vi.mock('@/stores/ui.store', () => ({
-  useUIStore: (selector: (s: object) => unknown) =>
-    selector({
-      highScoreEntry: mockHighScoreEntry,
-      dismissHighScorePrompt: mockDismiss,
-      openLeaderboardModal: mockOpenLeaderboard,
-    }),
+  useUIStore: (selector: (s: object) => unknown) => selector(uiMock),
 }));
-
-// ---- leaderboard.store mock ----
-const mockAddEntry = vi.fn();
-
-const mockLeaderboardState = { addEntry: mockAddEntry, lastPlayerName: '' };
 
 vi.mock('@/stores/leaderboard.store', () => ({
   useLeaderboardStore: Object.assign(
-    (selector: (s: object) => unknown) => selector(mockLeaderboardState),
-    { getState: () => mockLeaderboardState }
+    (selector: (s: object) => unknown) => selector(leaderboardMock),
+    { getState: () => leaderboardMock }
   ),
 }));
 
-// ---- useGameLayout mock ----
 vi.mock('@/hooks/useGameLayout', () => ({
   useGameLayout: () => ({
     layoutMode: 'mobile-portrait' as const,
@@ -48,7 +52,7 @@ vi.mock('@/hooks/useGameLayout', () => ({
 describe('HighScorePrompt', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockHighScoreEntry = null;
+    uiMock.highScoreEntry = null;
   });
 
   it('renders nothing when there is no high score entry', () => {
@@ -57,14 +61,14 @@ describe('HighScorePrompt', () => {
   });
 
   it('renders the prompt when a high score entry exists', () => {
-    mockHighScoreEntry = { boardKey: 'beginner', timeSeconds: 42 };
+    uiMock.highScoreEntry = { boardKey: 'beginner', timeSeconds: 42 };
     render(<HighScorePrompt />);
     expect(screen.getByText('New High Score!')).toBeTruthy();
     expect(screen.getByText(/42s/)).toBeTruthy();
   });
 
   it('calls addEntry and openLeaderboard when Save is clicked', () => {
-    mockHighScoreEntry = { boardKey: 'beginner', timeSeconds: 42 };
+    uiMock.highScoreEntry = { boardKey: 'beginner', timeSeconds: 42 };
     render(<HighScorePrompt />);
     const input = screen.getByPlaceholderText('Your name');
     fireEvent.change(input, { target: { value: 'Tomer' } });
@@ -79,7 +83,7 @@ describe('HighScorePrompt', () => {
   });
 
   it('uses "Anonymous" when name is blank and Save is clicked', () => {
-    mockHighScoreEntry = { boardKey: 'beginner', timeSeconds: 42 };
+    uiMock.highScoreEntry = { boardKey: 'beginner', timeSeconds: 42 };
     render(<HighScorePrompt />);
     fireEvent.click(screen.getByText('Save'));
     expect(mockAddEntry).toHaveBeenCalledWith(
@@ -89,7 +93,7 @@ describe('HighScorePrompt', () => {
   });
 
   it('submits on Enter key press', () => {
-    mockHighScoreEntry = { boardKey: 'beginner', timeSeconds: 42 };
+    uiMock.highScoreEntry = { boardKey: 'beginner', timeSeconds: 42 };
     render(<HighScorePrompt />);
     const input = screen.getByPlaceholderText('Your name');
     fireEvent.change(input, { target: { value: 'Alice' } });
@@ -98,7 +102,7 @@ describe('HighScorePrompt', () => {
   });
 
   it('calls dismissHighScorePrompt when Skip is clicked', () => {
-    mockHighScoreEntry = { boardKey: 'beginner', timeSeconds: 42 };
+    uiMock.highScoreEntry = { boardKey: 'beginner', timeSeconds: 42 };
     render(<HighScorePrompt />);
     fireEvent.click(screen.getByText('Skip'));
     expect(mockDismiss).toHaveBeenCalledTimes(1);

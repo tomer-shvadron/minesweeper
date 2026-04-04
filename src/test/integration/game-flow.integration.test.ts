@@ -7,7 +7,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { DIFFICULTY_PRESETS } from '@/constants/game.constants';
-import { countUnrevealedSafe } from '@/services/board.service';
+import { countUnrevealedSafe } from '@/services/board-reveal.service';
 import { useGameStore } from '@/stores/game.store';
 import type { Board, BoardConfig, CellState, CellValue } from '@/types/game.types';
 

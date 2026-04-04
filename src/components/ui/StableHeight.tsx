@@ -3,10 +3,12 @@ import { useCallback, useState, type ReactNode } from 'react';
 interface StableHeightProps {
   children: ReactNode;
   /**
-   * When true, also caps max-height at the initial value and enables
+   * When true, also caps max-height at the locked value and enables
    * overflow scrolling for content that exceeds it.
    */
   clamp?: boolean;
+  /** Optional floor in px — the locked height will never be less than this. */
+  minHeight?: number;
 }
 
 /**
@@ -16,16 +18,17 @@ interface StableHeightProps {
  * With `clamp`, it also sets `max-height` and adds `overflow-y: auto` so
  * content that exceeds the locked height scrolls in place.
  */
-export const StableHeight = ({ children, clamp = false }: StableHeightProps) => {
+export const StableHeight = ({ children, clamp = false, minHeight }: StableHeightProps) => {
   const [lockedHeight, setLockedHeight] = useState<number | null>(null);
 
   const ref = useCallback(
     (node: HTMLDivElement | null) => {
       if (node && lockedHeight === null) {
-        setLockedHeight(node.scrollHeight);
+        const measured = node.scrollHeight;
+        setLockedHeight(minHeight ? Math.max(measured, minHeight) : measured);
       }
     },
-    [lockedHeight]
+    [lockedHeight, minHeight]
   );
 
   const style = lockedHeight

@@ -1,13 +1,19 @@
 import { useResumePromptLogic } from './useResumePromptLogic';
 
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
+import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
 
 export const ResumePrompt = () => {
-  const { isOpen, config, timeStr, handleResume, handleNewGame } = useResumePromptLogic();
+  const { layoutMode, isOpen, config, timeStr, handleResume, handleNewGame } =
+    useResumePromptLogic();
 
   return (
-    <Modal isOpen={isOpen} title="Resume Game?" onClose={handleResume}>
+    <ResponsiveModal
+      isOpen={isOpen}
+      title="Resume Game?"
+      onClose={handleResume}
+      layoutMode={layoutMode}
+    >
       <div className="flex flex-col gap-2">
         <p className="text-sm text-[var(--color-text-muted)]">
           You have an unfinished game in progress:
@@ -24,6 +30,6 @@ export const ResumePrompt = () => {
           New Game
         </Button>
       </div>
-    </Modal>
+    </ResponsiveModal>
   );
 };

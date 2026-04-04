@@ -1,13 +1,5 @@
-export type Theme = 'regular' | 'liquid-glass' | 'jedi' | 'sith';
-export type ResolvedTheme =
-  | 'regular'
-  | 'regular-dark'
-  | 'liquid-glass'
-  | 'liquid-glass-dark'
-  | 'jedi'
-  | 'sith';
-export type ColorMode = 'light' | 'dark' | 'system';
-export type CellStyle = 'rounded' | 'flat';
+export type Theme = 'light' | 'dark' | 'jedi' | 'sith';
+export type CellStyle = 'rounded';
 export type BackgroundStyle = 'gradient' | 'pattern' | 'dynamic' | 'solid';
 export type BoardSize = 'small' | 'medium' | 'large';
 export type LayoutMode = 'mobile-portrait' | 'mobile-landscape' | 'desktop';
@@ -25,7 +17,6 @@ export type KeyboardAction =
 
 export interface Settings {
   theme: Theme;
-  colorMode: ColorMode;
   cellStyle: CellStyle;
   backgroundStyle: BackgroundStyle;
   boardSize: BoardSize;

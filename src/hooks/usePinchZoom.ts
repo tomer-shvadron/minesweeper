@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
+import { PAN_THRESHOLD } from '@/constants/ui.constants';
+
 function getTouchDistance(touches: React.TouchList): number {
   const t1 = touches[0];
   const t2 = touches[1];
@@ -8,8 +10,6 @@ function getTouchDistance(touches: React.TouchList): number {
   }
   return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
 }
-
-const PAN_THRESHOLD = 10;
 
 interface ZoomState {
   scale: number;

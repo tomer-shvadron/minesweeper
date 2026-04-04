@@ -1,9 +1,7 @@
 import { useHighScorePromptLogic } from './useHighScorePromptLogic';
 
-import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
-import { RightSheet } from '@/components/ui/RightSheet';
+import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
 import { MAX_PLAYER_NAME_LENGTH } from '@/constants/ui.constants';
 import { formatTime } from '@/utils/time.utils';
 
@@ -54,35 +52,20 @@ export const HighScorePrompt = () => {
   const { layoutMode, isOpen, timeSeconds, name, setName, handleSubmit, handleDismiss } =
     useHighScorePromptLogic();
 
-  const content = (
-    <HighScoreContent
-      timeSeconds={timeSeconds}
-      name={name}
-      setName={setName}
-      handleSubmit={handleSubmit}
-      handleDismiss={handleDismiss}
-    />
-  );
-
-  if (layoutMode === 'desktop') {
-    return (
-      <Modal isOpen={isOpen} title="New High Score!" onClose={handleDismiss}>
-        {content}
-      </Modal>
-    );
-  }
-
-  if (layoutMode === 'mobile-landscape') {
-    return (
-      <RightSheet isOpen={isOpen} title="New High Score!" onClose={handleDismiss}>
-        {content}
-      </RightSheet>
-    );
-  }
-
   return (
-    <BottomSheet isOpen={isOpen} title="New High Score!" onClose={handleDismiss}>
-      {content}
-    </BottomSheet>
+    <ResponsiveModal
+      isOpen={isOpen}
+      title="New High Score!"
+      onClose={handleDismiss}
+      layoutMode={layoutMode}
+    >
+      <HighScoreContent
+        timeSeconds={timeSeconds}
+        name={name}
+        setName={setName}
+        handleSubmit={handleSubmit}
+        handleDismiss={handleDismiss}
+      />
+    </ResponsiveModal>
   );
 };

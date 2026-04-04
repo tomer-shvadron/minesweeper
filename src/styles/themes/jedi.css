@@ -11,7 +11,7 @@
   --color-border-darker: rgba(0, 0, 0, 0.6);
 
   --color-text: #c8e0f8;
-  --color-text-muted: #5a8ab8;
+  --color-text-muted: #6a9ac8;
 
   --color-accent: #4da6ff;
   --color-accent-hover: #7ac0ff;
@@ -26,7 +26,7 @@
   --color-n5: #ffb84d;
   --color-n6: #5ac8fa;
   --color-n7: #c8e0f8;
-  --color-n8: #5a8ab8;
+  --color-n8: #6a9ac8;
 
   --color-glass-bg: rgba(15, 34, 64, 0.85);
   --color-glass-border: rgba(77, 166, 255, 0.12);
@@ -56,9 +56,10 @@
   border: 1px solid rgba(77, 166, 255, 0.1);
 }
 
-[data-theme='jedi'] .cell-raised:hover {
+[data-theme='jedi']:not([data-game-over='true']) .cell-raised:hover {
   background-color: #1a3660;
   border-color: rgba(77, 166, 255, 0.2);
+  box-shadow: inset 0 0 0 1.5px rgba(77, 166, 255, 0.3);
 }
 
 [data-theme='jedi'] .cell-revealed {

@@ -6,29 +6,13 @@ import { Button } from '@/components/ui/Button';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Slider } from '@/components/ui/Slider';
 import { Toggle } from '@/components/ui/Toggle';
-import {
-  THEME_LABELS,
-  THEME_PREVIEW,
-  THEME_SUPPORTS_COLOR_MODE,
-  THEMES,
-} from '@/constants/theme.constants';
-import type { BackgroundStyle, BoardSize, CellStyle, ColorMode } from '@/types/settings.types';
+import { THEME_LABELS, THEME_PREVIEW, THEMES } from '@/constants/theme.constants';
+import type { BackgroundStyle, BoardSize } from '@/types/settings.types';
 
 const BOARD_SIZE_OPTIONS: readonly { value: BoardSize; label: string }[] = [
   { value: 'small', label: 'Small' },
   { value: 'medium', label: 'Medium' },
   { value: 'large', label: 'Large' },
-] as const;
-
-const COLOR_MODE_OPTIONS: readonly { value: ColorMode; label: string }[] = [
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-  { value: 'system', label: 'System' },
-] as const;
-
-const CELL_STYLE_OPTIONS: readonly { value: CellStyle; label: string }[] = [
-  { value: 'rounded', label: 'Rounded' },
-  { value: 'flat', label: 'Flat' },
 ] as const;
 
 const BACKGROUND_OPTIONS: readonly { value: BackgroundStyle; label: string }[] = [
@@ -43,15 +27,11 @@ const BACKGROUND_OPTIONS: readonly { value: BackgroundStyle; label: string }[] =
 export const AppearanceTab = () => {
   const {
     theme,
-    colorMode,
     boardSize,
-    cellStyle,
     backgroundStyle,
     animationsEnabled,
     setTheme,
-    setColorMode,
     setBoardSize,
-    setCellStyle,
     setBackgroundStyle,
     setAnimationsEnabled,
   } = useSettingsModalLogic();
@@ -100,28 +80,11 @@ export const AppearanceTab = () => {
         })}
       </div>
 
-      {/* Color mode — only for themes that support it */}
-      {THEME_SUPPORTS_COLOR_MODE[theme] && (
-        <SegmentedControl
-          label="Color mode"
-          options={COLOR_MODE_OPTIONS}
-          value={colorMode}
-          onChange={setColorMode}
-        />
-      )}
-
       <SegmentedControl
         label="Board size"
         options={BOARD_SIZE_OPTIONS}
         value={boardSize}
         onChange={setBoardSize}
-      />
-
-      <SegmentedControl
-        label="Cell style"
-        options={CELL_STYLE_OPTIONS}
-        value={cellStyle}
-        onChange={setCellStyle}
       />
 
       <SegmentedControl

@@ -1,8 +1,6 @@
 @import 'tailwindcss';
 @import './themes/regular.css';
 @import './themes/regular-dark.css';
-@import './themes/liquid-glass.css';
-@import './themes/liquid-glass-dark.css';
 @import './themes/jedi.css';
 @import './themes/sith.css';
 
@@ -27,10 +25,6 @@
     /* Disable double-tap zoom; pinch-to-zoom still works */
     touch-action: manipulation;
   }
-
-  /* Liquid Glass themes use gradient backgrounds via `background` shorthand
-     which is set on `body` by the theme CSS.  For non-gradient themes the
-     `background-color` on html,body above handles it. */
 
   #root {
     height: 100%;
@@ -57,19 +51,7 @@
     touch-action: none;
   }
 
-  /* Rounded cell style — soft tiles with border-radius */
-  body[data-cell-style='rounded'] .cell {
-    border-radius: 6px;
-  }
-
-  body[data-cell-style='rounded'] .cell-revealed {
-    border-radius: 6px;
-  }
-
-  /* Flat cell style — dense grid with divider lines, no radius */
-  body[data-cell-style='flat'] .cell {
-    border-radius: 0;
-  }
+  /* Individual cells have no border-radius — rounding is applied at the board container level */
 }
 
 @layer components {
@@ -421,5 +403,28 @@
     outline-offset: -2px;
     position: relative;
     z-index: 2;
+  }
+}
+
+@layer components {
+  /* Subtle scrollbar inside modals — webkit pseudo-elements, cannot be expressed in Tailwind */
+  .modal-window ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .modal-window ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .modal-window ::-webkit-scrollbar-thumb {
+    background-color: var(--color-text-muted);
+    opacity: 0.4;
+    border-radius: 3px;
+  }
+
+  /* Firefox thin scrollbar */
+  .modal-window * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-text-muted) 40%, transparent) transparent;
   }
 }

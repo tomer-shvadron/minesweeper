@@ -3,45 +3,58 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NewGameModal } from '@/components/modals/NewGameModal';
 
-let mockIsOpen = true;
-const mockClose = vi.fn();
+const { uiMock, gameMock, mockClose, mockStartNewGame } = vi.hoisted(() => ({
+  mockClose: vi.fn(),
+  mockStartNewGame: vi.fn(),
+  uiMock: {
+    activeModal: 'newGame' as string | null,
+    closeNewGameModal: null as ReturnType<typeof vi.fn> | null,
+  },
+  gameMock: {
+    startNewGame: null as ReturnType<typeof vi.fn> | null,
+    config: { rows: 9, cols: 9, mines: 10 },
+  },
+}));
+uiMock.closeNewGameModal = mockClose;
+gameMock.startNewGame = mockStartNewGame;
 
 vi.mock('@/stores/ui.store', () => ({
-  useUIStore: (selector: (s: object) => unknown) =>
-    selector({
-      activeModal: mockIsOpen ? 'newGame' : null,
-      closeNewGameModal: mockClose,
-    }),
+  useUIStore: (selector: (s: object) => unknown) => selector(uiMock),
 }));
 
-const mockStartNewGame = vi.fn();
-let mockConfig = { rows: 9, cols: 9, mines: 10 };
-
 vi.mock('@/stores/game.store', () => ({
-  useGameStore: (selector: (s: object) => unknown) =>
-    selector({
-      startNewGame: mockStartNewGame,
-      config: mockConfig,
-    }),
+  useGameStore: (selector: (s: object) => unknown) => selector(gameMock),
 }));
 
 vi.mock('@/stores/settings.store', () => ({
   useSettingsStore: (selector: (s: object) => unknown) =>
-    selector({
-      noGuessMode: false,
-      setNoGuessMode: vi.fn(),
-    }),
+    selector({ noGuessMode: false, setNoGuessMode: vi.fn() }),
+}));
+
+vi.mock('@/hooks/useGameLayout', () => ({
+  useGameLayout: () => ({
+    layoutMode: 'mobile-portrait' as const,
+    cellSize: 32,
+    boardWidth: 288,
+    boardHeight: 288,
+    showTopBar: false,
+    showBottomNav: true,
+    showFloatingPills: true,
+    topBarHeight: 0,
+    navBarHeight: 64,
+    config: { rows: 9, cols: 9, mines: 10 },
+  }),
 }));
 
 describe('NewGameModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockIsOpen = true;
-    mockConfig = { rows: 9, cols: 9, mines: 10 };
+    uiMock.activeModal = 'newGame';
+    gameMock.config = { rows: 9, cols: 9, mines: 10 };
   });
 
   it('renders nothing when closed', () => {
-    mockIsOpen = false;
+    uiMock.activeModal = null;
     render(<NewGameModal />);
     expect(screen.queryByRole('dialog')).toBeNull();
   });
@@ -97,9 +110,9 @@ describe('NewGameModal', () => {
 describe('NewGameModal – custom size inputs', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockIsOpen = true;
+    uiMock.activeModal = 'newGame';
     // A config that doesn't match any preset → Custom is pre-selected
-    mockConfig = { rows: 10, cols: 20, mines: 15 };
+    gameMock.config = { rows: 10, cols: 20, mines: 15 };
   });
 
   function renderCustom() {

@@ -2,30 +2,67 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SettingsModal } from '@/components/modals/SettingsModal';
-import type {
-  BackgroundStyle,
-  BoardSize,
-  CellStyle,
-  ColorMode,
-  FlagMode,
-  Theme,
-} from '@/types/settings.types';
 
-// ── UI store mock ──────────────────────────────────────────
-let mockIsOpen = true;
-const mockCloseSettings = vi.fn();
-const mockOpenKeyboardModal = vi.fn();
+// ── Hoisted mocks ────────────────────────────────────────────
+const {
+  uiMock,
+  settingsDefaults,
+  settingsMock,
+  mockSetTheme,
+  mockSetFlagMode,
+  mockSetSoundEnabled,
+} = vi.hoisted(() => {
+  const mockSetTheme = vi.fn();
+  const mockSetBackgroundStyle = vi.fn();
+  const mockSetFlagMode = vi.fn();
+  const mockSetSoundEnabled = vi.fn();
+  const mockSetVolume = vi.fn();
+  const mockSetAnimationsEnabled = vi.fn();
+  const mockSetHapticEnabled = vi.fn();
+  const mockSetNoGuessMode = vi.fn();
+  const mockSetBoardSize = vi.fn();
+
+  const settingsDefaults = {
+    theme: 'light' as string,
+    backgroundStyle: 'gradient' as string,
+    boardSize: 'medium' as string,
+    flagMode: 'flags-only' as string,
+    soundEnabled: true,
+    volume: 0.5,
+    animationsEnabled: true,
+    hapticEnabled: false,
+    noGuessMode: false,
+    setTheme: mockSetTheme,
+    setBackgroundStyle: mockSetBackgroundStyle,
+    setBoardSize: mockSetBoardSize,
+    setFlagMode: mockSetFlagMode,
+    setSoundEnabled: mockSetSoundEnabled,
+    setVolume: mockSetVolume,
+    setAnimationsEnabled: mockSetAnimationsEnabled,
+    setHapticEnabled: mockSetHapticEnabled,
+    setNoGuessMode: mockSetNoGuessMode,
+  };
+
+  const settingsMock = { ...settingsDefaults };
+
+  return {
+    uiMock: {
+      activeModal: 'settings' as string | null,
+      closeSettingsModal: vi.fn(),
+      openKeyboardModal: vi.fn(),
+    },
+    settingsDefaults,
+    settingsMock,
+    mockSetTheme,
+    mockSetFlagMode,
+    mockSetSoundEnabled,
+  };
+});
 
 vi.mock('@/stores/ui.store', () => ({
-  useUIStore: (selector: (s: object) => unknown) =>
-    selector({
-      activeModal: mockIsOpen ? 'settings' : null,
-      closeSettingsModal: mockCloseSettings,
-      openKeyboardModal: mockOpenKeyboardModal,
-    }),
+  useUIStore: (selector: (s: object) => unknown) => selector(uiMock),
 }));
 
-// ── Game layout mock ───────────────────────────────────────
 vi.mock('@/hooks/useGameLayout', () => ({
   useGameLayout: () => ({
     layoutMode: 'mobile-portrait' as const,
@@ -41,73 +78,8 @@ vi.mock('@/hooks/useGameLayout', () => ({
   }),
 }));
 
-// ── Settings store mock ────────────────────────────────────
-const mockSetTheme = vi.fn();
-const mockSetColorMode = vi.fn();
-const mockSetCellStyle = vi.fn();
-const mockSetBackgroundStyle = vi.fn();
-const mockSetFlagMode = vi.fn();
-const mockSetSoundEnabled = vi.fn();
-const mockSetVolume = vi.fn();
-const mockSetAnimationsEnabled = vi.fn();
-const mockSetHapticEnabled = vi.fn();
-const mockSetNoGuessMode = vi.fn();
-const mockSetBoardSize = vi.fn();
-
-interface MockSettings {
-  theme: Theme;
-  colorMode: ColorMode;
-  cellStyle: CellStyle;
-  backgroundStyle: BackgroundStyle;
-  boardSize: BoardSize;
-  flagMode: FlagMode;
-  soundEnabled: boolean;
-  volume: number;
-  animationsEnabled: boolean;
-  hapticEnabled: boolean;
-  noGuessMode: boolean;
-  setTheme: typeof mockSetTheme;
-  setColorMode: typeof mockSetColorMode;
-  setCellStyle: typeof mockSetCellStyle;
-  setBackgroundStyle: typeof mockSetBackgroundStyle;
-  setBoardSize: typeof mockSetBoardSize;
-  setFlagMode: typeof mockSetFlagMode;
-  setSoundEnabled: typeof mockSetSoundEnabled;
-  setVolume: typeof mockSetVolume;
-  setAnimationsEnabled: typeof mockSetAnimationsEnabled;
-  setHapticEnabled: typeof mockSetHapticEnabled;
-  setNoGuessMode: typeof mockSetNoGuessMode;
-}
-
-const defaultMockSettings: MockSettings = {
-  theme: 'regular',
-  colorMode: 'system',
-  cellStyle: 'rounded',
-  backgroundStyle: 'gradient',
-  boardSize: 'medium',
-  flagMode: 'flags-only',
-  soundEnabled: true,
-  volume: 0.5,
-  animationsEnabled: true,
-  hapticEnabled: false,
-  noGuessMode: false,
-  setTheme: mockSetTheme,
-  setColorMode: mockSetColorMode,
-  setCellStyle: mockSetCellStyle,
-  setBackgroundStyle: mockSetBackgroundStyle,
-  setBoardSize: mockSetBoardSize,
-  setFlagMode: mockSetFlagMode,
-  setSoundEnabled: mockSetSoundEnabled,
-  setVolume: mockSetVolume,
-  setAnimationsEnabled: mockSetAnimationsEnabled,
-  setHapticEnabled: mockSetHapticEnabled,
-  setNoGuessMode: mockSetNoGuessMode,
-};
-
-let mockSettings: MockSettings = { ...defaultMockSettings };
-
 vi.mock('@/stores/settings.store', () => ({
-  useSettingsStore: (selector: (s: object) => unknown) => selector(mockSettings),
+  useSettingsStore: (selector: (s: object) => unknown) => selector(settingsMock),
 }));
 
 // ── Helpers ────────────────────────────────────────────────
@@ -120,14 +92,14 @@ const clickTab = (name: string) => {
 describe('SettingsModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockIsOpen = true;
-    mockSettings = { ...defaultMockSettings };
+    uiMock.activeModal = 'settings';
+    Object.assign(settingsMock, settingsDefaults);
   });
 
   // ── Open / Close ───────────────────────────────────────
 
   it('renders nothing when closed', () => {
-    mockIsOpen = false;
+    uiMock.activeModal = null;
     render(<SettingsModal />);
     expect(screen.queryByRole('dialog')).toBeNull();
   });
@@ -139,16 +111,17 @@ describe('SettingsModal', () => {
 
   // ── Appearance Tab (default) ───────────────────────────
 
-  it('shows Theme section with Regular and Jedi options', () => {
+  it('shows Theme section with Light, Dark, and Jedi options', () => {
     render(<SettingsModal />);
-    expect(screen.getByText('Regular')).toBeTruthy();
+    expect(screen.getByText('Light')).toBeTruthy();
+    expect(screen.getByText('Dark')).toBeTruthy();
     expect(screen.getByText('Jedi')).toBeTruthy();
   });
 
-  it('has Regular swatch pressed when theme is regular', () => {
+  it('has Light swatch pressed when theme is light', () => {
     render(<SettingsModal />);
-    const regularSwatch = screen.getByRole('button', { name: /^regular$/i });
-    expect(regularSwatch.getAttribute('aria-pressed')).toBe('true');
+    const lightSwatch = screen.getByRole('button', { name: /^light$/i });
+    expect(lightSwatch.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('calls setTheme when Jedi swatch is clicked', () => {
@@ -158,17 +131,17 @@ describe('SettingsModal', () => {
   });
 
   it('has Jedi swatch pressed when theme is jedi', () => {
-    mockSettings = { ...mockSettings, theme: 'jedi' };
+    settingsMock.theme = 'jedi';
     render(<SettingsModal />);
     const jediSwatch = screen.getByRole('button', { name: /^jedi$/i });
     expect(jediSwatch.getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('calls setTheme with "regular" when Regular swatch is clicked', () => {
-    mockSettings = { ...mockSettings, theme: 'jedi' };
+  it('calls setTheme with "light" when Light swatch is clicked', () => {
+    settingsMock.theme = 'jedi';
     render(<SettingsModal />);
-    fireEvent.click(screen.getByRole('button', { name: /^regular$/i }));
-    expect(mockSetTheme).toHaveBeenCalledWith('regular');
+    fireEvent.click(screen.getByRole('button', { name: /^light$/i }));
+    expect(mockSetTheme).toHaveBeenCalledWith('light');
   });
 
   // ── Sound Tab ──────────────────────────────────────────
@@ -188,7 +161,7 @@ describe('SettingsModal', () => {
   });
 
   it('volume slider is disabled when sound is off', () => {
-    mockSettings = { ...mockSettings, soundEnabled: false };
+    settingsMock.soundEnabled = false;
     render(<SettingsModal />);
     clickTab('Sound');
     const slider = screen.getByRole('slider');
@@ -203,7 +176,7 @@ describe('SettingsModal', () => {
   });
 
   it('calls setSoundEnabled with true when sound toggle is clicked while disabled', () => {
-    mockSettings = { ...mockSettings, soundEnabled: false };
+    settingsMock.soundEnabled = false;
     render(<SettingsModal />);
     clickTab('Sound');
     fireEvent.click(screen.getByRole('switch', { name: /sound effects/i }));
@@ -226,7 +199,7 @@ describe('SettingsModal', () => {
   });
 
   it('flag cycle toggle is checked when flagMode is flags-and-questions', () => {
-    mockSettings = { ...mockSettings, flagMode: 'flags-and-questions' };
+    settingsMock.flagMode = 'flags-and-questions';
     render(<SettingsModal />);
     clickTab('Gameplay');
     const toggle = screen.getByRole('switch', { name: /flag \+ question mark cycle/i });

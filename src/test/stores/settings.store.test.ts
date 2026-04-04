@@ -4,8 +4,7 @@ import { DEFAULT_KEY_BINDINGS } from '@/constants/keyboard.constants';
 import { useSettingsStore } from '@/stores/settings.store';
 
 const defaults = {
-  theme: 'regular' as const,
-  colorMode: 'system' as const,
+  theme: 'light' as const,
   cellStyle: 'rounded' as const,
   backgroundStyle: 'gradient' as const,
   boardSize: 'medium' as const,
@@ -28,39 +27,20 @@ describe('settings.store', () => {
       expect(useSettingsStore.getState().theme).toBe('jedi');
     });
 
-    it('updates theme back to regular', () => {
+    it('updates theme to dark', () => {
+      useSettingsStore.getState().setTheme('dark');
+      expect(useSettingsStore.getState().theme).toBe('dark');
+    });
+
+    it('updates theme back to light', () => {
       useSettingsStore.setState({ theme: 'jedi' });
-      useSettingsStore.getState().setTheme('regular');
-      expect(useSettingsStore.getState().theme).toBe('regular');
-    });
-  });
-
-  describe('setColorMode', () => {
-    it('updates color mode to dark', () => {
-      useSettingsStore.getState().setColorMode('dark');
-      expect(useSettingsStore.getState().colorMode).toBe('dark');
-    });
-
-    it('updates color mode to light', () => {
-      useSettingsStore.getState().setColorMode('light');
-      expect(useSettingsStore.getState().colorMode).toBe('light');
-    });
-
-    it('updates color mode to system', () => {
-      useSettingsStore.setState({ colorMode: 'dark' });
-      useSettingsStore.getState().setColorMode('system');
-      expect(useSettingsStore.getState().colorMode).toBe('system');
+      useSettingsStore.getState().setTheme('light');
+      expect(useSettingsStore.getState().theme).toBe('light');
     });
   });
 
   describe('setCellStyle', () => {
-    it('updates cell style to flat', () => {
-      useSettingsStore.getState().setCellStyle('flat');
-      expect(useSettingsStore.getState().cellStyle).toBe('flat');
-    });
-
-    it('updates cell style to rounded', () => {
-      useSettingsStore.setState({ cellStyle: 'flat' });
+    it('keeps cell style as rounded', () => {
       useSettingsStore.getState().setCellStyle('rounded');
       expect(useSettingsStore.getState().cellStyle).toBe('rounded');
     });
@@ -136,11 +116,7 @@ describe('settings.store', () => {
 
   describe('initial defaults', () => {
     it('has correct default theme', () => {
-      expect(useSettingsStore.getState().theme).toBe('regular');
-    });
-
-    it('has correct default colorMode', () => {
-      expect(useSettingsStore.getState().colorMode).toBe('system');
+      expect(useSettingsStore.getState().theme).toBe('light');
     });
 
     it('has correct default cellStyle', () => {

@@ -2,19 +2,21 @@ import { describe, expect, it } from 'vitest';
 
 import {
   calculateAdjacentValues,
+  createBoardKey,
+  createEmptyBoard,
+  placeMines,
+} from '@/services/board-core.service';
+import {
   checkLoss,
   checkWin,
   chordReveal,
   countRemainingFlags,
-  createBoardKey,
-  createEmptyBoard,
   floodFill,
-  isBoardSolvable,
-  placeMines,
   revealAllMines,
   revealCell,
   toggleFlag,
-} from '@/services/board.service';
+} from '@/services/board-reveal.service';
+import { isBoardSolvable } from '@/services/board-solver.service';
 import type { Board, BoardConfig, CellState, CellValue } from '@/types/game.types';
 
 function c(overrides: Partial<CellState> = {}): CellState {

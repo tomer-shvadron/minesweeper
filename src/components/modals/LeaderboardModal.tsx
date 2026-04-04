@@ -1,33 +1,18 @@
 import { RECENT_TAB, useLeaderboardModalLogic } from './useLeaderboardModalLogic';
 
-import { BottomSheet } from '@/components/ui/BottomSheet';
-import { Modal } from '@/components/ui/Modal';
-import { RightSheet } from '@/components/ui/RightSheet';
-import { StableHeight } from '@/components/ui/StableHeight';
+import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
+import { TabBar } from '@/components/ui/TabBar';
 import { useUIStore } from '@/stores/ui.store';
 import type { BoardKey } from '@/types/game.types';
+import { formatBoardKeyLabel } from '@/utils/board.utils';
 import { formatRelativeDate } from '@/utils/date.utils';
 import { formatTime } from '@/utils/time.utils';
 
-const TAB_LABELS: Record<string, string> = {
-  beginner: 'Beginner',
-  intermediate: 'Intermediate',
-  expert: 'Expert',
-  [RECENT_TAB]: 'Recent',
-};
-
-const BOARD_LABELS: Record<string, string> = {
-  beginner: 'Beginner',
-  intermediate: 'Intermediate',
-  expert: 'Expert',
-};
-
 function tabLabel(key: BoardKey): string {
-  return TAB_LABELS[key] ?? key;
-}
-
-function boardLabel(key: BoardKey): string {
-  return BOARD_LABELS[key] ?? key;
+  if (key === RECENT_TAB) {
+    return 'Recent';
+  }
+  return formatBoardKeyLabel(key);
 }
 
 const LeaderboardContent = () => {
@@ -38,38 +23,16 @@ const LeaderboardContent = () => {
 
   return (
     <>
-      {/* Tabs */}
-      <div
-        role="tablist"
-        aria-label="Difficulty levels"
-        className="flex border-b border-[var(--color-border)]"
-      >
-        {allTabs.map((key) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={selectedTab === key}
-            className={`flex-1 cursor-pointer border-none bg-transparent px-2 py-2 text-xs font-medium transition-colors duration-100 outline-none focus-visible:outline-2 focus-visible:outline-[var(--color-accent)] ${
-              selectedTab === key
-                ? 'text-[var(--color-accent)]'
-                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
-            }`}
-            style={
-              selectedTab === key
-                ? { boxShadow: 'inset 0 -2px 0 var(--color-accent)', marginBottom: '-1px' }
-                : { marginBottom: '-1px' }
-            }
-            onClick={() => setSelectedTab(key)}
-          >
-            {tabLabel(key)}
-          </button>
-        ))}
-      </div>
+      <TabBar
+        tabs={allTabs}
+        selectedTab={selectedTab}
+        onTabChange={setSelectedTab}
+        tabLabel={tabLabel}
+        ariaLabel="Difficulty levels"
+      />
 
-      {/* Tab content — height is locked to the initial render (score tab with 10 rows).
-          `clamp` ensures the Recent tab scrolls instead of growing the sheet. */}
-      <StableHeight clamp>
+      {/* Tab content — flex-1 fills available modal space; overflow scrolls long tables */}
+      <div className="min-h-0 flex-1 overflow-y-auto">
         {isRecent ? (
           /* Recent games tab */
           <div role="tabpanel" aria-label="Recent games" className="w-full">
@@ -101,9 +64,12 @@ const LeaderboardContent = () => {
                 </thead>
                 <tbody>
                   {recentGames.map((record, i) => (
-                    <tr key={record.id} className="even:bg-black/[0.03]">
+                    <tr
+                      key={record.id}
+                      className="even:bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)]"
+                    >
                       <td className="px-3 py-2 text-[var(--color-text-muted)]">{i + 1}</td>
-                      <td className="px-3 py-2">{boardLabel(record.boardKey)}</td>
+                      <td className="px-3 py-2">{formatBoardKeyLabel(record.boardKey)}</td>
                       <td className="px-3 py-2">{record.result === 'won' ? '✅' : '💣'}</td>
                       <td className="px-3 py-2">{formatTime(record.timeSeconds)}</td>
                       <td className="px-3 py-2 text-[var(--color-text-muted)]">
@@ -150,7 +116,10 @@ const LeaderboardContent = () => {
                   </thead>
                   <tbody>
                     {entries.map((entry, i) => (
-                      <tr key={`${entry.name}-${entry.date}`} className="even:bg-black/[0.03]">
+                      <tr
+                        key={`${entry.name}-${entry.date}`}
+                        className="even:bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)]"
+                      >
                         <td className="px-10 py-2">{i + 1}</td>
                         <td className="px-10 py-2">{entry.name}</td>
                         <td className="px-10 py-2">{formatTime(entry.timeSeconds)}</td>
@@ -162,7 +131,7 @@ const LeaderboardContent = () => {
             </div>
           </div>
         )}
-      </StableHeight>
+      </div>
     </>
   );
 };
@@ -171,30 +140,16 @@ export const LeaderboardModal = () => {
   const isOpen = useUIStore((s) => s.activeModal === 'leaderboard');
   const { layoutMode, closeModal } = useLeaderboardModalLogic();
 
-  if (layoutMode === 'desktop') {
-    return (
-      <Modal
-        isOpen={isOpen}
-        title="Best Times"
-        onClose={closeModal}
-        className="modal-window fixed top-1/2 left-1/2 z-[101] flex max-h-[85dvh] w-[min(580px,92vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_24px_64px_rgba(0,0,0,0.2)]"
-      >
-        <LeaderboardContent />
-      </Modal>
-    );
-  }
-
-  if (layoutMode === 'mobile-landscape') {
-    return (
-      <RightSheet isOpen={isOpen} title="Best Times" onClose={closeModal}>
-        <LeaderboardContent />
-      </RightSheet>
-    );
-  }
-
   return (
-    <BottomSheet isOpen={isOpen} title="Best Times" onClose={closeModal}>
+    <ResponsiveModal
+      isOpen={isOpen}
+      title="Best Times"
+      onClose={closeModal}
+      layoutMode={layoutMode}
+      modalClassName="w-[min(580px,92vw)]"
+      fullHeight
+    >
       <LeaderboardContent />
-    </BottomSheet>
+    </ResponsiveModal>
   );
 };

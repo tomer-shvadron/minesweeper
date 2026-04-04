@@ -1,11 +1,8 @@
 import { create } from 'zustand';
 
-import type { BoardKey } from '@/types/game.types';
+import type { HighScoreEntry } from '@/types/leaderboard.types';
 
-export interface HighScoreEntry {
-  timeSeconds: number;
-  boardKey: BoardKey;
-}
+export type { HighScoreEntry } from '@/types/leaderboard.types';
 
 export type ModalName = 'newGame' | 'settings' | 'leaderboard' | 'statistics' | null;
 

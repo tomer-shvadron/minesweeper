@@ -1,11 +1,10 @@
-import type { BoardSize, CellStyle, LayoutMode } from '@/types/settings.types';
+import type { BoardSize, LayoutMode } from '@/types/settings.types';
 
 export const NAV_BAR_HEIGHT = 64; // px — mobile portrait: bottom nav bar
 export const BOARD_PADDING = 16; // px on each side
 export const FLOATING_PILLS_HEIGHT = 56; // px — space reserved above board for pills (incl. gap)
 /** @deprecated Game over is now an overlay card — no space reservation needed. Kept for test compatibility. */
 export const GAME_OVER_BANNER_HEIGHT = 0;
-export const CELL_GAP_ROUNDED = 3; // px gap between cells in rounded cell style
 
 export const DESKTOP_TOP_BAR_HEIGHT = 52; // px — desktop top toolbar
 export const MOBILE_LANDSCAPE_TOP_BAR_HEIGHT = 44; // px — mobile landscape compact bar
@@ -43,17 +42,11 @@ export function getLayoutMode(): LayoutMode {
   return isLandscape ? 'mobile-landscape' : 'mobile-portrait';
 }
 
-export function calcCellSize(
-  rows: number,
-  cols: number,
-  boardSize: BoardSize = 'medium',
-  cellStyle: CellStyle = 'rounded'
-): number {
+export function calcCellSize(rows: number, cols: number, boardSize: BoardSize = 'medium'): number {
   const layoutMode = getLayoutMode();
-  const gap = cellStyle === 'rounded' ? CELL_GAP_ROUNDED : 0;
 
   // Width: no side nav in any mode
-  const availW = window.innerWidth - BOARD_PADDING * 2 - gap * (cols - 1);
+  const availW = window.innerWidth - BOARD_PADDING * 2;
 
   // Height: deductions depend on layout mode
   let topDeduction = 0;
@@ -79,8 +72,7 @@ export function calcCellSize(
     topDeduction -
     bottomDeduction -
     pillsDeduction -
-    GAME_OVER_BANNER_HEIGHT -
-    gap * (rows - 1);
+    GAME_OVER_BANNER_HEIGHT;
 
   const fromWidth = Math.floor(availW / cols);
   const fromHeight = Math.floor(availH / rows);

@@ -29,7 +29,7 @@ test.describe('Leaderboard modal', () => {
   test('shows difficulty tabs', async ({ gamePage }) => {
     await gamePage.page.getByRole('button', { name: 'Leaderboard' }).click();
     await expect(gamePage.page.getByRole('tab', { name: 'Beginner' })).toBeVisible();
-    await expect(gamePage.page.getByRole('tab', { name: 'Inter.' })).toBeVisible();
+    await expect(gamePage.page.getByRole('tab', { name: 'Intermediate' })).toBeVisible();
     await expect(gamePage.page.getByRole('tab', { name: 'Expert' })).toBeVisible();
   });
 
@@ -53,6 +53,9 @@ test.describe('Leaderboard modal', () => {
     await gamePage.startPreset('Beginner');
     await gamePage.loseGame();
     await gamePage.gameOverBanner.waitFor();
+    // Dismiss the game-over overlay so it doesn't intercept clicks on the nav bar
+    await gamePage.page.keyboard.press('Escape');
+    await expect(gamePage.gameOverBanner).not.toBeVisible();
     await gamePage.page.getByRole('button', { name: 'Leaderboard' }).click();
     await expect(gamePage.page.getByText(/1 game played/i)).toBeVisible();
   });
@@ -61,12 +64,15 @@ test.describe('Leaderboard modal', () => {
     await gamePage.startPreset('Beginner');
     await gamePage.loseGame();
     await gamePage.gameOverBanner.waitFor();
-    await gamePage.page.getByRole('button', { name: 'Play Again' }).click();
+    await gamePage.page.getByRole('button', { name: 'Try Again' }).click();
     await gamePage.loseGame();
     await gamePage.gameOverBanner.waitFor();
-    await gamePage.page.getByRole('button', { name: 'Play Again' }).click();
+    await gamePage.page.getByRole('button', { name: 'Try Again' }).click();
     await gamePage.loseGame();
 
+    // Dismiss the game-over overlay so it doesn't intercept clicks on the nav bar
+    await gamePage.page.keyboard.press('Escape');
+    await expect(gamePage.gameOverBanner).not.toBeVisible();
     await gamePage.page.getByRole('button', { name: 'Leaderboard' }).click();
     await expect(gamePage.page.getByText(/3 games played/i)).toBeVisible();
   });
@@ -80,7 +86,7 @@ test.describe('Leaderboard modal', () => {
     });
     await gamePage.page.getByRole('button', { name: 'Leaderboard' }).click();
     await expect(gamePage.page.getByText('AliceB')).toBeVisible();
-    await gamePage.page.getByRole('tab', { name: 'Inter.' }).click();
+    await gamePage.page.getByRole('tab', { name: 'Intermediate' }).click();
     await expect(gamePage.page.getByText('BobI')).toBeVisible();
     await expect(gamePage.page.getByText('AliceB')).not.toBeVisible();
   });

@@ -12,12 +12,11 @@ import { StatisticsModal } from '@/components/modals/StatisticsModal';
 import { NavBar } from '@/components/nav/NavBar';
 import { TopBar } from '@/components/nav/TopBar';
 import { Confetti } from '@/components/ui/Confetti';
-import { resolveTheme } from '@/constants/theme.constants';
 import { useGameLayout } from '@/hooks/useGameLayout';
 import { useGameTimer } from '@/hooks/useGameTimer';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useSound } from '@/hooks/useSound';
-import { createBoardKey } from '@/services/board.service';
+import { createBoardKey } from '@/services/board-core.service';
 import { useGameStore } from '@/stores/game.store';
 import { useLeaderboardStore } from '@/stores/leaderboard.store';
 import { useSettingsStore } from '@/stores/settings.store';
@@ -26,8 +25,6 @@ import { useUIStore } from '@/stores/ui.store';
 
 export const App = () => {
   const theme = useSettingsStore((s) => s.theme);
-  const colorMode = useSettingsStore((s) => s.colorMode);
-  const cellStyle = useSettingsStore((s) => s.cellStyle);
   const backgroundStyle = useSettingsStore((s) => s.backgroundStyle);
   const status = useGameStore((s) => s.status);
   const elapsedSeconds = useGameStore((s) => s.elapsedSeconds);
@@ -48,37 +45,16 @@ export const App = () => {
   const showHighScorePrompt = useUIStore((s) => s.showHighScorePrompt);
   const openResumePrompt = useUIStore((s) => s.openResumePrompt);
 
-  // Track system color scheme preference
-  const systemPrefersDarkRef = useRef(
-    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
-  );
-
-  // Resolve and apply effective theme whenever theme, colorMode, or system preference changes
+  // Apply selected theme as data attribute
   useEffect(() => {
-    const mql = window.matchMedia('(prefers-color-scheme: dark)');
-    const apply = () => {
-      systemPrefersDarkRef.current = mql.matches;
-      const resolved = resolveTheme(theme, colorMode, mql.matches);
-      document.body.setAttribute('data-theme', resolved);
-    };
-
-    // Apply immediately
-    apply();
-
-    // Listen for system preference changes (only relevant when colorMode is 'system')
-    mql.addEventListener('change', apply);
-    return () => mql.removeEventListener('change', apply);
-  }, [theme, colorMode]);
+    document.body.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     document.body.setAttribute('data-animations', String(animationsEnabled));
   }, [animationsEnabled]);
 
-  // Apply cell style and background style as data attributes
-  useEffect(() => {
-    document.body.setAttribute('data-cell-style', cellStyle);
-  }, [cellStyle]);
-
+  // Apply background style as data attribute
   useEffect(() => {
     document.body.setAttribute('data-bg-style', backgroundStyle);
   }, [backgroundStyle]);
@@ -87,6 +63,12 @@ export const App = () => {
   useEffect(() => {
     document.body.setAttribute('data-layout', layoutMode);
   }, [layoutMode]);
+
+  // Expose game-over state so CSS can disable hover effects on cells
+  const isGameOver = status === 'won' || status === 'lost';
+  useEffect(() => {
+    document.body.setAttribute('data-game-over', String(isGameOver));
+  }, [isGameOver]);
 
   // Show resume prompt on mount if a game was in progress (uses refs to avoid deps)
   const mountStatusRef = useRef(status);

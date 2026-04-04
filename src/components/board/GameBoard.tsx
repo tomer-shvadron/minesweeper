@@ -4,10 +4,9 @@ import { FloatingPills } from './FloatingPills';
 import { useGameBoardLogic } from './useGameBoardLogic';
 
 import { CANVAS_THRESHOLD } from '@/constants/game.constants';
+import { BOARD_BORDER_RADIUS } from '@/constants/ui.constants';
 import { useGameLayout } from '@/hooks/useGameLayout';
 import { useGameStore } from '@/stores/game.store';
-import { useSettingsStore } from '@/stores/settings.store';
-import { CELL_GAP_ROUNDED } from '@/utils/layout.utils';
 
 const DOMBoard = () => {
   const {
@@ -28,12 +27,9 @@ const DOMBoard = () => {
     handleBoardBlur,
   } = useGameBoardLogic();
 
-  const cellStyleSetting = useSettingsStore((s) => s.cellStyle);
   const { showFloatingPills } = useGameLayout();
-  const isRounded = cellStyleSetting === 'rounded';
-  const gap = isRounded ? CELL_GAP_ROUNDED : 0;
-  const totalW = cellSize * config.cols + gap * (config.cols - 1);
-  const totalH = cellSize * config.rows + gap * (config.rows - 1);
+  const totalW = cellSize * config.cols;
+  const totalH = cellSize * config.rows;
 
   return (
     <div className="flex flex-col">
@@ -43,7 +39,12 @@ const DOMBoard = () => {
         role="grid"
         className={`game-window overflow-hidden${boardEntering ? 'board--entering' : ''}`}
         data-testid="board"
-        style={{ width: totalW, height: totalH, touchAction: 'none' }}
+        style={{
+          width: totalW,
+          height: totalH,
+          touchAction: 'none',
+          borderRadius: BOARD_BORDER_RADIUS,
+        }}
         tabIndex={0}
         aria-label="Minesweeper board"
         onKeyDown={handleKeyDown}
@@ -55,7 +56,6 @@ const DOMBoard = () => {
           style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${config.cols}, ${cellSize}px)`,
-            gap: `${gap}px`,
             transform: `translate(${panX}px, ${panY}px) scale(${scale})`,
             transformOrigin: 'center center',
             width: totalW,

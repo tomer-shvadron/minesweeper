@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { STORAGE_KEYS } from '@/constants/storage.constants';
+import { createSafeMerge } from '@/stores/persist-helpers';
 import { safeStorage } from '@/stores/safe-storage';
 import type { BoardKey } from '@/types/game.types';
 import type { Leaderboard, LeaderboardEntry } from '@/types/leaderboard.types';
@@ -106,12 +107,7 @@ export const useLeaderboardStore = create<LeaderboardStore>()(
         gamesPlayed: s.gamesPlayed,
         lastPlayerName: s.lastPlayerName,
       }),
-      merge: (persisted, current) => {
-        if (!isValidPersistedLeaderboard(persisted)) {
-          return current;
-        }
-        return { ...current, ...(persisted as object) };
-      },
+      merge: createSafeMerge<LeaderboardStore>(isValidPersistedLeaderboard),
     }
   )
 );

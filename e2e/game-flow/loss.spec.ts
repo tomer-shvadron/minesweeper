@@ -7,7 +7,7 @@ test.describe('Loss game flow', () => {
 
   test('clicking a mine shows 💣 Game over banner', async ({ gamePage }) => {
     await gamePage.loseGame();
-    await expect(gamePage.gameOverBanner).toContainText('💣 Game over');
+    await expect(gamePage.gameOverBanner).toContainText('Game Over');
   });
 
   test('losing changes smiley to 😵', async ({ gamePage }) => {

@@ -348,8 +348,6 @@ describe('drawBoard', () => {
     return {
       board: makeBoard(rows, cols),
       cellSize,
-      cellStyle: 'flat',
-      cellGap: 0,
       scale: 1,
       panX: 0,
       panY: 0,
@@ -404,8 +402,6 @@ describe('drawBoard', () => {
     const opts: DrawOptions = {
       board,
       cellSize: 30,
-      cellStyle: 'flat',
-      cellGap: 0,
       scale: 1,
       panX: 0,
       panY: 0,
@@ -424,8 +420,6 @@ describe('drawBoard', () => {
     const opts: DrawOptions = {
       board: makeBoard(2, 2),
       cellSize: 30,
-      cellStyle: 'flat',
-      cellGap: 0,
       scale: 1,
       panX: 0,
       panY: 0,
@@ -439,18 +433,24 @@ describe('drawBoard', () => {
     expect(mockCtx.strokeRect).toHaveBeenCalled();
   });
 
-  it('does not call strokeRect when no cell is focused', () => {
-    const opts = makeDrawOptions(2, 2, 30);
-    drawBoard(canvas, mockCtx, opts);
-    expect(mockCtx.strokeRect).not.toHaveBeenCalled();
+  it('calls strokeRect fewer times when no cell is focused vs when one is', () => {
+    const optsNoFocus = makeDrawOptions(2, 2, 30);
+    drawBoard(canvas, mockCtx, optsNoFocus);
+    const countNoFocus = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+    (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mockClear();
+    const optsFocus: DrawOptions = { ...makeDrawOptions(2, 2, 30), focusedCell: [0, 0] };
+    drawBoard(canvas, mockCtx, optsFocus);
+    const countFocus = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+    // Focus ring adds one extra strokeRect call
+    expect(countFocus).toBeGreaterThan(countNoFocus);
   });
 
   it('handles an empty board without crashing', () => {
     const opts: DrawOptions = {
       board: [],
       cellSize: 30,
-      cellStyle: 'flat',
-      cellGap: 0,
       scale: 1,
       panX: 0,
       panY: 0,

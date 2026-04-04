@@ -1,36 +1,25 @@
 import { useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 import { DIFFICULTY_PRESETS } from '@/constants/game.constants';
 import { useGameLayout } from '@/hooks/useGameLayout';
-import { createBoardKey } from '@/services/board.service';
+import { createBoardKey } from '@/services/board-core.service';
 import { useGameStore } from '@/stores/game.store';
 import { useStatsStore } from '@/stores/stats.store';
 import { useUIStore } from '@/stores/ui.store';
 import type { BoardKey } from '@/types/game.types';
-
-const PRESET_KEYS: BoardKey[] = ['beginner', 'intermediate', 'expert'];
-
-const PRESET_LABELS: Record<string, string> = {
-  beginner: 'Beginner',
-  intermediate: 'Intermediate',
-  expert: 'Expert',
-};
-
-export function tabLabel(key: BoardKey): string {
-  return PRESET_LABELS[key] ?? `Custom (${key})`;
-}
+import { PRESET_BOARD_KEYS } from '@/utils/board.utils';
 
 export const useStatisticsModalLogic = () => {
   const closeModal = useUIStore((s) => s.closeStatisticsModal);
   const { layoutMode } = useGameLayout();
-  const records = useStatsStore((s) => s.records);
-  const getWinRate = useStatsStore((s) => s.getWinRate);
-  const getAverageTime = useStatsStore((s) => s.getAverageTime);
-  const getBestTime = useStatsStore((s) => s.getBestTime);
-  const getCurrentStreak = useStatsStore((s) => s.getCurrentStreak);
-  const getBestStreak = useStatsStore((s) => s.getBestStreak);
-  const getTotalTimePlayed = useStatsStore((s) => s.getTotalTimePlayed);
-  const getFirstClickHeatmap = useStatsStore((s) => s.getFirstClickHeatmap);
+  const { records, getStatsForBoard, getFirstClickHeatmap } = useStatsStore(
+    useShallow((s) => ({
+      records: s.records,
+      getStatsForBoard: s.getStatsForBoard,
+      getFirstClickHeatmap: s.getFirstClickHeatmap,
+    }))
+  );
   const config = useGameStore((s) => s.config);
 
   const currentBoardKey = createBoardKey(config);
@@ -40,30 +29,22 @@ export const useStatisticsModalLogic = () => {
     ...new Set(
       records
         .map((r) => r.boardKey)
-        .filter((k) => !PRESET_KEYS.includes(k as (typeof PRESET_KEYS)[number]))
+        .filter((k) => !PRESET_BOARD_KEYS.includes(k as (typeof PRESET_BOARD_KEYS)[number]))
     ),
   ];
 
   const allTabs: BoardKey[] = [
-    ...PRESET_KEYS,
+    ...PRESET_BOARD_KEYS,
     ...customKeysWithGames.filter(
-      (k): k is BoardKey => !PRESET_KEYS.includes(k as (typeof PRESET_KEYS)[number])
+      (k): k is BoardKey => !PRESET_BOARD_KEYS.includes(k as (typeof PRESET_BOARD_KEYS)[number])
     ),
   ];
 
   const defaultTab = allTabs.includes(currentBoardKey) ? currentBoardKey : 'beginner';
   const [selectedTab, setSelectedTab] = useState<BoardKey>(defaultTab);
 
-  const tabRecords = records.filter((r) => r.boardKey === selectedTab);
-  const totalGames = tabRecords.length;
-  const wins = tabRecords.filter((r) => r.result === 'won').length;
-
-  const winRate = getWinRate(selectedTab);
-  const bestTime = getBestTime(selectedTab);
-  const averageTime = getAverageTime(selectedTab);
-  const currentStreak = getCurrentStreak(selectedTab);
-  const bestStreak = getBestStreak(selectedTab);
-  const totalTimePlayed = getTotalTimePlayed(selectedTab);
+  // Single-pass stats computation for the selected board
+  const stats = getStatsForBoard(selectedTab);
   const heatmap = getFirstClickHeatmap(selectedTab);
 
   const heatmapDims = (() => {
@@ -88,16 +69,16 @@ export const useStatisticsModalLogic = () => {
     selectedTab,
     setSelectedTab,
     closeModal,
-    totalGames,
-    wins,
-    winRate,
-    bestTime,
-    averageTime,
-    currentStreak,
-    bestStreak,
-    totalTimePlayed,
+    totalGames: stats.totalGames,
+    wins: stats.wins,
+    winRate: stats.winRate,
+    bestTime: stats.bestTime,
+    averageTime: stats.averageTime,
+    currentStreak: stats.currentStreak,
+    bestStreak: stats.bestStreak,
+    totalTimePlayed: stats.totalTimePlayed,
     heatmap,
     heatmapDims,
-    showHeatmap: totalGames >= 10 && heatmap !== null && heatmapDims !== null,
+    showHeatmap: stats.totalGames >= 10 && heatmap !== null && heatmapDims !== null,
   };
 };

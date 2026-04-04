@@ -14,7 +14,7 @@ import {
   MIN_ROWS,
   SAFE_ZONE_SIZE,
 } from '@/constants/game.constants';
-import { createEmptyBoard, placeMines } from '@/services/board.service';
+import { createEmptyBoard, placeMines } from '@/services/board-core.service';
 import { useGameStore } from '@/stores/game.store';
 
 // ── sanitizeInt (extracted from useNewGameModalLogic for testability) ──

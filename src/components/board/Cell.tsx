@@ -84,7 +84,9 @@ export const Cell = ({
       data-row={row}
       data-col={col}
     >
-      <span className={numberClass}>{content}</span>
+      <span className={`flex h-full w-full items-center justify-center ${numberClass}`}>
+        {content}
+      </span>
       {isCorrectFlag && (
         <span
           aria-hidden="true"

@@ -66,6 +66,9 @@ test.describe('Generating state (Web Worker board generation)', () => {
     const settingsModal = gamePage.settingsModal();
     await settingsModal.waitFor();
 
+    // Navigate to the Gameplay tab where no-guess toggle lives
+    await gamePage.page.getByRole('tab', { name: /gameplay/i }).click();
+
     // Try to find and enable no-guess toggle
     const noGuessToggle = gamePage.page.getByRole('switch', { name: /no.?guess/i });
     const isEnabled = await noGuessToggle.isChecked().catch(() => false);

@@ -1,5 +1,10 @@
+import {
+  CELL_BORDER_WIDTH_RATIO,
+  CELL_FONT_SCALE_ICON,
+  CELL_FONT_SCALE_NUMBER,
+  CELL_FONT_SCALE_QUESTION,
+} from '@/constants/ui.constants';
 import type { Board, CellState } from '@/types/game.types';
-import type { CellStyle } from '@/types/settings.types';
 
 const NUMBER_COLORS = [
   '',
@@ -13,8 +18,40 @@ const NUMBER_COLORS = [
   '--color-n8',
 ];
 
+// ─── CSS variable cache ─────────────────────────────────────────────────────
+// Reading getComputedStyle every frame is expensive. We cache the resolved
+// values and invalidate whenever the theme changes (detected via
+// MutationObserver on <body>'s data-theme attribute).
+
+let cssVarCache: Map<string, string> | null = null;
+let themeObserver: MutationObserver | null = null;
+
+function invalidateCSSVarCache(): void {
+  cssVarCache = null;
+}
+
+function ensureThemeObserver(): void {
+  if (themeObserver || typeof MutationObserver === 'undefined') {
+    return;
+  }
+  themeObserver = new MutationObserver(invalidateCSSVarCache);
+  themeObserver.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['data-theme', 'class'],
+  });
+}
+
 function getCSSVar(name: string): string {
-  return getComputedStyle(document.body).getPropertyValue(name).trim();
+  ensureThemeObserver();
+  if (!cssVarCache) {
+    cssVarCache = new Map();
+  }
+  let value = cssVarCache.get(name);
+  if (value === undefined) {
+    value = getComputedStyle(document.body).getPropertyValue(name).trim();
+    cssVarCache.set(name, value);
+  }
+  return value;
 }
 
 interface DrawColors {
@@ -31,8 +68,6 @@ interface DrawColors {
 export interface DrawOptions {
   board: Board;
   cellSize: number;
-  cellStyle: CellStyle;
-  cellGap: number;
   scale: number;
   panX: number;
   panY: number;
@@ -43,27 +78,6 @@ export interface DrawOptions {
   animTime: number;
 }
 
-function roundedRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number
-): void {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.arcTo(x + w, y, x + w, y + r, r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-  ctx.lineTo(x + r, y + h);
-  ctx.arcTo(x, y + h, x, y + h - r, r);
-  ctx.lineTo(x, y + r);
-  ctx.arcTo(x, y, x + r, y, r);
-  ctx.closePath();
-}
-
 function drawCell(
   ctx: CanvasRenderingContext2D,
   cell: CellState,
@@ -71,46 +85,30 @@ function drawCell(
   y: number,
   size: number,
   isFocused: boolean,
-  colors: DrawColors,
-  radius: number
+  colors: DrawColors
 ): void {
-  const borderW = Math.max(1, Math.round(size * 0.08));
-  const isRounded = radius > 0;
+  const borderW = Math.max(1, Math.round(size * CELL_BORDER_WIDTH_RATIO));
 
   if (!cell.isRevealed) {
-    // Raised cell
+    // Raised cell — flat fill with subtle border
     ctx.fillStyle = colors.surface;
-    if (isRounded) {
-      roundedRect(ctx, x, y, size, size, radius);
-      ctx.fill();
-    } else {
-      ctx.fillRect(x, y, size, size);
-      // Top / left highlight
-      ctx.fillStyle = colors.borderLight;
-      ctx.fillRect(x, y, size, borderW);
-      ctx.fillRect(x, y, borderW, size);
-      // Bottom / right shadow
-      ctx.fillStyle = colors.borderDark;
-      ctx.fillRect(x, y + size - borderW, size, borderW);
-      ctx.fillRect(x + size - borderW, y, borderW, size);
-    }
+    ctx.fillRect(x, y, size, size);
 
-    if (isRounded) {
-      // Subtle border for rounded cells
-      ctx.strokeStyle = colors.borderLight;
-      ctx.lineWidth = 1;
-      roundedRect(ctx, x, y, size, size, radius);
-      ctx.stroke();
-    }
+    // Subtle border
+    ctx.strokeStyle = colors.borderLight;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, size, size);
 
     // Content
     if (cell.isFlagged) {
-      ctx.font = `${Math.floor(size * 0.65)}px serif`;
+      const emojiSize = Math.floor(size * CELL_FONT_SCALE_ICON);
+      ctx.font = `${emojiSize}px serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('\uD83D\uDEA9', x + size / 2, y + size / 2);
+      // Emoji glyphs sit slightly above visual centre; nudge down ~8% of font size
+      ctx.fillText('\uD83D\uDEA9', x + size / 2, y + size / 2 + emojiSize * 0.08);
     } else if (cell.isQuestionMark) {
-      ctx.font = `bold ${Math.floor(size * 0.6)}px sans-serif`;
+      ctx.font = `bold ${Math.floor(size * CELL_FONT_SCALE_QUESTION)}px sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = colors.text;
@@ -120,22 +118,19 @@ function drawCell(
     // Revealed cell
     const bg = cell.isExploded ? colors.exploded : colors.revealed;
     ctx.fillStyle = bg;
-    if (isRounded) {
-      roundedRect(ctx, x, y, size, size, radius);
-      ctx.fill();
-    } else {
-      ctx.fillRect(x, y, size, size);
-    }
+    ctx.fillRect(x, y, size, size);
 
     if (cell.hasMine) {
-      ctx.font = `${Math.floor(size * 0.72)}px serif`;
+      const emojiSize = Math.floor(size * CELL_FONT_SCALE_ICON);
+      ctx.font = `${emojiSize}px serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('\uD83D\uDCA3', x + size / 2, y + size / 2);
+      // Emoji glyphs sit slightly above visual centre; nudge down ~8% of font size
+      ctx.fillText('\uD83D\uDCA3', x + size / 2, y + size / 2 + emojiSize * 0.08);
     } else if (cell.value > 0) {
       const colorVar = NUMBER_COLORS[cell.value];
       ctx.fillStyle = colorVar ? getCSSVar(colorVar) : colors.text;
-      ctx.font = `bold ${Math.floor(size * 0.65)}px sans-serif`;
+      ctx.font = `bold ${Math.floor(size * CELL_FONT_SCALE_NUMBER)}px sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(String(cell.value), x + size / 2, y + size / 2);
@@ -146,12 +141,7 @@ function drawCell(
   if (isFocused) {
     ctx.strokeStyle = colors.focusRing;
     ctx.lineWidth = Math.max(2, borderW);
-    if (isRounded) {
-      roundedRect(ctx, x + 1, y + 1, size - 2, size - 2, radius);
-      ctx.stroke();
-    } else {
-      ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
-    }
+    ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
   }
 }
 
@@ -160,7 +150,7 @@ export function drawBoard(
   ctx: CanvasRenderingContext2D,
   options: DrawOptions
 ): void {
-  const { board, cellSize, cellStyle, cellGap, scale, panX, panY } = options;
+  const { board, cellSize, scale, panX, panY } = options;
   const dpr = window.devicePixelRatio || 1;
   const w = canvas.width / dpr;
   const h = canvas.height / dpr;
@@ -190,11 +180,10 @@ export function drawBoard(
 
   const cols = board[0]?.length ?? 0;
   const rows = board.length;
-  const boardW = cellSize * cols + cellGap * (cols - 1);
-  const boardH = cellSize * rows + cellGap * (rows - 1);
+  const boardW = cellSize * cols;
+  const boardH = cellSize * rows;
   const cx = boardW / 2;
   const cy = boardH / 2;
-  const radius = cellStyle === 'rounded' ? 6 : 0;
 
   ctx.save();
   ctx.translate(cx + panX, cy + panY);
@@ -211,13 +200,13 @@ export function drawBoard(
       if (!cell) {
         continue;
       }
-      const x = c * (cellSize + cellGap);
-      const y = r * (cellSize + cellGap);
+      const x = c * cellSize;
+      const y = r * cellSize;
       const isFocused =
         options.focusedCell !== null &&
         options.focusedCell[0] === r &&
         options.focusedCell[1] === c;
-      drawCell(ctx, cell, x, y, cellSize, isFocused, colors, radius);
+      drawCell(ctx, cell, x, y, cellSize, isFocused, colors);
     }
   }
 
@@ -234,8 +223,7 @@ export function hitTestCell(
   boardHeight: number,
   scale: number,
   panX: number,
-  panY: number,
-  cellGap = 0
+  panY: number
 ): [number, number] | null {
   const cx = boardWidth / 2;
   const cy = boardHeight / 2;
@@ -243,21 +231,11 @@ export function hitTestCell(
   const boardX = (canvasX - cx - panX) / scale + cx;
   const boardY = (canvasY - cy - panY) / scale + cy;
 
-  const step = cellSize + cellGap;
-  const col = Math.floor(boardX / step);
-  const row = Math.floor(boardY / step);
+  const col = Math.floor(boardX / cellSize);
+  const row = Math.floor(boardY / cellSize);
 
   if (row < 0 || row >= rows || col < 0 || col >= cols) {
     return null;
-  }
-
-  // Check if click is in the gap between cells
-  if (cellGap > 0) {
-    const localX = boardX - col * step;
-    const localY = boardY - row * step;
-    if (localX > cellSize || localY > cellSize) {
-      return null; // Click was in the gap
-    }
   }
 
   return [row, col];

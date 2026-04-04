@@ -1,39 +1,26 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { unrevealed } from '../mocks/cell.mock';
+
 import { Cell } from '@/components/board/Cell';
 import type { CellState } from '@/types/game.types';
 
 // ---------------------------------------------------------------------------
 // Store mocks — isolate Cell rendering from Zustand state
 // ---------------------------------------------------------------------------
-let mockGameStatus = 'playing';
+const { gameMock, settingsMock } = vi.hoisted(() => ({
+  gameMock: { status: 'playing' as string },
+  settingsMock: { flagMode: 'flags-only' as string, soundEnabled: false, volume: 0.5 },
+}));
 
 vi.mock('@/stores/game.store', () => ({
-  useGameStore: (selector: (s: object) => unknown) =>
-    selector({
-      status: mockGameStatus,
-    }),
+  useGameStore: (selector: (s: object) => unknown) => selector(gameMock),
 }));
-
-let mockFlagMode = 'flags-only';
 
 vi.mock('@/stores/settings.store', () => ({
-  useSettingsStore: (selector: (s: object) => unknown) =>
-    selector({ flagMode: mockFlagMode, soundEnabled: false, volume: 0.5 }),
+  useSettingsStore: (selector: (s: object) => unknown) => selector(settingsMock),
 }));
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-const unrevealed = (): CellState => ({
-  hasMine: false,
-  isRevealed: false,
-  isFlagged: false,
-  isQuestionMark: false,
-  value: 0,
-  isExploded: false,
-});
 
 function renderCell(cell: CellState) {
   return render(<Cell row={0} col={0} cell={cell} cellSize={32} />);
@@ -45,8 +32,8 @@ function renderCell(cell: CellState) {
 describe('Cell — visual states', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGameStatus = 'playing';
-    mockFlagMode = 'flags-only';
+    gameMock.status = 'playing';
+    settingsMock.flagMode = 'flags-only';
   });
 
   it('renders an unrevealed cell with no content', () => {
@@ -109,32 +96,32 @@ describe('Cell — visual states', () => {
 describe('Cell — game-over state', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockFlagMode = 'flags-only';
+    settingsMock.flagMode = 'flags-only';
   });
 
   it('shows correct flag checkmark when game is lost and cell is correctly flagged', () => {
-    mockGameStatus = 'lost';
+    gameMock.status = 'lost';
     renderCell({ ...unrevealed(), isFlagged: true, hasMine: true });
     const btn = screen.getByRole('gridcell');
     expect(btn.textContent).toContain('✓');
   });
 
   it('does not show checkmark on win even if cell is correctly flagged', () => {
-    mockGameStatus = 'won';
+    gameMock.status = 'won';
     renderCell({ ...unrevealed(), isFlagged: true, hasMine: true });
     const btn = screen.getByRole('gridcell');
     expect(btn.textContent).not.toContain('✓');
   });
 
   it('does not show checkmark for incorrectly flagged cells', () => {
-    mockGameStatus = 'won';
+    gameMock.status = 'won';
     renderCell({ ...unrevealed(), isFlagged: true, hasMine: false });
     const btn = screen.getByRole('gridcell');
     expect(btn.textContent).not.toContain('✓');
   });
 
   it('does not show checkmark during active game', () => {
-    mockGameStatus = 'playing';
+    gameMock.status = 'playing';
     renderCell({ ...unrevealed(), isFlagged: true, hasMine: true });
     const btn = screen.getByRole('gridcell');
     expect(btn.textContent).not.toContain('✓');

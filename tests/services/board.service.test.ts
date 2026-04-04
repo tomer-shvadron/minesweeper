@@ -2,18 +2,20 @@ import { describe, expect, it } from 'vitest';
 
 import {
   calculateAdjacentValues,
+  createBoardKey,
+  createEmptyBoard,
+  placeMines,
+} from '@/services/board-core.service';
+import {
   checkLoss,
   checkWin,
   chordReveal,
   countRemainingFlags,
-  createBoardKey,
-  createEmptyBoard,
   floodFill,
-  placeMines,
   revealAllMines,
   revealCell,
   toggleFlag,
-} from '@/services/board.service';
+} from '@/services/board-reveal.service';
 import type { Board, BoardConfig, CellState } from '@/types/game.types';
 
 // ---------------------------------------------------------------------------

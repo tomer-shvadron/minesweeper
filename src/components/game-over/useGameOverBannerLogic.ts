@@ -1,15 +1,24 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useGameStore } from '@/stores/game.store';
 import { useUIStore } from '@/stores/ui.store';
 
 export const useGameOverBannerLogic = () => {
-  const status = useGameStore((s) => s.status);
-  const elapsedSeconds = useGameStore((s) => s.elapsedSeconds);
-  const board = useGameStore((s) => s.board);
-  const startNewGame = useGameStore((s) => s.startNewGame);
-  const highScoreEntry = useUIStore((s) => s.highScoreEntry);
-  const openNewGameModal = useUIStore((s) => s.openNewGameModal);
+  const { status, elapsedSeconds, board, startNewGame } = useGameStore(
+    useShallow((s) => ({
+      status: s.status,
+      elapsedSeconds: s.elapsedSeconds,
+      board: s.board,
+      startNewGame: s.startNewGame,
+    }))
+  );
+  const { highScoreEntry, openNewGameModal } = useUIStore(
+    useShallow((s) => ({
+      highScoreEntry: s.highScoreEntry,
+      openNewGameModal: s.openNewGameModal,
+    }))
+  );
 
   const [dismissed, setDismissed] = useState(false);
 

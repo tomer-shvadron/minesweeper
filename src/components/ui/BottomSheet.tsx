@@ -7,8 +7,8 @@ interface BottomSheetProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
-  /** When true the sheet uses a fixed height (70 dvh) instead of auto-sizing to content. Prevents layout shifts when tab content changes. */
-  fixedHeight?: boolean;
+  /** When true, locks height to the max (50 dvh) instead of auto-sizing. Use for content-heavy modals like Leaderboard. */
+  fullHeight?: boolean;
 }
 
 /**
@@ -20,7 +20,7 @@ export const BottomSheet = ({
   title,
   onClose,
   children,
-  fixedHeight = false,
+  fullHeight = false,
 }: BottomSheetProps) => {
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragStartY = useRef<number | null>(null);
@@ -82,7 +82,7 @@ export const BottomSheet = ({
         <DialogPrimitive.Overlay className="modal-backdrop fixed inset-0 z-[100] bg-black/35 backdrop-blur-[2px] data-[state=closed]:animate-[fadeOut_0.1s_ease] data-[state=open]:animate-[fadeIn_0.15s_ease]" />
         <DialogPrimitive.Content
           ref={sheetRef}
-          className={`modal-window fixed right-0 bottom-0 left-0 z-[101] flex flex-col overflow-hidden rounded-t-2xl border-t border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_-16px_48px_rgba(0,0,0,0.15)] data-[state=closed]:animate-[slideDown_0.15s_ease] data-[state=open]:animate-[slideUp_0.2s_ease] ${fixedHeight ? 'h-[70dvh]' : 'max-h-[85dvh]'}`}
+          className={`modal-window fixed right-0 bottom-0 left-0 z-[101] flex flex-col overflow-hidden rounded-t-2xl border-t border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_-16px_48px_rgba(0,0,0,0.15)] data-[state=closed]:animate-[slideDown_0.15s_ease] data-[state=open]:animate-[slideUp_0.2s_ease] ${fullHeight ? 'h-[50dvh]' : 'max-h-[50dvh] min-h-[33dvh]'}`}
           aria-describedby={undefined}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}

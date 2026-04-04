@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 
-import { tabLabel, useStatisticsModalLogic } from './useStatisticsModalLogic';
+import { useStatisticsModalLogic } from './useStatisticsModalLogic';
 
-import { BottomSheet } from '@/components/ui/BottomSheet';
-import { Modal } from '@/components/ui/Modal';
-import { RightSheet } from '@/components/ui/RightSheet';
+import { ResponsiveModal } from '@/components/ui/ResponsiveModal';
 import { StableHeight } from '@/components/ui/StableHeight';
+import { TabBar } from '@/components/ui/TabBar';
 import { useUIStore } from '@/stores/ui.store';
+import { formatBoardKeyLabel } from '@/utils/board.utils';
 import { formatTime } from '@/utils/time.utils';
 
 const HEATMAP_CELL_SIZE = 8;
@@ -82,36 +82,15 @@ const StatisticsContent = () => {
 
   return (
     <>
-      {/* Difficulty tabs */}
-      <div
-        className="flex border-b border-[var(--color-border)]"
-        role="tablist"
-        aria-label="Difficulty levels"
-      >
-        {allTabs.map((key) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={selectedTab === key}
-            className={`flex-1 cursor-pointer border-none bg-transparent px-2 py-2 text-xs font-medium transition-colors duration-100 outline-none focus-visible:outline-2 focus-visible:outline-[var(--color-accent)] ${
-              selectedTab === key
-                ? 'border-b-2 border-b-[var(--color-accent)] text-[var(--color-accent)]'
-                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
-            }`}
-            style={
-              selectedTab === key
-                ? { boxShadow: 'inset 0 -2px 0 var(--color-accent)', marginBottom: '-1px' }
-                : { marginBottom: '-1px' }
-            }
-            onClick={() => setSelectedTab(key)}
-          >
-            {tabLabel(key)}
-          </button>
-        ))}
-      </div>
+      <TabBar
+        tabs={allTabs}
+        selectedTab={selectedTab}
+        onTabChange={setSelectedTab}
+        tabLabel={formatBoardKeyLabel}
+        ariaLabel="Difficulty levels"
+      />
 
-      <StableHeight>
+      <StableHeight clamp>
         {totalGames === 0 ? (
           <p className="py-6 text-center text-[0.9375rem] text-[var(--color-text-muted)]">
             Play a game to see statistics!
@@ -211,25 +190,14 @@ export const StatisticsModal = () => {
   const isOpen = useUIStore((s) => s.activeModal === 'statistics');
   const { layoutMode, closeModal } = useStatisticsModalLogic();
 
-  if (layoutMode === 'desktop') {
-    return (
-      <Modal isOpen={isOpen} title="Statistics" onClose={closeModal}>
-        <StatisticsContent />
-      </Modal>
-    );
-  }
-
-  if (layoutMode === 'mobile-landscape') {
-    return (
-      <RightSheet isOpen={isOpen} title="Statistics" onClose={closeModal}>
-        <StatisticsContent />
-      </RightSheet>
-    );
-  }
-
   return (
-    <BottomSheet isOpen={isOpen} title="Statistics" onClose={closeModal}>
+    <ResponsiveModal
+      isOpen={isOpen}
+      title="Statistics"
+      onClose={closeModal}
+      layoutMode={layoutMode}
+    >
       <StatisticsContent />
-    </BottomSheet>
+    </ResponsiveModal>
   );
 };

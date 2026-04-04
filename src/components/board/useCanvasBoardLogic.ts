@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useGameLayout } from '@/hooks/useGameLayout';
 import { useHaptic } from '@/hooks/useHaptic';
@@ -11,37 +12,57 @@ import { selectAllowQuestionMarks, selectIsGameOver } from '@/stores/selectors';
 import { useSettingsStore } from '@/stores/settings.store';
 import { useUIStore } from '@/stores/ui.store';
 import { cellKey } from '@/utils/cell.utils';
-import { CELL_GAP_ROUNDED } from '@/utils/layout.utils';
 
 const EMPTY_MAP = new Map<string, number>();
 
 export const useCanvasBoardLogic = () => {
-  const board = useGameStore((s) => s.board);
-  const gameKey = useGameStore((s) => s.gameKey);
-  const mineRevealOrder = useGameStore((s) => s.mineRevealOrder);
-  const lastChordReveal = useGameStore((s) => s.lastChordReveal);
-  const clearChordReveal = useGameStore((s) => s.clearChordReveal);
-  const revealCell = useGameStore((s) => s.revealCell);
-  const flagCell = useGameStore((s) => s.flagCell);
-  const chordClick = useGameStore((s) => s.chordClick);
-  const setCellPressStart = useGameStore((s) => s.setCellPressStart);
-  const setCellPressEnd = useGameStore((s) => s.setCellPressEnd);
-  const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
-  const keyboardBindings = useSettingsStore((s) => s.keyboardBindings);
-  const noGuessMode = useSettingsStore((s) => s.noGuessMode);
-  const cellStyleSetting = useSettingsStore((s) => s.cellStyle);
-  const focusedCell = useUIStore((s) => s.focusedCell);
-  const setFocusedCell = useUIStore((s) => s.setFocusedCell);
-  const openNewGameModal = useUIStore((s) => s.openNewGameModal);
+  const {
+    board,
+    gameKey,
+    mineRevealOrder,
+    lastChordReveal,
+    clearChordReveal,
+    revealCell,
+    flagCell,
+    chordClick,
+    setCellPressStart,
+    setCellPressEnd,
+  } = useGameStore(
+    useShallow((s) => ({
+      board: s.board,
+      gameKey: s.gameKey,
+      mineRevealOrder: s.mineRevealOrder,
+      lastChordReveal: s.lastChordReveal,
+      clearChordReveal: s.clearChordReveal,
+      revealCell: s.revealCell,
+      flagCell: s.flagCell,
+      chordClick: s.chordClick,
+      setCellPressStart: s.setCellPressStart,
+      setCellPressEnd: s.setCellPressEnd,
+    }))
+  );
+  const { animationsEnabled, keyboardBindings, noGuessMode } = useSettingsStore(
+    useShallow((s) => ({
+      animationsEnabled: s.animationsEnabled,
+      keyboardBindings: s.keyboardBindings,
+      noGuessMode: s.noGuessMode,
+    }))
+  );
+  const { focusedCell, setFocusedCell, openNewGameModal } = useUIStore(
+    useShallow((s) => ({
+      focusedCell: s.focusedCell,
+      setFocusedCell: s.setFocusedCell,
+      openNewGameModal: s.openNewGameModal,
+    }))
+  );
   const play = useSound();
   const vibrate = useHaptic();
   const isGameOver = useGameStore(selectIsGameOver);
   const allowQuestionMarks = useSettingsStore(selectAllowQuestionMarks);
 
   const { cellSize, config } = useGameLayout();
-  const cellGap = cellStyleSetting === 'rounded' ? CELL_GAP_ROUNDED : 0;
-  const totalW = cellSize * config.cols + cellGap * (config.cols - 1);
-  const totalH = cellSize * config.rows + cellGap * (config.rows - 1);
+  const totalW = cellSize * config.cols;
+  const totalH = cellSize * config.rows;
   const {
     scale,
     panX,
@@ -170,8 +191,6 @@ export const useCanvasBoardLogic = () => {
       drawBoard(canvas, ctx, {
         board,
         cellSize,
-        cellStyle: cellStyleSetting,
-        cellGap,
         scale,
         panX,
         panY,
@@ -188,8 +207,6 @@ export const useCanvasBoardLogic = () => {
   }, [
     board,
     cellSize,
-    cellStyleSetting,
-    cellGap,
     scale,
     panX,
     panY,
@@ -213,11 +230,10 @@ export const useCanvasBoardLogic = () => {
         totalH,
         scale,
         panX,
-        panY,
-        cellGap
+        panY
       );
     },
-    [cellSize, config.cols, config.rows, totalW, totalH, scale, panX, panY, cellGap]
+    [cellSize, config.cols, config.rows, totalW, totalH, scale, panX, panY]
   );
 
   // Coordinate storage for long-press (captures position before callbacks fire)

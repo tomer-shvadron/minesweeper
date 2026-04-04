@@ -1,5 +1,5 @@
-/* Regular Dark — Deep indigo surfaces, soft purples */
-[data-theme='regular-dark'] {
+/* Dark — Deep indigo surfaces, soft purples */
+[data-theme='dark'] {
   --color-bg: #121218;
   --color-bg-solid: #121218;
   --color-surface: #1c1c2e;
@@ -11,7 +11,7 @@
   --color-border-darker: #0c0c18;
 
   --color-text: #e2e2f0;
-  --color-text-muted: #7a7a9e;
+  --color-text-muted: #8888aa;
 
   --color-accent: #818cf8;
   --color-accent-hover: #a5b4fc;
@@ -33,11 +33,11 @@
   --color-overlay: rgba(0, 0, 0, 0.4);
 }
 
-[data-theme='regular-dark'] body {
+[data-theme='dark'] body {
   color: var(--color-text);
 }
 
-[data-theme='regular-dark'] .game-window {
+[data-theme='dark'] .game-window {
   border-radius: 16px;
   overflow: hidden;
   box-shadow:
@@ -45,31 +45,32 @@
     0 0 0 1px var(--color-border);
 }
 
-[data-theme='regular-dark'] .cell {
+[data-theme='dark'] .cell {
   background-color: var(--color-surface-2);
   transition: background-color 0.08s ease;
 }
 
-[data-theme='regular-dark'] .cell-raised {
+[data-theme='dark'] .cell-raised {
   box-shadow: none;
   border: 1px solid var(--color-border);
 }
 
-[data-theme='regular-dark'] .cell-raised:hover {
+[data-theme='dark']:not([data-game-over='true']) .cell-raised:hover {
   background-color: #2d2d48;
+  box-shadow: inset 0 0 0 1.5px rgba(139, 92, 246, 0.35);
 }
 
-[data-theme='regular-dark'] .cell-revealed {
+[data-theme='dark'] .cell-revealed {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
 }
 
-[data-theme='regular-dark'] .cell-exploded {
+[data-theme='dark'] .cell-exploded {
   background-color: rgba(239, 68, 68, 0.18);
   border: 1px solid rgba(239, 68, 68, 0.45);
 }
 
-[data-theme='regular-dark'] .btn-raised {
+[data-theme='dark'] .btn-raised {
   background-color: var(--color-surface-2);
   box-shadow: none;
   border: 1px solid var(--color-border);
@@ -77,7 +78,7 @@
   color: var(--color-text);
 }
 
-[data-theme='regular-dark'] .btn-primary {
+[data-theme='dark'] .btn-primary {
   background-color: var(--color-accent);
   box-shadow: 0 2px 12px rgba(129, 140, 248, 0.3);
   border: none;
@@ -85,22 +86,22 @@
   color: #fff;
 }
 
-[data-theme='regular-dark'] .btn-primary:active {
+[data-theme='dark'] .btn-primary:active {
   background-color: var(--color-accent-hover);
 }
 
-[data-theme='regular-dark'] .btn-secondary {
+[data-theme='dark'] .btn-secondary {
   background-color: var(--color-surface-2);
   border: 1px solid var(--color-border);
   border-radius: 10px;
   color: var(--color-text);
 }
 
-[data-theme='regular-dark'] .modal-backdrop {
+[data-theme='dark'] .modal-backdrop {
   background: rgba(0, 0, 0, 0.65);
 }
 
-[data-theme='regular-dark'] .modal-window {
+[data-theme='dark'] .modal-window {
   border-radius: 16px;
   overflow: hidden;
   box-shadow:
@@ -108,13 +109,13 @@
     0 0 0 1px var(--color-border);
 }
 
-[data-theme='regular-dark'] .modal-title-bar {
+[data-theme='dark'] .modal-title-bar {
   padding: 12px 14px;
   font-size: 0.9375rem;
   border-bottom: 1px solid var(--color-border);
 }
 
-[data-theme='regular-dark'] .modal-close-btn {
+[data-theme='dark'] .modal-close-btn {
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -125,12 +126,12 @@
   border: 1px solid var(--color-border);
 }
 
-[data-theme='regular-dark'] .modal-close-btn:active {
+[data-theme='dark'] .modal-close-btn:active {
   background-color: rgba(255, 255, 255, 0.15);
   box-shadow: none;
 }
 
-[data-theme='regular-dark'] .input-field {
+[data-theme='dark'] .input-field {
   background-color: var(--color-surface-2);
   color: var(--color-text);
   border: 1px solid var(--color-border);
@@ -138,57 +139,57 @@
   box-shadow: none;
 }
 
-[data-theme='regular-dark'] .input-field:focus {
+[data-theme='dark'] .input-field:focus {
   border-color: var(--color-accent);
   outline: 2px solid rgba(129, 140, 248, 0.25);
 }
 
-[data-theme='regular-dark'] .settings-group-label {
+[data-theme='dark'] .settings-group-label {
   color: var(--color-accent);
   border-color: var(--color-border);
   font-size: 0.6875rem;
   letter-spacing: 0.1em;
 }
 
-[data-theme='regular-dark'] .switch-root {
+[data-theme='dark'] .switch-root {
   background-color: var(--color-border);
 }
 
-[data-theme='regular-dark'] .switch-root[data-state='checked'] {
+[data-theme='dark'] .switch-root[data-state='checked'] {
   background-color: var(--color-accent);
 }
 
-[data-theme='regular-dark'] .preset-radio {
+[data-theme='dark'] .preset-radio {
   background-color: var(--color-surface-2);
   border-color: var(--color-border);
 }
 
-[data-theme='regular-dark'] .preset-radio[data-state='checked'] {
+[data-theme='dark'] .preset-radio[data-state='checked'] {
   border-color: var(--color-accent);
 }
 
-[data-theme='regular-dark'] .preset-radio[data-state='checked']::after {
+[data-theme='dark'] .preset-radio[data-state='checked']::after {
   background-color: var(--color-accent);
 }
 
-[data-theme='regular-dark'] .slider-track {
+[data-theme='dark'] .slider-track {
   background-color: var(--color-border);
 }
 
-[data-theme='regular-dark'] .slider-range {
+[data-theme='dark'] .slider-range {
   background-color: var(--color-accent);
 }
 
-[data-theme='regular-dark'] .slider-thumb {
+[data-theme='dark'] .slider-thumb {
   border-color: var(--color-accent);
 }
 
-[data-theme='regular-dark'] .leaderboard-tabs {
+[data-theme='dark'] .leaderboard-tabs {
   border-color: var(--color-border);
   gap: 4px;
 }
 
-[data-theme='regular-dark'] .leaderboard-tab {
+[data-theme='dark'] .leaderboard-tab {
   border-radius: 6px 6px 0 0;
   border: 1px solid var(--color-border);
   border-bottom: none;
@@ -198,12 +199,12 @@
   transition: color 0.12s ease;
 }
 
-[data-theme='regular-dark'] .leaderboard-tab--active {
+[data-theme='dark'] .leaderboard-tab--active {
   background-color: var(--color-surface-2);
   color: var(--color-text);
 }
 
-[data-theme='regular-dark'] .scores-table th {
+[data-theme='dark'] .scores-table th {
   border-color: var(--color-border);
   color: var(--color-text-muted);
   font-weight: 500;
@@ -212,6 +213,6 @@
   letter-spacing: 0.08em;
 }
 
-[data-theme='regular-dark'] .scores-table tr:nth-child(even) {
+[data-theme='dark'] .scores-table tr:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.03);
 }

@@ -13,16 +13,19 @@ import {
 import { STORAGE_KEYS } from '@/constants/storage.constants';
 import {
   calculateAdjacentValues,
+  createEmptyBoard,
+  placeMines,
+} from '@/services/board-core.service';
+import {
   chordReveal,
   countNewlyRevealed,
   countRemainingFlags,
   countUnrevealedSafe,
-  createEmptyBoard,
-  isBoardSolvable,
-  placeMines,
   revealCell as revealCellFn,
   toggleFlag,
-} from '@/services/board.service';
+} from '@/services/board-reveal.service';
+import { isBoardSolvable } from '@/services/board-solver.service';
+import { createSafeMerge } from '@/stores/persist-helpers';
 import { safeStorage } from '@/stores/safe-storage';
 import type { Board, BoardConfig, GameStatus } from '@/types/game.types';
 
@@ -460,12 +463,7 @@ export const useGameStore = create<GameStore>()(
         isFirstClick: s.isFirstClick,
         unrevealedSafeCount: s.unrevealedSafeCount,
       }),
-      merge: (persisted, current) => {
-        if (!isValidPersistedState(persisted)) {
-          return current;
-        }
-        return { ...current, ...(persisted as object) };
-      },
+      merge: createSafeMerge<GameStore>(isValidPersistedState),
     }
   )
 );

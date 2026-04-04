@@ -4,27 +4,25 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { DEFAULT_KEY_BINDINGS } from '@/constants/keyboard.constants';
 import { STORAGE_KEYS } from '@/constants/storage.constants';
 import { LEGACY_THEME_MAP } from '@/constants/theme.constants';
+import { createSafeMerge } from '@/stores/persist-helpers';
 import { safeStorage } from '@/stores/safe-storage';
 import type {
   BackgroundStyle,
   BoardSize,
   CellStyle,
-  ColorMode,
   FlagMode,
   KeyboardAction,
   Settings,
   Theme,
 } from '@/types/settings.types';
-import { detectDefaultTheme } from '@/utils/platform.utils';
 
-const VALID_THEMES = new Set<Theme>(['regular', 'liquid-glass', 'jedi', 'sith']);
+const VALID_THEMES = new Set<Theme>(['light', 'dark', 'jedi', 'sith']);
 const VALID_FLAG_MODES = new Set<FlagMode>(['flags-only', 'flags-and-questions']);
-const VALID_COLOR_MODES = new Set<ColorMode>(['light', 'dark', 'system']);
-const VALID_CELL_STYLES = new Set<CellStyle>(['rounded', 'flat']);
+const VALID_CELL_STYLES = new Set<CellStyle>(['rounded']);
 const VALID_BG_STYLES = new Set<BackgroundStyle>(['gradient', 'pattern', 'dynamic', 'solid']);
 const VALID_BOARD_SIZES = new Set<BoardSize>(['small', 'medium', 'large']);
 
-/** Migrate legacy V3 theme names to V4 equivalents. Returns the theme unchanged if already valid. */
+/** Migrate legacy theme names to current equivalents. Returns the theme unchanged if already valid. */
 function migrateTheme(raw: unknown): Theme | undefined {
   if (typeof raw !== 'string') {
     return undefined;
@@ -50,9 +48,6 @@ function isValidPersistedSettings(persisted: unknown): boolean {
     }
   }
   if (typeof s.flagMode === 'string' && !VALID_FLAG_MODES.has(s.flagMode as FlagMode)) {
-    return false;
-  }
-  if (typeof s.colorMode === 'string' && !VALID_COLOR_MODES.has(s.colorMode as ColorMode)) {
     return false;
   }
   if (typeof s.cellStyle === 'string' && !VALID_CELL_STYLES.has(s.cellStyle as CellStyle)) {
@@ -85,7 +80,6 @@ function isValidPersistedSettings(persisted: unknown): boolean {
 
 type SettingsStore = Settings & {
   setTheme: (theme: Theme) => void;
-  setColorMode: (mode: ColorMode) => void;
   setCellStyle: (style: CellStyle) => void;
   setBackgroundStyle: (style: BackgroundStyle) => void;
   setBoardSize: (size: BoardSize) => void;
@@ -98,13 +92,10 @@ type SettingsStore = Settings & {
   setKeyBinding: (action: KeyboardAction, key: string) => void;
 };
 
-const defaultTheme = detectDefaultTheme();
-
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set) => ({
-      theme: defaultTheme,
-      colorMode: 'system',
+      theme: 'light',
       cellStyle: 'rounded',
       backgroundStyle: 'gradient',
       boardSize: 'medium',
@@ -117,7 +108,6 @@ export const useSettingsStore = create<SettingsStore>()(
       keyboardBindings: DEFAULT_KEY_BINDINGS,
 
       setTheme: (theme) => set({ theme }),
-      setColorMode: (mode) => set({ colorMode: mode }),
       setCellStyle: (style) => set({ cellStyle: style }),
       setBackgroundStyle: (style) => set({ backgroundStyle: style }),
       setBoardSize: (size) => set({ boardSize: size }),
@@ -135,7 +125,6 @@ export const useSettingsStore = create<SettingsStore>()(
       storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({
         theme: s.theme,
-        colorMode: s.colorMode,
         cellStyle: s.cellStyle,
         backgroundStyle: s.backgroundStyle,
         boardSize: s.boardSize,
@@ -147,11 +136,7 @@ export const useSettingsStore = create<SettingsStore>()(
         noGuessMode: s.noGuessMode,
         keyboardBindings: s.keyboardBindings,
       }),
-      merge: (persisted, current) => {
-        if (!isValidPersistedSettings(persisted)) {
-          return current;
-        }
-        const p = persisted as Record<string, unknown>;
+      merge: createSafeMerge<SettingsStore>(isValidPersistedSettings, (p) => {
         // Migrate legacy theme names on hydration
         if (typeof p.theme === 'string') {
           const migrated = migrateTheme(p.theme);
@@ -159,8 +144,23 @@ export const useSettingsStore = create<SettingsStore>()(
             p.theme = migrated;
           }
         }
-        return { ...current, ...(p as object) };
-      },
+        // Migrate old colorMode: if user had 'regular' + 'dark'/'system' (dark), map to 'dark'
+        const raw = p as Record<string, unknown>;
+        if (raw.colorMode !== undefined) {
+          const cm = raw.colorMode as string;
+          if (
+            p.theme === 'light' &&
+            (cm === 'dark' ||
+              (cm === 'system' &&
+                typeof window !== 'undefined' &&
+                window.matchMedia?.('(prefers-color-scheme: dark)').matches))
+          ) {
+            p.theme = 'dark';
+          }
+          delete raw.colorMode;
+        }
+        return p;
+      }),
     }
   )
 );

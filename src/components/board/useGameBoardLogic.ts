@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useGameLayout } from '@/hooks/useGameLayout';
 import { useHaptic } from '@/hooks/useHaptic';
@@ -30,24 +31,49 @@ function getCellFromTarget(target: EventTarget | null): { row: number; col: numb
 }
 
 export const useGameBoardLogic = () => {
-  const board = useGameStore((s) => s.board);
-  const gameKey = useGameStore((s) => s.gameKey);
-  const mineRevealOrder = useGameStore((s) => s.mineRevealOrder);
-  const lastChordReveal = useGameStore((s) => s.lastChordReveal);
-  const lastFloodReveal = useGameStore((s) => s.lastFloodReveal);
-  const clearChordReveal = useGameStore((s) => s.clearChordReveal);
-  const clearFloodReveal = useGameStore((s) => s.clearFloodReveal);
-  const revealCell = useGameStore((s) => s.revealCell);
-  const flagCell = useGameStore((s) => s.flagCell);
-  const chordClick = useGameStore((s) => s.chordClick);
-  const setCellPressStart = useGameStore((s) => s.setCellPressStart);
-  const setCellPressEnd = useGameStore((s) => s.setCellPressEnd);
-  const animationsEnabled = useSettingsStore((s) => s.animationsEnabled);
-  const noGuessMode = useSettingsStore((s) => s.noGuessMode);
-  const keyboardBindings = useSettingsStore((s) => s.keyboardBindings);
-  const focusedCell = useUIStore((s) => s.focusedCell);
-  const setFocusedCell = useUIStore((s) => s.setFocusedCell);
-  const openNewGameModal = useUIStore((s) => s.openNewGameModal);
+  const {
+    board,
+    gameKey,
+    mineRevealOrder,
+    lastChordReveal,
+    lastFloodReveal,
+    clearChordReveal,
+    clearFloodReveal,
+    revealCell,
+    flagCell,
+    chordClick,
+    setCellPressStart,
+    setCellPressEnd,
+  } = useGameStore(
+    useShallow((s) => ({
+      board: s.board,
+      gameKey: s.gameKey,
+      mineRevealOrder: s.mineRevealOrder,
+      lastChordReveal: s.lastChordReveal,
+      lastFloodReveal: s.lastFloodReveal,
+      clearChordReveal: s.clearChordReveal,
+      clearFloodReveal: s.clearFloodReveal,
+      revealCell: s.revealCell,
+      flagCell: s.flagCell,
+      chordClick: s.chordClick,
+      setCellPressStart: s.setCellPressStart,
+      setCellPressEnd: s.setCellPressEnd,
+    }))
+  );
+  const { animationsEnabled, noGuessMode, keyboardBindings } = useSettingsStore(
+    useShallow((s) => ({
+      animationsEnabled: s.animationsEnabled,
+      noGuessMode: s.noGuessMode,
+      keyboardBindings: s.keyboardBindings,
+    }))
+  );
+  const { focusedCell, setFocusedCell, openNewGameModal } = useUIStore(
+    useShallow((s) => ({
+      focusedCell: s.focusedCell,
+      setFocusedCell: s.setFocusedCell,
+      openNewGameModal: s.openNewGameModal,
+    }))
+  );
   const play = useSound();
   const vibrate = useHaptic();
   const { cellSize, boardWidth, boardHeight, config } = useGameLayout();

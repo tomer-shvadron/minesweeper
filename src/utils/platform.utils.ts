@@ -11,5 +11,5 @@ export function isIOSDevice(): boolean {
 
 /** Returns the recommended default theme based on the current platform. */
 export function detectDefaultTheme(): Theme {
-  return isIOSDevice() ? 'liquid-glass' : 'regular';
+  return 'light';
 }

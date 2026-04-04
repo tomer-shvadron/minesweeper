@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import {
   BOARD_PADDING,
-  CELL_GAP_ROUNDED,
   FLOATING_PILLS_HEIGHT,
   GAME_OVER_BANNER_HEIGHT,
   MOBILE_LANDSCAPE_TOP_BAR_HEIGHT,
@@ -47,8 +46,7 @@ describe('calcCellSize', () => {
   it('is constrained by width when width is the bottleneck', () => {
     setViewport(200, 2000);
     const size = calcCellSize(9, 9);
-    const gapTotal = CELL_GAP_ROUNDED * (9 - 1); // default cellStyle is 'rounded'
-    const availW = 200 - BOARD_PADDING * 2 - gapTotal;
+    const availW = 200 - BOARD_PADDING * 2;
     // Natural cell size from width, clamped to max
     const natural = Math.floor(availW / 9);
     expect(size).toBe(Math.max(12, Math.min(natural, 72))); // 72 = MAX_CELL_MOBILE (medium)
@@ -58,13 +56,8 @@ describe('calcCellSize', () => {
     // 2000×400 with coarse pointer = mobile-landscape → top bar (44px), no floating pills, no bottom nav
     setViewport(2000, 400);
     const size = calcCellSize(9, 9);
-    const gapTotal = CELL_GAP_ROUNDED * (9 - 1);
     const availH =
-      400 -
-      BOARD_PADDING * 2 -
-      MOBILE_LANDSCAPE_TOP_BAR_HEIGHT -
-      GAME_OVER_BANNER_HEIGHT -
-      gapTotal;
+      400 - BOARD_PADDING * 2 - MOBILE_LANDSCAPE_TOP_BAR_HEIGHT - GAME_OVER_BANNER_HEIGHT;
     // Natural height-based cell size, capped by max cell size
     const naturalFromH = Math.floor(availH / 9);
     expect(size).toBeLessThanOrEqual(naturalFromH);
@@ -110,10 +103,8 @@ describe('calcCellSize', () => {
   it('reserves space for game-over banner', () => {
     setViewport(390, 844);
     const size = calcCellSize(9, 9);
-    const gapTotal = CELL_GAP_ROUNDED * (9 - 1);
     const totalUsed =
       size * 9 +
-      gapTotal +
       BOARD_PADDING * 2 +
       NAV_BAR_HEIGHT +
       FLOATING_PILLS_HEIGHT +

@@ -11,7 +11,7 @@ test.describe('Win game flow', () => {
     if (await hsp.isVisible({ timeout: 1000 }).catch(() => false)) {
       await gamePage.page.getByRole('button', { name: 'Skip' }).click();
     }
-    await expect(gamePage.gameOverBanner).toContainText('😎 You won!');
+    await expect(gamePage.gameOverBanner).toContainText('You Won!');
   });
 
   test('winning changes smiley to 😎', async ({ gamePage }) => {

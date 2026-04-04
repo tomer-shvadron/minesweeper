@@ -32,7 +32,7 @@ export const SettingsModal = () => {
       title="Settings"
       onClose={closeModal}
       layoutMode={layoutMode}
-      modalClassName={isDesktop ? 'w-[min(560px,92vw)]' : undefined}
+      {...(isDesktop ? { modalClassName: 'w-[min(560px,92vw)]' } : {})}
       fullHeight
     >
       {isDesktop ? (

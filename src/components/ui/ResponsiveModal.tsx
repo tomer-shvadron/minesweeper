@@ -37,7 +37,7 @@ export const ResponsiveModal = ({
         isOpen={isOpen}
         title={title}
         onClose={onClose}
-        className={modalClassName}
+        {...(modalClassName !== undefined ? { className: modalClassName } : {})}
         fullHeight={fullHeight}
       >
         {children}

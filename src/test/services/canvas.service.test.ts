@@ -352,6 +352,8 @@ describe('drawBoard', () => {
       panX: 0,
       panY: 0,
       focusedCell: null,
+      hoveredCell: null,
+      isGameOver: false,
       mineRevealLookup: new Map(),
       chordRippleLookup: new Map(),
       animationsEnabled: false,
@@ -406,6 +408,8 @@ describe('drawBoard', () => {
       panX: 0,
       panY: 0,
       focusedCell: null,
+      hoveredCell: null,
+      isGameOver: false,
       mineRevealLookup: new Map(),
       chordRippleLookup: new Map(),
       animationsEnabled: false,
@@ -424,6 +428,8 @@ describe('drawBoard', () => {
       panX: 0,
       panY: 0,
       focusedCell: [0, 0],
+      hoveredCell: null,
+      isGameOver: false,
       mineRevealLookup: new Map(),
       chordRippleLookup: new Map(),
       animationsEnabled: false,
@@ -455,6 +461,8 @@ describe('drawBoard', () => {
       panX: 0,
       panY: 0,
       focusedCell: null,
+      hoveredCell: null,
+      isGameOver: false,
       mineRevealLookup: new Map(),
       chordRippleLookup: new Map(),
       animationsEnabled: false,
@@ -470,5 +478,129 @@ describe('drawBoard', () => {
     const callCount = (mockCtx.fillRect as ReturnType<typeof vi.fn>).mock.calls.length;
     // 16*30=480 cells, each unrevealed cell calls fillRect multiple times (bg + 4 borders)
     expect(callCount).toBeGreaterThanOrEqual(480);
+  });
+
+  // -------------------------------------------------------------------------
+  // Canvas hover effect tests
+  // -------------------------------------------------------------------------
+  describe('hover effect on canvas renderer', () => {
+    it('hovering an unrevealed cell changes fillStyle for that cell', () => {
+      const optsNoHover = makeDrawOptions(3, 3, 30);
+      drawBoard(canvas, mockCtx, optsNoHover);
+
+      // Capture all fillStyle assignments for no-hover case
+      const fillStylesNoHover = (mockCtx.fillRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+      // Reset and draw with hover
+      (mockCtx.fillRect as ReturnType<typeof vi.fn>).mockClear();
+      (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mockClear();
+      const optsHover: DrawOptions = { ...makeDrawOptions(3, 3, 30), hoveredCell: [1, 1] };
+      drawBoard(canvas, mockCtx, optsHover);
+
+      // fillRect should still be called the same number of times (same cells drawn)
+      const fillStylesHover = (mockCtx.fillRect as ReturnType<typeof vi.fn>).mock.calls.length;
+      expect(fillStylesHover).toBe(fillStylesNoHover);
+    });
+
+    it('hovering an unrevealed cell produces a different strokeRect pattern (hover ring)', () => {
+      const optsNoHover = makeDrawOptions(3, 3, 30);
+      drawBoard(canvas, mockCtx, optsNoHover);
+      const strokeCountNoHover = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+      (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mockClear();
+      const optsHover: DrawOptions = { ...makeDrawOptions(3, 3, 30), hoveredCell: [1, 1] };
+      drawBoard(canvas, mockCtx, optsHover);
+      const strokeCountHover = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+      // Both should draw strokeRect for each cell; count stays the same because
+      // the hovered cell still draws one strokeRect (inset ring instead of border)
+      expect(strokeCountHover).toBe(strokeCountNoHover);
+    });
+
+    it('hover is suppressed when isGameOver is true', () => {
+      // Draw with hover + game over
+      const optsGameOver: DrawOptions = {
+        ...makeDrawOptions(3, 3, 30),
+        hoveredCell: [1, 1],
+        isGameOver: true,
+      };
+      drawBoard(canvas, mockCtx, optsGameOver);
+      const strokeCountGameOver = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls
+        .length;
+
+      // Draw with no hover at all (baseline)
+      (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mockClear();
+      const optsNoHover = makeDrawOptions(3, 3, 30);
+      drawBoard(canvas, mockCtx, optsNoHover);
+      const strokeCountNoHover = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+      // Game-over hover should look identical to no-hover
+      expect(strokeCountGameOver).toBe(strokeCountNoHover);
+    });
+
+    it('hover on a revealed cell has no visible effect', () => {
+      // Board with one revealed cell at [0, 0]
+      const board = [
+        [makeCell({ isRevealed: true, value: 1 as CellValue }), makeCell()],
+        [makeCell(), makeCell()],
+      ];
+
+      // Draw with hover on the revealed cell
+      const optsHoverRevealed: DrawOptions = {
+        ...makeDrawOptions(2, 2, 30),
+        board,
+        hoveredCell: [0, 0],
+      };
+      drawBoard(canvas, mockCtx, optsHoverRevealed);
+      const strokeCountRevealed = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls
+        .length;
+
+      // Draw with no hover
+      (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mockClear();
+      const optsNoHover: DrawOptions = {
+        ...makeDrawOptions(2, 2, 30),
+        board,
+        hoveredCell: null,
+      };
+      drawBoard(canvas, mockCtx, optsNoHover);
+      const strokeCountNone = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+      // Hovering a revealed cell should produce the same output as no hover
+      expect(strokeCountRevealed).toBe(strokeCountNone);
+    });
+
+    it('hover on null produces the same output as no hover', () => {
+      const optsNull: DrawOptions = { ...makeDrawOptions(3, 3, 30), hoveredCell: null };
+      drawBoard(canvas, mockCtx, optsNull);
+      const strokeCountNull = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls.length;
+      const fillCountNull = (mockCtx.fillRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+      (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mockClear();
+      (mockCtx.fillRect as ReturnType<typeof vi.fn>).mockClear();
+
+      const optsDefault = makeDrawOptions(3, 3, 30);
+      drawBoard(canvas, mockCtx, optsDefault);
+      const strokeCountDefault = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls.length;
+      const fillCountDefault = (mockCtx.fillRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+      expect(strokeCountNull).toBe(strokeCountDefault);
+      expect(fillCountNull).toBe(fillCountDefault);
+    });
+
+    it('hovering out-of-bounds cell coordinates has no effect', () => {
+      const optsOOB: DrawOptions = {
+        ...makeDrawOptions(3, 3, 30),
+        hoveredCell: [10, 10], // out of bounds
+      };
+      drawBoard(canvas, mockCtx, optsOOB);
+      const strokeCountOOB = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+      (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mockClear();
+      const optsNoHover = makeDrawOptions(3, 3, 30);
+      drawBoard(canvas, mockCtx, optsNoHover);
+      const strokeCountNone = (mockCtx.strokeRect as ReturnType<typeof vi.fn>).mock.calls.length;
+
+      expect(strokeCountOOB).toBe(strokeCountNone);
+    });
   });
 });

@@ -28,6 +28,9 @@
   --color-n7: #e2e8f0;
   --color-n8: #94a3b8;
 
+  --color-cell-hover-bg: #2d2d48;
+  --color-cell-hover-ring: rgba(139, 92, 246, 0.35);
+
   --color-glass-bg: rgba(28, 28, 46, 0.85);
   --color-glass-border: rgba(46, 46, 74, 0.6);
   --color-overlay: rgba(0, 0, 0, 0.4);

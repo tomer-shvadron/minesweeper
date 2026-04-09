@@ -63,6 +63,8 @@ interface DrawColors {
   numberColors: string[];
   text: string;
   focusRing: string;
+  hoverBg: string;
+  hoverRing: string;
 }
 
 export interface DrawOptions {
@@ -72,6 +74,8 @@ export interface DrawOptions {
   panX: number;
   panY: number;
   focusedCell: [number, number] | null;
+  hoveredCell: [number, number] | null;
+  isGameOver: boolean;
   mineRevealLookup: Map<string, number>;
   chordRippleLookup: Map<string, number>;
   animationsEnabled: boolean;
@@ -85,19 +89,26 @@ function drawCell(
   y: number,
   size: number,
   isFocused: boolean,
+  isHovered: boolean,
   colors: DrawColors
 ): void {
   const borderW = Math.max(1, Math.round(size * CELL_BORDER_WIDTH_RATIO));
 
   if (!cell.isRevealed) {
     // Raised cell — flat fill with subtle border
-    ctx.fillStyle = colors.surface;
+    ctx.fillStyle = isHovered ? colors.hoverBg : colors.surface;
     ctx.fillRect(x, y, size, size);
 
-    // Subtle border
-    ctx.strokeStyle = colors.borderLight;
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, size, size);
+    // Subtle border (or hover ring)
+    if (isHovered) {
+      ctx.strokeStyle = colors.hoverRing;
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x + 0.75, y + 0.75, size - 1.5, size - 1.5);
+    } else {
+      ctx.strokeStyle = colors.borderLight;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, size, size);
+    }
 
     // Content
     if (cell.isFlagged) {
@@ -163,6 +174,8 @@ export function drawBoard(
   const revealed = surface;
   const exploded = '#cc0000';
   const focusRing = getCSSVar('--color-accent') || '#0078d4';
+  const hoverBg = getCSSVar('--color-cell-hover-bg') || surface;
+  const hoverRing = getCSSVar('--color-cell-hover-ring') || 'transparent';
   const numberColors = NUMBER_COLORS.map((v) => (v ? getCSSVar(v) : ''));
 
   const colors: DrawColors = {
@@ -174,6 +187,8 @@ export function drawBoard(
     numberColors,
     text,
     focusRing,
+    hoverBg,
+    hoverRing,
   };
 
   ctx.clearRect(0, 0, w, h);
@@ -206,7 +221,13 @@ export function drawBoard(
         options.focusedCell !== null &&
         options.focusedCell[0] === r &&
         options.focusedCell[1] === c;
-      drawCell(ctx, cell, x, y, cellSize, isFocused, colors);
+      const isHovered =
+        !options.isGameOver &&
+        options.hoveredCell !== null &&
+        options.hoveredCell[0] === r &&
+        options.hoveredCell[1] === c &&
+        !cell.isRevealed;
+      drawCell(ctx, cell, x, y, cellSize, isFocused, isHovered, colors);
     }
   }
 

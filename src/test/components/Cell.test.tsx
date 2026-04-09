@@ -127,3 +127,64 @@ describe('Cell — game-over state', () => {
     expect(btn.textContent).not.toContain('✓');
   });
 });
+
+// ---------------------------------------------------------------------------
+// DOM hover effect — unrevealed cells use `cell-raised` (CSS :hover applies),
+// revealed / game-over cells do not.
+// ---------------------------------------------------------------------------
+describe('Cell — hover eligibility (DOM renderer)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    gameMock.status = 'playing';
+    settingsMock.flagMode = 'flags-only';
+  });
+
+  it('unrevealed cell has cell-raised class (CSS hover target)', () => {
+    renderCell(unrevealed());
+    const btn = screen.getByRole('gridcell');
+    expect(btn).toHaveClass('cell-raised');
+    expect(btn).not.toHaveClass('cell-revealed');
+  });
+
+  it('revealed cell has cell-revealed class (no CSS hover)', () => {
+    renderCell({ ...unrevealed(), isRevealed: true, value: 0 });
+    const btn = screen.getByRole('gridcell');
+    expect(btn).toHaveClass('cell-revealed');
+    expect(btn).not.toHaveClass('cell-raised');
+  });
+
+  it('unrevealed cell has cursor-pointer during active game', () => {
+    renderCell(unrevealed());
+    const btn = screen.getByRole('gridcell');
+    expect(btn).toHaveClass('cursor-pointer');
+    expect(btn).not.toHaveClass('cursor-default');
+  });
+
+  it('unrevealed cell has cursor-default when game is won (hover suppressed)', () => {
+    gameMock.status = 'won';
+    renderCell(unrevealed());
+    const btn = screen.getByRole('gridcell');
+    expect(btn).toHaveClass('cursor-default');
+    expect(btn).not.toHaveClass('cursor-pointer');
+  });
+
+  it('unrevealed cell has cursor-default when game is lost (hover suppressed)', () => {
+    gameMock.status = 'lost';
+    renderCell(unrevealed());
+    const btn = screen.getByRole('gridcell');
+    expect(btn).toHaveClass('cursor-default');
+    expect(btn).not.toHaveClass('cursor-pointer');
+  });
+
+  it('flagged cell still has cell-raised (hover still applies)', () => {
+    renderCell({ ...unrevealed(), isFlagged: true });
+    const btn = screen.getByRole('gridcell');
+    expect(btn).toHaveClass('cell-raised');
+  });
+
+  it('question-mark cell still has cell-raised (hover still applies)', () => {
+    renderCell({ ...unrevealed(), isQuestionMark: true });
+    const btn = screen.getByRole('gridcell');
+    expect(btn).toHaveClass('cell-raised');
+  });
+});

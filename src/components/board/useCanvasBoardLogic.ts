@@ -74,6 +74,7 @@ export const useCanvasBoardLogic = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [boardEntering, setBoardEntering] = useState(false);
   const [boardFocused, setBoardFocused] = useState(false);
+  const [hoveredCell, setHoveredCell] = useState<[number, number] | null>(null);
   const boardEnterStart = useRef<number>(0);
 
   // DPR setup and canvas sizing
@@ -195,6 +196,8 @@ export const useCanvasBoardLogic = () => {
         panX,
         panY,
         focusedCell: boardFocused ? focusedCell : null,
+        hoveredCell,
+        isGameOver,
         mineRevealLookup: animationsEnabled ? mineRevealLookup : new Map(),
         chordRippleLookup: animationsEnabled ? chordRippleLookup : new Map(),
         animationsEnabled,
@@ -212,6 +215,8 @@ export const useCanvasBoardLogic = () => {
     panY,
     focusedCell,
     boardFocused,
+    hoveredCell,
+    isGameOver,
     mineRevealLookup,
     chordRippleLookup,
     animationsEnabled,
@@ -406,6 +411,19 @@ export const useCanvasBoardLogic = () => {
       tapCoords.current = getCanvasCoords(e);
       longPressHandlers.onContextMenu(e);
     },
+    onMouseMove: (e: React.MouseEvent) => {
+      const coords = getCanvasCoords(e);
+      const cell = getCell(coords.x, coords.y);
+      setHoveredCell((prev) => {
+        if (prev === null && cell === null) {
+          return prev;
+        }
+        if (prev !== null && cell !== null && prev[0] === cell[0] && prev[1] === cell[1]) {
+          return prev;
+        }
+        return cell;
+      });
+    },
     onMouseDown: () => {
       setCellPressStart();
     },
@@ -414,6 +432,7 @@ export const useCanvasBoardLogic = () => {
     },
     onMouseLeave: () => {
       setCellPressEnd();
+      setHoveredCell(null);
     },
   };
 
